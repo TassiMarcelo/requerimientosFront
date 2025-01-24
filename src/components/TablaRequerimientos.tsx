@@ -146,7 +146,7 @@ export function TablaRequerimientos() {
       <div className="p-4">
         <div className="flex flex-wrap gap-4 mb-6">
           <select 
-            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white"
+            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white cursor-pointer"
             value={filtros.tipo} 
             onChange={(e) => setFiltros({ ...filtros, tipo: e.target.value })}
           >
@@ -159,7 +159,7 @@ export function TablaRequerimientos() {
           </select>
 
           <select 
-            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white"
+            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white cursor-pointer"
             value={filtros.categoria} 
             onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value })}
           >
@@ -172,7 +172,7 @@ export function TablaRequerimientos() {
           </select>
 
           <select 
-            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white"
+            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white cursor-pointer"
             value={filtros.estado} 
             onChange={(e) => setFiltros({ ...filtros, estado: e.target.value })}
           >
@@ -260,4 +260,3 @@ export function TablaRequerimientos() {
     </div>
   )
 }
-

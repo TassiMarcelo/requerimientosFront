@@ -130,17 +130,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
 
               <div>
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
-                  Estado
-                </label>
-                <input
-                  value="Abierto"
-                  disabled
-                  className="w-full bg-gray-100 border rounded-b-lg p-2"
-                />
-              </div>
-
-              <div>
-                <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
                   Prioridad
                 </label>
                 <select
@@ -153,6 +142,19 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                   <option value="URGENTE">Urgente</option>
                 </select>
               </div>
+
+              
+              <div>
+                <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
+                  Estado
+                </label>
+                <input
+                  value="Abierto"
+                  disabled
+                  className="w-full bg-gray-100 border rounded-b-lg p-2"
+                />
+              </div>
+              
             </div>
 
             <div className="space-y-2">

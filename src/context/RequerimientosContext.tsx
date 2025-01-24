@@ -76,14 +76,15 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
           <div>
             <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">Tipo</label>
             <select
-              onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: e.target.value })}
-              className="w-full border rounded-b-lg p-2"
-            >
-              <option value="">Seleccionar tipo</option>
-              <option value="hardware">Requerimiento de Hardware</option>
-              <option value="software">Requerimiento de Software</option>
-              <option value="error">Error</option>
-            </select>
+  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: e.target.value })}
+  className="w-full border rounded-b-lg p-2"
+>
+  <option value="">Seleccionar tipo</option>
+  {/* Solo muestra estas opciones si se cumplen ciertas condiciones */}
+  <option value="hardware">Requerimiento de Hardware</option>
+  <option value="software">Requerimiento de Software</option>
+  <option value="error">Error</option>
+</select>
           </div>
 
           <div>
