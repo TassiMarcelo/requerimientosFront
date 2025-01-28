@@ -101,26 +101,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
-            <div className="bg-[#556B2F] text-white p-4 flex justify-between items-center rounded-t-lg sticky top-0 z-10">
-              <div className="flex items-center gap-4">
-                <Dialog.Title className="text-2xl font-bold">Visualizar Requerimiento</Dialog.Title>
-              </div>
-              <div className="flex items-center gap-4">
-                <button 
-                  className="bg-[#2F3B1C] text-white px-4 py-2 rounded hover:bg-[#1F2912] transition-colors"
-                  onClick={() => setIsCreateDialogOpen(true)}
-                >
-                  Crear requerimiento
-                </button>
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  <span>g.jorge</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex-grow overflow-y-auto p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda */}
                 <div className="space-y-4">
                   <div className="grid gap-4">
@@ -280,7 +262,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             </div>
 
             {/* Botones de acción */}
-            <div className="bg-gray-100 p-4 rounded-b-lg">
+            <div className="bg-custom-grey p-4 rounded-b-lg">
               <div className="flex justify-end gap-4">
                 <button
                   onClick={onClose}

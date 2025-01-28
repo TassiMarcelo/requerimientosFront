@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { CrearRequerimiento } from './CrearRequerimiento'
 import { VisualizarRequerimiento } from './VisualizarRequerimiento'
 import { Requerimiento } from '../types/requerimiento'
+import UserMenu from './ui/UserMenu';
+
 
 export function TablaRequerimientos() {
   const [datos, setDatos] = useState<Requerimiento[]>([
@@ -126,6 +128,8 @@ export function TablaRequerimientos() {
     setIsViewDialogOpen(true)
   }
 
+  const userName = 'g.jorge'; 
+
   return (
     <div className="min-h-screen bg-[#E5E7EB]">
       <div className="bg-[#556B2F] p-4 flex justify-between items-center">
@@ -138,7 +142,7 @@ export function TablaRequerimientos() {
             Crear requerimiento
           </button>
           <div className="flex items-center gap-2 text-white">
-            <span>g.jorge</span>
+            <UserMenu userName={userName} />
           </div>
         </div>
       </div>
