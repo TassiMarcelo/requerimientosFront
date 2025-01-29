@@ -111,40 +111,32 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                     <LabeledField label="Categoría" value={requerimiento.categoria} noTopLeftRounded />
                     <LabeledField label="Estado" value={requerimiento.estado} noTopLeftRounded />
                     <LabeledField label="Prioridad" value={requerimiento.prioridad} noTopLeftRounded />
-                    <LabeledField label="Usuario emisor" value={requerimiento.usuarioEmisor || 'Díaz Ramón'} noTopLeftRounded/>
-                    <LabeledField label="Fecha alta" value={requerimiento.fechaAlta} noTopLeftRounded />
-                    <LabeledField label="Hora alta" value={requerimiento.horaAlta || '09:17 am'} noTopLeftRounded />
                   </div>
-                </div>
-
-                {/* Columna derecha */}
-                <div className="space-y-4">
-                  <LabeledField label="Propietario" value={requerimiento.propietario} noTopLeftRounded />
-
-                  <div>
-                  <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
-                      Asunto:
-                    </label>
-                    <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white min-h-[80px]">
-                    {requerimiento.asunto}
-                    </div>
-                  </div>
-
                   <div>
                     <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                       Descripción:
                     </label>
-                    <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white min-h-[120px]">
-                      {requerimiento.descripcion || 'Descripción - Descripción - Descripción - Descripción'}
+                    <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
+                    {requerimiento.descripcion || 'Descripción - Descripción - Descripción - Descripción'}
                     </div>
                   </div>
+                </div>
+                
+
+                {/* Columna derecha */}
+                <div className="space-y-4">
+                  <LabeledField label="Propietario" value={requerimiento.propietario} noTopLeftRounded />
+                  <LabeledField label="Asunto" value={requerimiento.asunto} noTopLeftRounded />
+                  <LabeledField label="Usuario emisor" value={requerimiento.usuarioEmisor || 'Díaz Ramón'} noTopLeftRounded/>
+                  <LabeledField label="Fecha alta" value={requerimiento.fechaAlta} noTopLeftRounded />
+                  <LabeledField label="Hora alta" value={requerimiento.horaAlta || '09:17 am'} noTopLeftRounded />
 
                   <div>
                     <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                       Lista de archivos
                     </label>
-                    <div className="w-full border-2 rounded-lg rounded-tl-none p-4 bg-white max-h-[200px] overflow-y-auto">
-                      <div className="flex flex-col gap-4">
+                    <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
+                    <div className="flex flex-col gap-4">
                         {requerimiento.archivos && requerimiento.archivos.length > 0 ? (
                           requerimiento.archivos.map((archivo, index) => (
                             <div key={index} className="flex items-center justify-between text-gray-600 border-b pb-2">
@@ -299,8 +291,10 @@ function LabeledField({ label, value, noTopLeftRounded }: { label: string; value
       <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
         {label}
       </label>
-      <div className={`w-full border-2 rounded-lg p-2 bg-white ${noTopLeftRounded ? 'rounded-tl-none' : ''}`}>
-        {value}
+      <div
+        className={`w-full border-2 rounded-lg p-2 bg-white ${noTopLeftRounded ? 'rounded-tl-none' : ''}`}
+        style={{ minHeight: '50px' }} > 
+         {value || ''}
       </div>
     </div>
   )
