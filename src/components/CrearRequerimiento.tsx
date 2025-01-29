@@ -76,15 +76,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="w-full max-w-4xl rounded bg-white max-h-[90vh] overflow-y-auto">
-          <div className="bg-[#556B2F] text-white p-4 flex justify-between items-center">
-            <Dialog.Title className="text-2xl font-bold">Crear Requerimiento</Dialog.Title>
-            <div className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              <span>g.jorge</span>
-            </div>
-          </div>
-          
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 bg-custom-grey">
             <div className="space-y-2">
               <label htmlFor="asunto" className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                 Asunto:
@@ -174,7 +166,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg">
                   Archivos ({archivos.length}/5)
                 </label>
-                <div className="border-2 rounded-lg p-4 bg-white max-h-[200px] overflow-y-auto">
+                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white max-h-[200px] overflow-y-auto">
                   <input
                     type="file"
                     ref={fileInputRef}
