@@ -92,6 +92,62 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
     setSelectedOption(selected);
   };
 
+  const opcionesTipo = [
+    { value: 'hardware', label: 'Requerimiento de Hardware' },
+    { value: 'software', label: 'Requerimiento de Software' },
+    { value: 'error', label: 'Error' }
+  ]
+  
+  const opcionesCategoria = [
+    { value: 'reparacion', label: 'Solicitud reparación de hardware' },
+    { value: 'instalacion', label: 'Instalación de software' },
+    { value: 'falla', label: 'Nueva falla' }
+  ]
+  
+  const opcionesPrioridad = [
+    { value: 'BAJA', label: 'Baja' },
+    { value: 'MEDIA', label: 'Media' },
+    { value: 'URGENTE', label: 'Urgente' }
+  ]
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      height: '52px', 
+      minHeight: '38px', 
+ borderTopLeftRadius: '0', // Bordes superiores rectos
+    borderTopRightRadius: '0', // Bordes superiores rectos
+    borderBottomLeftRadius: '0.375rem', // Borde inferior redondeado (como el input)
+    borderBottomRightRadius: '0.375rem', // Borde inferior redondeado (como el input)      borderColor: state.isFocused ? '#4A4A4A' : '#d1d5db',
+      boxShadow: state.isFocused ? '0 0 0 1px #4A4A4A' : 'none',
+      '&:hover': {
+        borderColor: state.isFocused ? '#4A4A4A' : '#d1d5db',
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'white',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#4A4A4A' : state.isFocused ? '#f3f4f6' : 'white',
+      color: state.isSelected ? 'white' : '#333',
+      '&:hover': {
+        backgroundColor: '#e2e8f0',
+      },
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#000',
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#333',
+    }),
+  };
+  
+   
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -112,62 +168,57 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
-                  Tipo
-                </label>
-                <select 
-                  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: e.target.value })}
-                  className="w-full border rounded-b-lg p-2"
-                >
-                  <option value="">Seleccionar tipo</option>
-                  <option value="hardware">Requerimiento de Hardware</option>
-                  <option value="software">Requerimiento de Software</option>
-                  <option value="error">Error</option>
-                </select>
-              </div>
+  <div>
+    <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
+      Tipo
+    </label>
+    <Select
+      value={opcionesTipo.find(option => option.value === nuevoRequerimiento.tipo) || null}
+      onChange={(selected) => setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: selected?.value || '' })}
+      options={opcionesTipo}
+      placeholder="Seleccionar tipo"
+      styles={customStyles} // Puedes definir tu estilo personalizado aquí
+    />
+  </div>
 
-              <div>
-                <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
-                  Categoria
-                </label>
-                <select
-                  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, categoria: e.target.value })}
-                  className="w-full border rounded-b-lg p-2"
-                >
-                  <option value="">Seleccionar categoría</option>
-                  <option value="reparacion">Solicitud reparación de hardware</option>
-                  <option value="instalacion">Instalación de software</option>
-                  <option value="falla">Nueva falla</option>
-                </select>
-              </div>
+  <div>
+    <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
+      Categoría
+    </label>
+    <Select
+      value={opcionesCategoria.find(option => option.value === nuevoRequerimiento.categoria) || null}
+      onChange={(selected) => setNuevoRequerimiento({ ...nuevoRequerimiento, categoria: selected?.value || '' })}
+      options={opcionesCategoria}
+      placeholder="Seleccionar categoría"
+      styles={customStyles} // Puedes definir tu estilo personalizado aquí
+    />
+  </div>
 
-              <div>
-                <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
-                  Prioridad
-                </label>
-                <select
-                  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, prioridad: e.target.value as "MEDIA" | "BAJA" | "URGENTE" })}
-                  className="w-full border rounded-b-lg p-2"
-                >
-                  <option value="">Seleccionar Prioridad</option>
-                  <option value="BAJA">Baja</option>
-                  <option value="MEDIA">Media</option>
-                  <option value="URGENTE">Urgente</option>
-                </select>
-              </div>
+  <div>
+    <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
+      Prioridad
+    </label>
+    <Select
+      value={opcionesPrioridad.find(option => option.value === nuevoRequerimiento.prioridad) || null}
+      onChange={(selected) => setNuevoRequerimiento({ ...nuevoRequerimiento, prioridad: selected?.value || 'MEDIA' })}
+      options={opcionesPrioridad}
+      placeholder="Seleccionar prioridad"
+      styles={customStyles} // Puedes definir tu estilo personalizado aquí
+    />
+  </div>
 
-              <div>
-                <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
-                  Estado
-                </label>
-                <input
-                  value="Abierto"
-                  disabled
-                  className="w-full bg-gray-100 border rounded-b-lg p-2"
-                />
-              </div>
-            </div>
+  <div>
+    <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
+      Estado
+    </label>
+    <input
+      value="Abierto"
+      disabled
+      className="w-full bg-white border rounded-b-lg p-2 h-[52px] focus:ring-0" 
+      />
+  </div>
+</div>
+
 
             <div className="space-y-2">
               <label htmlFor="descripcion" className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
@@ -231,7 +282,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                       menuList: (provided) => ({
                         ...provided,
                         maxHeight: 150,  
-                        overflowY: 'auto',  
+                        overflowY: 'auto'
                       }),
                       control: (provided, state) => ({
                         ...provided,
@@ -240,6 +291,10 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                         '&:hover': {
                           borderColor: state.isFocused ? '#4A4A4A' : provided.borderColor,
                         },
+                      }),
+                      placeholder: (provided) => ({
+                        ...provided,
+                        color: '#000', // Establece el color del placeholder a negro
                       }),
                     }}
                   />
