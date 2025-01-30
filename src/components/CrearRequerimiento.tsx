@@ -225,12 +225,21 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                     value={selectedOption}
                     onChange={handleChange}
                     options={opciones}
-                    isSearchable={true}  // Activa el buscador
+                    isSearchable={true}
+                    placeholder="Seleccionar requerimiento" 
                     styles={{
                       menuList: (provided) => ({
                         ...provided,
-                        maxHeight: 150,  // Altura máxima del menú
-                        overflowY: 'auto',  // Agrega scroll cuando es necesario
+                        maxHeight: 150,  
+                        overflowY: 'auto',  
+                      }),
+                      control: (provided, state) => ({
+                        ...provided,
+                        borderColor: state.isFocused ? '#4A4A4A' : provided.borderColor, // Borde gris oscuro cuando está enfocado
+                        boxShadow: state.isFocused ? '0 0 0 1px #4A4A4A' : provided.boxShadow, // Sombra gris oscuro
+                        '&:hover': {
+                          borderColor: state.isFocused ? '#4A4A4A' : provided.borderColor,
+                        },
                       }),
                     }}
                   />

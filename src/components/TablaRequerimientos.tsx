@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Select from 'react-select';
 import { CrearRequerimiento } from './CrearRequerimiento'
 import { VisualizarRequerimiento } from './VisualizarRequerimiento'
 import { Requerimiento } from '../types/requerimiento'
@@ -79,10 +80,18 @@ export function TablaRequerimientos() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-  const tiposUnicos = Array.from(new Set(datos.map((d) => d.tipo)))
-  const categoriasUnicas = Array.from(new Set(datos.map((d) => d.categoria)))
-  const estadosUnicos = Array.from(new Set(datos.map((d) => d.estado)))
-
+  const tiposUnicos = Array.from(new Set(datos.map((d) => d.tipo))).map((tipo) => ({
+    value: tipo,
+    label: tipo,
+  }));
+  const categoriasUnicas = Array.from(new Set(datos.map((d) => d.categoria))).map((categoria) => ({
+    value: categoria,
+    label: categoria,
+  }));
+  const estadosUnicos = Array.from(new Set(datos.map((d) => d.estado))).map((estado) => ({
+    value: estado,
+    label: estado,
+  }));
   const ordenarPor = (columna: keyof Requerimiento) => {
     setOrdenamiento((prev) => ({
       columna,
@@ -130,6 +139,38 @@ export function TablaRequerimientos() {
 
   const userName = 'g.jorge'; 
 
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? '#4A4A4A' : '#d1d5db', // Gris oscuro cuando está enfocado, gris claro cuando no lo está
+      backgroundColor: 'white', // Fondo blanco
+      boxShadow: state.isFocused ? '0 0 0 1px #4A4A4A' : 'none', // Gris oscuro para el enfoque, sin sombra cuando no está enfocado
+      '&:hover': {
+        borderColor: '#4A4A4A', // Gris oscuro en hover
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'white', // Fondo blanco para el menú desplegable
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#4A4A4A' : state.isFocused ? '#f3f4f6' : 'white', // Gris oscuro para la opción seleccionada, gris claro para la opción enfocada
+      color: state.isSelected ? 'white' : '#333', // Blanco para la opción seleccionada, negro para las demás
+      '&:hover': {
+        backgroundColor: '#e2e8f0', // Gris más claro cuando se pasa el mouse por encima
+      },
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#4A4A4A', // Gris oscuro para el texto del placeholder
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#333', // Color del texto seleccionado
+    }),
+  };
+  
   return (
     <div className="min-h-screen bg-[#E5E7EB]">
       <div className="bg-[#556B2F] p-4 flex justify-between items-center">
@@ -149,44 +190,35 @@ export function TablaRequerimientos() {
 
       <div className="p-4">
         <div className="flex flex-wrap gap-4 mb-6">
-          <select 
-            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white cursor-pointer"
-            value={filtros.tipo} 
-            onChange={(e) => setFiltros({ ...filtros, tipo: e.target.value })}
-          >
-            <option value="">Tipo</option>
-            {tiposUnicos.map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {tipo}
-              </option>
-            ))}
-          </select>
+        <Select
+  className="flex-1 min-w-[200px]"
+  value={filtros.tipo ? { value: filtros.tipo, label: filtros.tipo } : null} // Asignar valor seleccionado
+  onChange={(e) => setFiltros({ ...filtros, tipo: e ? e.value : "" })} // Actualizar el estado
+  options={tiposUnicos} // Usamos los tipos únicos que hemos transformado
+  placeholder="Tipo"
+  styles={customStyles} 
+/>
 
-          <select 
-            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white cursor-pointer"
-            value={filtros.categoria} 
-            onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value })}
-          >
-            <option value="">Categoría</option>
-            {categoriasUnicas.map((categoria) => (
-              <option key={categoria} value={categoria}>
-                {categoria}
-              </option>
-            ))}
-          </select>
 
-          <select 
-            className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-md bg-white cursor-pointer"
-            value={filtros.estado} 
-            onChange={(e) => setFiltros({ ...filtros, estado: e.target.value })}
-          >
-            <option value="">Estado</option>
-            {estadosUnicos.map((estado) => (
-              <option key={estado} value={estado}>
-                {estado}
-              </option>
-            ))}
-          </select>
+<Select
+  className="flex-1 min-w-[200px]"
+  value={filtros.categoria ? { value: filtros.categoria, label: filtros.categoria } : null}
+  onChange={(e) => setFiltros({ ...filtros, categoria: e ? e.value : "" })}
+  options={categoriasUnicas}
+  placeholder="Categoría"
+  styles={customStyles}
+/>
+
+
+<Select
+  className="flex-1 min-w-[200px]"
+  value={filtros.estado ? { value: filtros.estado, label: filtros.estado } : null}
+  onChange={(e) => setFiltros({ ...filtros, estado: e ? e.value : "" })}
+  options={estadosUnicos}
+  placeholder="Estado"
+  styles={customStyles}
+/>
+
 
           <button 
             className="flex-1 min-w-[200px] p-2 bg-[#B8D68F] text-black rounded-md hover:bg-[#9CB674] transition-colors"
