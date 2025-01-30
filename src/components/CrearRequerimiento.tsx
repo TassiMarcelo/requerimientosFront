@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { Dialog } from '@headlessui/react'
-import { PlusSquare, User, Upload, X } from 'lucide-react'
+import { PlusSquare, X } from 'lucide-react'
+import Select from 'react-select'
 import { Requerimiento } from '../types/requerimiento'
 
 interface CrearRequerimientoProps {
@@ -70,6 +71,27 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
     setArchivos(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
+  const opciones = [
+    { value: 'req1', label: 'REQ-2024-000000001' },
+    { value: 'req2', label: 'REQ-2024-000000002' },
+    { value: 'req3', label: 'RES-2024-000000003' },
+    { value: 'req4', label: 'REQ-2024-000000033' },
+    { value: 'req5', label: 'REQ-2024-000000053' },
+    { value: 'req6', label: 'REQ-2024-000000055' },
+    { value: 'req7', label: 'REQ-2024-000000303' },
+    { value: 'req8', label: 'REQ-2024-000000008' },
+    { value: 'req9', label: 'REQ-2024-000000007' },
+    { value: 'req10',label: 'REQ-2024-000000032' },
+    { value: 'req11',label: 'REQ-2024-000000013' },
+    { value: 'req12',label: 'REQ-2024-000000003' },
+  ];
+
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const handleChange = (selected: any) => {
+    setSelectedOption(selected);
+  };
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -84,7 +106,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
               <input
                 id="asunto"
                 value={nuevoRequerimiento.asunto}
-                onChange={(e) => setNuevoRequerimiento({...nuevoRequerimiento, asunto: e.target.value})}
+                onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, asunto: e.target.value })}
                 className="w-full border-2 rounded-lg p-2"
               />
             </div>
@@ -95,7 +117,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                   Tipo
                 </label>
                 <select 
-                  onChange={(e) => setNuevoRequerimiento({...nuevoRequerimiento, tipo: e.target.value})}
+                  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: e.target.value })}
                   className="w-full border rounded-b-lg p-2"
                 >
                   <option value="">Seleccionar tipo</option>
@@ -110,7 +132,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                   Categoria
                 </label>
                 <select
-                  onChange={(e) => setNuevoRequerimiento({...nuevoRequerimiento, categoria: e.target.value})}
+                  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, categoria: e.target.value })}
                   className="w-full border rounded-b-lg p-2"
                 >
                   <option value="">Seleccionar categoría</option>
@@ -125,7 +147,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                   Prioridad
                 </label>
                 <select
-                  onChange={(e) => setNuevoRequerimiento({...nuevoRequerimiento, prioridad: e.target.value as "MEDIA" | "BAJA" | "URGENTE"})}
+                  onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, prioridad: e.target.value as "MEDIA" | "BAJA" | "URGENTE" })}
                   className="w-full border rounded-b-lg p-2"
                 >
                   <option value="">Seleccionar Prioridad</option>
@@ -135,7 +157,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 </select>
               </div>
 
-              
               <div>
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
                   Estado
@@ -146,7 +167,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                   className="w-full bg-gray-100 border rounded-b-lg p-2"
                 />
               </div>
-              
             </div>
 
             <div className="space-y-2">
@@ -156,7 +176,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
               <textarea
                 id="descripcion"
                 value={nuevoRequerimiento.descripcion}
-                onChange={(e) => setNuevoRequerimiento({...nuevoRequerimiento, descripcion: e.target.value})}
+                onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, descripcion: e.target.value })}
                 className="min-h-[200px] w-full border-2 rounded-lg p-2"
               />
             </div>
@@ -166,7 +186,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg">
                   Archivos ({archivos.length}/5)
                 </label>
-                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white max-h-[200px] overflow-y-auto">
+                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white max-h-[200px] overflow-y-auto flex flex-col justify-between" style={{ minHeight: '150px' }}>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -195,15 +215,26 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                   </div>
                 </div>
               </div>
-              <div>
+
+              <div className="flex flex-col justify-start">
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg">
                   Requerimientos relacionados
                 </label>
-                <select className="w-full border rounded-b-lg p-2">
-                  <option value="">Seleccionar requerimiento</option>
-                  <option value="req1">REQ-2024-000000001</option>
-                  <option value="req2">REQ-2024-000000002</option>
-                </select>
+                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ minHeight: '150px' }}>
+                  <Select
+                    value={selectedOption}
+                    onChange={handleChange}
+                    options={opciones}
+                    isSearchable={true}  // Activa el buscador
+                    styles={{
+                      menuList: (provided) => ({
+                        ...provided,
+                        maxHeight: 150,  // Altura máxima del menú
+                        overflowY: 'auto',  // Agrega scroll cuando es necesario
+                      }),
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -227,4 +258,3 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
     </Dialog>
   )
 }
-
