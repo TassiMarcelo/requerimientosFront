@@ -171,6 +171,14 @@ export function TablaRequerimientos() {
     }),
   };
   
+  const handleCerrarCaso = (requerimientoCerrado: Requerimiento) => {
+    setDatos((prevDatos) =>
+      prevDatos.map((req) =>
+        req.codigo === requerimientoCerrado.codigo ? requerimientoCerrado : req
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#E5E7EB]">
       <div className="bg-[#556B2F] p-4 flex justify-between items-center">
@@ -284,6 +292,7 @@ export function TablaRequerimientos() {
         isOpen={isViewDialogOpen}
         onClose={() => setIsViewDialogOpen(false)}
         onCrear={handleNuevoRequerimiento}
+        onCerrarCaso={handleCerrarCaso}
       />
       <CrearRequerimiento
         onCrear={(nuevoRequerimiento) => {

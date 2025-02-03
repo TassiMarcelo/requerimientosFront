@@ -17,9 +17,10 @@ interface VisualizarRequerimientoProps {
   isOpen: boolean
   onClose: () => void
   onCrear: (requerimiento: Requerimiento) => void
+  onCerrarCaso: (requerimiento: Requerimiento) => void; 
 }
 
-export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear }: VisualizarRequerimientoProps) {
+export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,onCerrarCaso,}: VisualizarRequerimientoProps) {
   const [nuevoComentario, setNuevoComentario] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
@@ -93,6 +94,17 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setNuevoComentario('')
     setArchivosNuevoComentario([])
   }
+
+  const handleCerrarCaso = () => {
+    if (requerimiento) {
+      const requerimientoCerrado: Requerimiento = {
+        ...requerimiento,
+        estado: "Cerrado", // Cambiar el estado a "Cerrado"
+      };
+      onCerrarCaso(requerimientoCerrado); // Notificar al componente padre
+      onClose(); // Cerrar el diálogo
+    }
+  };
 
   return (
     <>
@@ -263,8 +275,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   Volver
                 </button>
                 <button
-                  className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                >
+              onClick={handleCerrarCaso} // Agregar el manejador de cierre de caso
+              className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
+            >
                   Cerrar Caso
                 </button>
               </div>
