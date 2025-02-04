@@ -49,6 +49,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [archivosNuevoComentario, setArchivosNuevoComentario] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
+
   if (!requerimiento) return null
 
   const handleFileAction = (archivo: { nombre: string; tipo: string }) => {
@@ -96,6 +98,10 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   }
 
   const handleCerrarCaso = () => {
+    setIsConfirmCloseOpen(true) // Mostrar el pop-up de confirmación
+  }
+
+  const confirmarCerrarCaso = () => {
     if (requerimiento) {
       const requerimientoCerrado: Requerimiento = {
         ...requerimiento,
@@ -104,7 +110,12 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       onCerrarCaso(requerimientoCerrado); // Notificar al componente padre
       onClose(); // Cerrar el diálogo
     }
-  };
+    setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
+  }
+
+  const cancelarCerrarCaso = () => {
+    setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
+  }
 
   return (
     <>
@@ -274,17 +285,46 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 >
                   Volver
                 </button>
+                {requerimiento.estado !== 'Cerrado' && (
                 <button
-              onClick={handleCerrarCaso} // Agregar el manejador de cierre de caso
-              className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
+                  onClick={handleCerrarCaso} // Llamamos a la función para mostrar el pop-up de confirmación
+                  className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                >
                   Cerrar Caso
                 </button>
+                )}
               </div>
             </div>
           </Dialog.Panel>
         </div>
       </Dialog>
+
+
+      {isConfirmCloseOpen && (
+        <Dialog open={isConfirmCloseOpen} onClose={cancelarCerrarCaso} className="relative z-50">
+          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="bg-white p-6 rounded-lg max-w-sm w-full">
+              <h3 className="text-lg font-semibold">¿Estás seguro de cerrar el caso?</h3>
+              <div className="flex justify-between gap-4 mt-4">
+                <button
+                  onClick={confirmarCerrarCaso}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Sí
+                </button>
+                <button
+                  onClick={cancelarCerrarCaso}
+                  className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                >
+                  No
+                </button>
+              </div>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+      )}
+
       <CrearRequerimiento
         onCrear={(nuevoRequerimiento) => {
           onCrear(nuevoRequerimiento);
