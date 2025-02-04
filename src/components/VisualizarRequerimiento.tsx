@@ -188,7 +188,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
               </div>
 
               <div>
-  <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
+  <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg mt-4">
     Requerimientos Relacionados
   </label>
   <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
