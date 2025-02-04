@@ -174,7 +174,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 value={nuevoRequerimiento.asunto}
                 onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, asunto: e.target.value })}
                 className="w-full border-2 rounded-lg p-2"
-                maxLength={69}
+                maxLength={50}
               />
             </div>
 
@@ -240,6 +240,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 value={nuevoRequerimiento.descripcion}
                 onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, descripcion: e.target.value })}
                 className="min-h-[200px] w-full border-2 rounded-lg p-2"
+                maxLength={5000}
               />
             </div>
 
