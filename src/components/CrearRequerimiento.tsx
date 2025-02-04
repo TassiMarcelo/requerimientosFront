@@ -26,6 +26,10 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
   const [archivos, setArchivos] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [mostrarConfirmacionCancelar, setMostrarConfirmacionCancelar] = useState(false)
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+
+
   const crearRequerimiento = () => {
     const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(9, '0')}`
     const fechaActual = new Date().toLocaleDateString('es-ES')
@@ -34,6 +38,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
       codigo: nuevoId,
       fechaAlta: fechaActual,
       archivos: archivos.map(file => ({ nombre: file.name, tipo: file.type })),
+      requerimientosRelacionados: selectedOption?.map(option => option.value) || [],
     }
     onCrear(nuevoReq)
     onClose()
@@ -50,6 +55,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
       archivos: [],
     })
     setArchivos([])
+    setSelectedOption(null);
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,8 +94,12 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
 
   const [selectedOption, setSelectedOption] = useState(null);
 
+  const handleCancel = () => {
+    setShowCancelConfirmation(true); 
+  };
+
   const handleChange = (selected: any) => {
-    setSelectedOption(selected);
+    setSelectedOption(selected);  
   };
 
   const opcionesTipo = [
@@ -272,21 +282,25 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg">
                   Requerimientos relacionados
                 </label>
-                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ minHeight: '150px' }}>
+                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ height: '150px' }}>
                   <Select
                     value={selectedOption}
                     onChange={handleChange}
                     options={opciones}
+                    isMulti
                     isSearchable={true}
                     placeholder="Seleccionar requerimiento" 
                     styles={{
                       menuList: (provided) => ({
                         ...provided,
-                        maxHeight: 150,  
+                        maxHeight: '100px',  
                         overflowY: 'auto'
                       }),
                       control: (provided, state) => ({
                         ...provided,
+                        minHeight: '60px', 
+                        maxHeight: '115px', 
+                        overflowY: 'auto',
                         borderColor: state.isFocused ? '#4A4A4A' : provided.borderColor, // Borde gris oscuro cuando está enfocado
                         boxShadow: state.isFocused ? '0 0 0 1px #4A4A4A' : provided.boxShadow, // Sombra gris oscuro
                         '&:hover': {
@@ -305,7 +319,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
 
             <div className="flex justify-end gap-4 mt-8">
               <button
-                onClick={onClose}
+                onClick={handleCancel}
                 className="bg-gray-700 text-white px-8 py-2 rounded-md hover:bg-gray-600 transition-colors"
               >
                 Cancelar
@@ -320,6 +334,51 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
           </div>
         </Dialog.Panel>
       </div>
+      {showCancelConfirmation && (
+  <Dialog open={showCancelConfirmation} onClose={() => setShowCancelConfirmation(false)} className="relative z-50">
+    <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+    <div className="fixed inset-0 flex items-center justify-center p-4">
+      <Dialog.Panel className="w-full max-w-md rounded bg-white max-h-[90vh] overflow-y-auto">
+        <div className="p-4 space-y-4">
+          <h3 className="text-xl font-semibold">¿Está seguro de cancelar el alta del requerimiento?</h3>
+          <div className="flex justify-end gap-4 mt-8">
+            <button
+              onClick={() => setShowCancelConfirmation(false)} // Cerrar el modal de confirmación sin hacer nada
+              className="bg-gray-700 text-white px-8 py-2 rounded-md hover:bg-gray-600 transition-colors"
+            >
+              No
+            </button>
+            <button
+              onClick={() => {
+                // Restablecer el formulario y cerrar el modal principal
+                setNuevoRequerimiento({
+                  codigo: "",
+                  prioridad: "MEDIA",
+                  tipo: "",
+                  categoria: "",
+                  fechaAlta: "",
+                  estado: "Abierto",
+                  asunto: "",
+                  propietario: "g.jorge",
+                  descripcion: "",
+                  archivos: [],
+                });
+                setArchivos([]);
+                setSelectedOption(null);
+                setShowCancelConfirmation(false); // Cerrar el modal de confirmación
+                onClose(); // Cerrar el modal principal
+              }}
+              className="bg-red-500 text-white px-8 py-2 rounded-md hover:bg-red-400 transition-colors"
+            >
+              Sí, cancelar
+            </button>
+          </div>
+        </div>
+      </Dialog.Panel>
+    </div>
+  </Dialog>
+)}
+
     </Dialog>
   )
 }
