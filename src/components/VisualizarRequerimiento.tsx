@@ -52,7 +52,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
 
   if (!requerimiento) return null
-
+  
   const handleFileAction = (archivo: { nombre: string; tipo: string }) => {
     const link = document.createElement('a')
     link.href = `/api/files/${archivo.nombre}`
@@ -187,6 +187,26 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
               </div>
 
+              <div>
+  <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
+    Requerimientos Relacionados
+  </label>
+  <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
+    {requerimiento.requerimientosRelacionados && requerimiento.requerimientosRelacionados.length > 0 ? (
+      <ul className="list-disc pl-5">
+        {requerimiento.requerimientosRelacionados.map((relatedRequerimiento, index) => (
+          <li key={index} className="text-gray-700">
+            <span className="font-semibold">{relatedRequerimiento}</span> 
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <span className="text-gray-500">No hay requerimientos relacionados.</span>
+    )}
+  </div>
+</div>
+
+  
               {/* Sección de comentarios */}
               <div className="mt-6">
                 <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
@@ -279,10 +299,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             {/* Botones de acción */}
             <div className="bg-custom-grey p-4 rounded-b-lg">
               <div className="flex justify-end gap-4">
-                <button
-                  onClick={onClose}
-                  className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                >
+                <button onClick={onClose} className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors">
                   Volver
                 </button>
                 {requerimiento.estado !== 'Cerrado' && (

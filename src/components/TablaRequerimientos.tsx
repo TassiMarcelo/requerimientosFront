@@ -18,6 +18,7 @@ export function TablaRequerimientos() {
       asunto: "unAsunto",
       propietario: "Gutierrez Jorge",
       archivos: [{ nombre: "documento1.pdf", tipo: "application/pdf" }],
+      requerimientosRelacionados:["requerimiento hardcodeado1","requerimiento hardcodeado2","requerimiento hardcodeado3"],
     },
     {
       codigo: "REH-2024-000000002",

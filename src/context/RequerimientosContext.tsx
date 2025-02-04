@@ -12,6 +12,7 @@ interface Requerimiento {
   asunto: string;
   propietario: string;
   descripcion?: string;
+  requerimientosRelacionados: string[];
 }
 
 interface CrearRequerimientoProps {
@@ -30,7 +31,17 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
     asunto: '',
     propietario: 'g.jorge',
     descripcion: '',
+    requerimientosRelacionados: [], 
   });
+
+  const handleRelacionadosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Añadimos el valor al array, asegurándonos de que no haya duplicados
+    setNuevoRequerimiento({
+      ...nuevoRequerimiento,
+      requerimientosRelacionados: value ? value.split(',').map(item => item.trim()) : [],
+    });
+  };
 
   const crearRequerimiento = () => {
     const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(
@@ -133,6 +144,22 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
             value={nuevoRequerimiento.descripcion}
             onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, descripcion: e.target.value })}
             className="min-h-[200px] w-full border-2 rounded-lg p-2"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="requerimientosRelacionados"
+            className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg"
+          >
+            Requerimientos Relacionados (Códigos separados por coma):
+          </label>
+          <input
+            id="requerimientosRelacionados"
+            value={nuevoRequerimiento.requerimientosRelacionados.join(', ')} // Muestra los códigos separados por coma
+            onChange={handleRelacionadosChange}
+            className="w-full border-2 rounded-lg p-2"
+            placeholder="Ej: REQ-2025-000123, REQ-2025-000456"
           />
         </div>
 
