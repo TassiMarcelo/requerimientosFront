@@ -164,6 +164,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 value={nuevoRequerimiento.asunto}
                 onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, asunto: e.target.value })}
                 className="w-full border-2 rounded-lg p-2"
+                maxLength={69}
               />
             </div>
 
@@ -237,8 +238,8 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
                 <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg">
                   Archivos ({archivos.length}/5)
                 </label>
-                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white max-h-[200px] overflow-y-auto flex flex-col justify-between" style={{ minHeight: '150px' }}>
-                  <input
+                <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white max-h-[200px] overflow-y-auto flex flex-col justify-between" style={{ height: '150px' }}>
+                <input
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileChange}
