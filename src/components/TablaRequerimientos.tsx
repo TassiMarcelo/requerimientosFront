@@ -11,7 +11,7 @@ export function TablaRequerimientos() {
     {
       codigo: "REH-2024-000000001",
       prioridad: "MEDIA",
-      tipo: "Requerimiento de Hardware",
+      tipo: "hardware",
       categoria: "Solicitud reparación de hardware",
       fechaAlta: "12/09/2024",
       estado: "Abierto",
@@ -23,7 +23,7 @@ export function TablaRequerimientos() {
     {
       codigo: "REH-2024-000000002",
       prioridad: "MEDIA",
-      tipo: "Requerimiento de Hardware",
+      tipo: "hardware",
       categoria: "Solicitud reparación de hardware",
       fechaAlta: "14/09/2024",
       estado: "Abierto",
@@ -34,7 +34,7 @@ export function TablaRequerimientos() {
     {
       codigo: "REH-2024-000000003",
       prioridad: "BAJA",
-      tipo: "Requerimiento de Hardware",
+      tipo: "hardware",
       categoria: "Solicitud reparación de hardware",
       fechaAlta: "18/09/2024",
       estado: "Abierto",
@@ -45,7 +45,7 @@ export function TablaRequerimientos() {
     {
       codigo: "ERR-2024-000000004",
       prioridad: "URGENTE",
-      tipo: "Errores",
+      tipo: "error",
       categoria: "Nueva falla",
       fechaAlta: "10/10/2024",
       estado: "Abierto",
@@ -56,7 +56,7 @@ export function TablaRequerimientos() {
     {
       codigo: "ERR-2024-000000005",
       prioridad: "URGENTE",
-      tipo: "Errores",
+      tipo: "error",
       categoria: "Nueva falla",
       fechaAlta: "12/10/2024",
       estado: "Abierto",
@@ -66,11 +66,27 @@ export function TablaRequerimientos() {
     },
   ])
 
+  const opcionesTipo = [
+    { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
+    { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
+    { value: 'error', label: 'Error', codigo: 'EER' },
+    { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
+  ]
+
+  const categoriasPorTipo = [
+    { value: 'reparacion de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
+    { value: 'reparacion de software', label: 'Solicitud reparación de software',tipo:'software'},
+    { value: 'instalacion de software', label: 'Instalación de software',tipo: 'software'},
+    { value: 'instalacion de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
+    { value: 'falla', label: 'Nueva falla',tipo:'error'}
+  ]
+
   const [filtros, setFiltros] = useState({
     tipo: "",
     categoria: "",
     estado: "",
-  })
+  });
+  
 
   const [ordenamiento, setOrdenamiento] = useState({
     columna: "",
@@ -81,18 +97,33 @@ export function TablaRequerimientos() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-  const tiposUnicos = Array.from(new Set(datos.map((d) => d.tipo))).map((tipo) => ({
-    value: tipo,
-    label: tipo,
-  }));
+  const tiposUnicos = opcionesTipo;
+
   const categoriasUnicas = Array.from(new Set(datos.map((d) => d.categoria))).map((categoria) => ({
     value: categoria,
     label: categoria,
   }));
+
+  const categoriasDisponibles = filtros.tipo
+  ? categoriasPorTipo.filter((categoria) => categoria.tipo === filtros.tipo)
+  : categoriasPorTipo;
+
+  const handleCategoriaChange = (e) => {
+    setFiltros({ ...filtros, categoria: e ? e.value : "" });
+  }; 
+
+  const handleTipoChange = (e) => {
+    const nuevoTipo = e ? e.value : '';
+    setFiltros({ tipo: nuevoTipo, categoria: '' });
+  };
+  
+  
+
   const estadosUnicos = Array.from(new Set(datos.map((d) => d.estado))).map((estado) => ({
     value: estado,
     label: estado,
   }));
+
   const ordenarPor = (columna: keyof Requerimiento) => {
     setOrdenamiento((prev) => ({
       columna,
@@ -128,6 +159,7 @@ export function TablaRequerimientos() {
       (!filtros.estado || item.estado === filtros.estado)
     )
   })
+  
 
   const handleNuevoRequerimiento = (nuevoRequerimiento: Requerimiento) => {
     setDatos([...datos, nuevoRequerimiento])
@@ -199,24 +231,27 @@ export function TablaRequerimientos() {
 
       <div className="p-4">
         <div className="flex flex-wrap gap-4 mb-6">
-        <Select
+  
+  <Select
   className="flex-1 min-w-[200px]"
-  value={filtros.tipo ? { value: filtros.tipo, label: filtros.tipo } : null} // Asignar valor seleccionado
-  onChange={(e) => setFiltros({ ...filtros, tipo: e ? e.value : "" })} // Actualizar el estado
+  value={filtros.tipo ? tiposUnicos.find(tipo => tipo.value === filtros.tipo) : null}
+  onChange={handleTipoChange}
   options={tiposUnicos} // Usamos los tipos únicos que hemos transformado
   placeholder="Tipo"
   styles={customStyles} 
+  isClearable={true}
 />
 
 
 <Select
   className="flex-1 min-w-[200px]"
   value={filtros.categoria ? { value: filtros.categoria, label: filtros.categoria } : null}
-  onChange={(e) => setFiltros({ ...filtros, categoria: e ? e.value : "" })}
-  options={categoriasUnicas}
+  onChange={handleCategoriaChange}
+  options={categoriasDisponibles}
   placeholder="Categoría"
   styles={customStyles}
-/>
+  isClearable={true}
+  />
 
 
 <Select
@@ -226,6 +261,7 @@ export function TablaRequerimientos() {
   options={estadosUnicos}
   placeholder="Estado"
   styles={customStyles}
+  isClearable={true}
 />
 
 
