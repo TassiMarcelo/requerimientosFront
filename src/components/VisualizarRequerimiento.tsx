@@ -127,12 +127,15 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
           <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
-        {fechaCierre && (
+
+        <div className="flex justify-between items-center mt-0">
+  {fechaCierre && requerimiento.estado === 'Cerrado' && (
                 <div className="mb-2 p-1 text-gray-800 rounded-lg">
-<strong>Fecha de Cierre: </strong>{fechaCierre}
+      <strong>Fecha de Cierre: </strong>{fechaCierre}
+    </div>
+  )}
 </div>
-        )}
-        
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda */}
                 <div className="space-y-4">
