@@ -108,7 +108,10 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         ...requerimiento,
         estado: "Cerrado", // Cambiar el estado a "Cerrado"
       };
-       setFechaCierre(new Date().toLocaleString())
+      const fecha = new Date();
+      const fechaFormateada = fecha.toLocaleDateString('es-ES'); // Formato de fecha en español
+      const horaFormateada = fecha.toLocaleTimeString('es-ES', { hour12: false }); // Hora en formato 24 horas  
+      setFechaCierre(`${fechaFormateada} ${horaFormateada}`);
       onCerrarCaso(requerimientoCerrado); // Notificar al componente padre
       onClose(); // Cerrar el diálogo
     }
