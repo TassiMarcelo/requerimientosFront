@@ -125,7 +125,9 @@ export function TablaRequerimientos() {
   : categoriasPorTipo;
 
   const handleCategoriaChange = (e) => {
-    setFiltros({ ...filtros, categoria: e ? e.value : "" });
+    const categoriaSeleccionada = e ? e.value : "";
+    const tipoCorrespondiente = categoriasPorTipo.find(categoria => categoria.value === categoriaSeleccionada)?.tipo || "";
+    setFiltros({ ...filtros, categoria: categoriaSeleccionada, tipo: tipoCorrespondiente });
   }; 
 
   const handleTipoChange = (e) => {
@@ -133,9 +135,7 @@ export function TablaRequerimientos() {
     setFiltros({ tipo: nuevoTipo, categoria: '' });
   };
   
-  
-
-  const estadosUnicos = Array.from(new Set(datos.map((d) => d.estado))).map((estado) => ({
+    const estadosUnicos = Array.from(new Set(datos.map((d) => d.estado))).map((estado) => ({
     value: estado,
     label: estado,
   }));
