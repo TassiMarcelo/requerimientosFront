@@ -29,6 +29,46 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
   const [mostrarConfirmacionCancelar, setMostrarConfirmacionCancelar] = useState(false)
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
 
+// Filtra las opciones de categoría dependiendo del tipo seleccionado
+const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
+  if (!tipoSeleccionado) {
+    return opcionesCategoria;
+  }
+  return opcionesCategoria.filter(option => option.tipo === tipoSeleccionado);
+};
+
+const obtenerTipoPorCategoria = (categoria: string, tipoActual: string) => {
+  switch (categoria) {
+    case 'reparacion de hardware':
+    case 'instalacion de hardware':
+      return 'hardware';
+    case 'reparacion de software':
+    case 'instalacion de software':
+      return 'software';
+    case 'falla':
+      return 'error';
+    default:
+      return tipoActual; // Mantiene el tipo actual si no hay coincidencia
+  }
+};
+
+// Al seleccionar el tipo, actualizamos las opciones de categoría
+const handleTipoChange = (selected: any) => {
+  const tipoSeleccionado = selected?.value || '';
+  setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: tipoSeleccionado, categoria: "" }); // Restablecer categoría al cambiar tipo
+};
+
+const handleCategoriaChange = (selected: any) => {
+  const nuevaCategoria = selected?.value || '';
+
+  // Actualizamos la categoría seleccionada
+  setNuevoRequerimiento(prevState => ({
+    ...prevState,
+    categoria: nuevaCategoria,
+    // Establecemos el tipo dependiendo de la categoría seleccionada
+    tipo: obtenerTipoPorCategoria(nuevaCategoria, prevState.tipo),
+  }));
+};
 
   const crearRequerimiento = () => {
     const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(9, '0')}`
@@ -103,15 +143,18 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
   };
 
   const opcionesTipo = [
-    { value: 'hardware', label: 'Requerimiento de Hardware' },
-    { value: 'software', label: 'Requerimiento de Software' },
-    { value: 'error', label: 'Error' }
+    { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
+    { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
+    { value: 'error', label: 'Error', codigo: 'EER' },
+    { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
   ]
   
   const opcionesCategoria = [
-    { value: 'reparacion', label: 'Solicitud reparación de hardware' },
-    { value: 'instalacion', label: 'Instalación de software' },
-    { value: 'falla', label: 'Nueva falla' }
+    { value: 'reparacion de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
+    { value: 'reparacion de software', label: 'Solicitud reparación de software',tipo:'software'},
+    { value: 'instalacion de software', label: 'Instalación de software',tipo: 'software'},
+    { value: 'instalacion de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
+    { value: 'falla', label: 'Nueva falla',tipo:'error'}
   ]
   
   const opcionesPrioridad = [
@@ -185,10 +228,10 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
     </label>
     <Select
       value={opcionesTipo.find(option => option.value === nuevoRequerimiento.tipo) || null}
-      onChange={(selected) => setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: selected?.value || '' })}
+      onChange={handleTipoChange}
       options={opcionesTipo}
       placeholder="Seleccionar tipo"
-      styles={customStyles} // Puedes definir tu estilo personalizado aquí
+      styles={customStyles} 
     />
   </div>
 
@@ -198,10 +241,10 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
     </label>
     <Select
       value={opcionesCategoria.find(option => option.value === nuevoRequerimiento.categoria) || null}
-      onChange={(selected) => setNuevoRequerimiento({ ...nuevoRequerimiento, categoria: selected?.value || '' })}
-      options={opcionesCategoria}
+      onChange={handleCategoriaChange}
+      options={obtenerOpcionesCategoria(nuevoRequerimiento.tipo)}  
       placeholder="Seleccionar categoría"
-      styles={customStyles} // Puedes definir tu estilo personalizado aquí
+      styles={customStyles} 
     />
   </div>
 
