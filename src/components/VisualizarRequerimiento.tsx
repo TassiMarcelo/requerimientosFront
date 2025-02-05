@@ -50,6 +50,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
+  const [fechaCierre, setFechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
 
   if (!requerimiento) return null
   
@@ -107,6 +108,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         ...requerimiento,
         estado: "Cerrado", // Cambiar el estado a "Cerrado"
       };
+       setFechaCierre(new Date().toLocaleString())
       onCerrarCaso(requerimientoCerrado); // Notificar al componente padre
       onClose(); // Cerrar el diálogo
     }
@@ -125,6 +127,12 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
           <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
+        {fechaCierre && (
+                <div className="mb-2 p-1 text-gray-800 rounded-lg">
+<strong>Fecha de Cierre: </strong>{fechaCierre}
+</div>
+        )}
+        
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda */}
                 <div className="space-y-4">
