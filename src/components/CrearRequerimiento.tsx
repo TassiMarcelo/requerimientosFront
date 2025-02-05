@@ -44,7 +44,7 @@ const obtenerTipoPorCategoria = (categoria: string, tipoActual: string) => {
       return 'hardware';
     case 'Solicitud reparación de software':
     case 'Instalación de software':
-      return 'software';
+      return 'Requerimiento de software';
     case 'Nueva falla':
       return 'error';
     default:

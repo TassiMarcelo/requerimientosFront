@@ -178,7 +178,7 @@ export function TablaRequerimientos() {
   
 
   const handleNuevoRequerimiento = (nuevoRequerimiento: Requerimiento) => {
-    setDatos([...datos, nuevoRequerimiento])
+    setDatos([nuevoRequerimiento,...datos])
   }
 
   const handleRowClick = (requerimiento: Requerimiento) => {
