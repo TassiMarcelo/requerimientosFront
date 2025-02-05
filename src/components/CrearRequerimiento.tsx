@@ -29,46 +29,49 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
   const [mostrarConfirmacionCancelar, setMostrarConfirmacionCancelar] = useState(false)
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
 
-// Filtra las opciones de categoría dependiendo del tipo seleccionado
-const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
-  if (!tipoSeleccionado) {
-    return opcionesCategoria;
-  }
-  return opcionesCategoria.filter(option => option.tipo === tipoSeleccionado);
-};
+  const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
+    if (!tipoSeleccionado) {
+      return opcionesCategoria;
+    }
+    return opcionesCategoria.filter(option => option.tipo === tipoSeleccionado);
+  };
+  
 
 const obtenerTipoPorCategoria = (categoria: string, tipoActual: string) => {
   switch (categoria) {
-    case 'reparacion de hardware':
-    case 'instalacion de hardware':
+    case 'Solicitud reparación de hardware':
+    case 'Instalación de hardware':
       return 'hardware';
-    case 'reparacion de software':
-    case 'instalacion de software':
+    case 'Solicitud reparación de software':
+    case 'Instalación de software':
       return 'software';
-    case 'falla':
+    case 'Nueva falla':
       return 'error';
     default:
       return tipoActual; // Mantiene el tipo actual si no hay coincidencia
   }
 };
 
-// Al seleccionar el tipo, actualizamos las opciones de categoría
 const handleTipoChange = (selected: any) => {
   const tipoSeleccionado = selected?.value || '';
-  setNuevoRequerimiento({ ...nuevoRequerimiento, tipo: tipoSeleccionado, categoria: "" }); // Restablecer categoría al cambiar tipo
+  setNuevoRequerimiento({ 
+    ...nuevoRequerimiento, 
+    tipo: tipoSeleccionado, 
+    categoria: "" // Restablecer categoría al cambiar tipo
+  });
 };
+
 
 const handleCategoriaChange = (selected: any) => {
   const nuevaCategoria = selected?.value || '';
-
-  // Actualizamos la categoría seleccionada
+  const nuevoTipo = obtenerTipoPorCategoria(nuevaCategoria, nuevoRequerimiento.tipo); // Obtén el tipo relacionado con la categoría
   setNuevoRequerimiento(prevState => ({
     ...prevState,
     categoria: nuevaCategoria,
-    // Establecemos el tipo dependiendo de la categoría seleccionada
-    tipo: obtenerTipoPorCategoria(nuevaCategoria, prevState.tipo),
+    tipo: nuevoTipo,  // Actualizar el tipo automáticamente
   }));
 };
+
 
   const crearRequerimiento = () => {
     const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(9, '0')}`
