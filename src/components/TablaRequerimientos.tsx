@@ -235,7 +235,7 @@ export function TablaRequerimientos() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="bg-[#2F3B1C] text-white px-4 py-2 rounded hover:bg-[#1F2912] transition-colors"
+            className="bg-[#2F3B1C] text-white px-4 py-2 rounded hover:bg-[#1F2912] transition-colors h-10"
           >
             Crear requerimiento
           </button>
