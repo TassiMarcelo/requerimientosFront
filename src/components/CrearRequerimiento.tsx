@@ -232,6 +232,7 @@ const handleCategoriaChange = (selected: any) => {
       options={opcionesTipo}
       placeholder="Seleccionar tipo"
       styles={customStyles} 
+      isClearable={true}
     />
   </div>
 
@@ -245,6 +246,7 @@ const handleCategoriaChange = (selected: any) => {
       options={obtenerOpcionesCategoria(nuevoRequerimiento.tipo)}  
       placeholder="Seleccionar categoría"
       styles={customStyles} 
+      isClearable={true}
     />
   </div>
 
