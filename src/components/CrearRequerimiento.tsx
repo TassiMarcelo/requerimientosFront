@@ -150,11 +150,11 @@ const handleCategoriaChange = (selected: any) => {
   ]
   
   const opcionesCategoria = [
-    { value: 'reparacion de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
-    { value: 'reparacion de software', label: 'Solicitud reparación de software',tipo:'software'},
-    { value: 'instalacion de software', label: 'Instalación de software',tipo: 'software'},
-    { value: 'instalacion de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
-    { value: 'falla', label: 'Nueva falla',tipo:'error'}
+    { value: 'Solicitud reparación de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
+    { value: 'Solicitud reparación de software', label: 'Solicitud reparación de software',tipo:'software'},
+    { value: 'Instalación de software', label: 'Instalación de software',tipo: 'software'},
+    { value: 'Instalación de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
+    { value: 'Nueva falla', label: 'Nueva falla',tipo:'error'}
   ]
   
   const opcionesPrioridad = [

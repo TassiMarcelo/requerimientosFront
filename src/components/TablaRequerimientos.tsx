@@ -74,12 +74,28 @@ export function TablaRequerimientos() {
   ]
 
   const categoriasPorTipo = [
-    { value: 'reparacion de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
-    { value: 'reparacion de software', label: 'Solicitud reparación de software',tipo:'software'},
-    { value: 'instalacion de software', label: 'Instalación de software',tipo: 'software'},
-    { value: 'instalacion de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
-    { value: 'falla', label: 'Nueva falla',tipo:'error'}
+    { value: 'Solicitud reparación de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
+    { value: 'Solicitud reparación de software', label: 'Solicitud reparación de software',tipo:'software'},
+    { value: 'Instalación de software', label: 'Instalación de software',tipo: 'software'},
+    { value: 'Instalación de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
+    { value: 'Nueva falla', label: 'Nueva falla',tipo:'error'}
   ]
+
+  const mapTipo = (tipo) => {
+    switch (tipo) {
+      case "hardware":
+        return "Requerimiento de Hardware";
+      case "software":
+        return "Requerimiento de Software";
+      case "error":
+        return "Error";
+      case "operativo":
+        return "Gestión Operativa";
+      default:
+        return tipo; // Por si aparece un tipo no esperado
+    }
+  };
+  
 
   const [filtros, setFiltros] = useState({
     tipo: "",
@@ -308,7 +324,7 @@ export function TablaRequerimientos() {
                   }`}>
                     {requerimiento.prioridad}
                   </td>
-                  <td className="p-3 text-center">{requerimiento.tipo}</td>
+                  <td className="p-3 text-center">{mapTipo(requerimiento.tipo)}</td>
                   <td className="p-3 text-center">{requerimiento.categoria}</td>
                   <td className="p-3 text-center">{requerimiento.fechaAlta}</td>
                   <td className={`p-3 text-center font-semibold ${
