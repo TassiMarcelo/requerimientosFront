@@ -125,7 +125,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
