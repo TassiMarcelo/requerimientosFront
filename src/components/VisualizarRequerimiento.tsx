@@ -128,7 +128,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
+        <Dialog.Panel className="w-full max-w-6xl rounded-2xl bg-white max-h-[90vh] overflow-y-auto">
           <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
 
         <div className="flex justify-between items-center mt-0">
