@@ -8,9 +8,10 @@ interface CrearRequerimientoProps {
   onCrear: (requerimiento: Requerimiento) => void
   isOpen: boolean
   onClose: () => void
+  datos: Requerimiento[]
 }
 
-export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimientoProps) {
+export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearRequerimientoProps) {
   const [nuevoRequerimiento, setNuevoRequerimiento] = useState<Requerimiento>({
     codigo: "",
     prioridad: "MEDIA",
@@ -26,7 +27,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose }: CrearRequerimie
   const [archivos, setArchivos] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [mostrarConfirmacionCancelar, setMostrarConfirmacionCancelar] = useState(false)
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
 
   const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
@@ -120,29 +120,23 @@ const handleCategoriaChange = (selected: any) => {
     setArchivos(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
-  const opciones = [
-    { value: 'req1', label: 'REQ-2024-000000001' },
-    { value: 'req2', label: 'REQ-2024-000000002' },
-    { value: 'req3', label: 'RES-2024-000000003' },
-    { value: 'req4', label: 'REQ-2024-000000033' },
-    { value: 'req5', label: 'REQ-2024-000000053' },
-    { value: 'req6', label: 'REQ-2024-000000055' },
-    { value: 'req7', label: 'REQ-2024-000000303' },
-    { value: 'req8', label: 'REQ-2024-000000008' },
-    { value: 'req9', label: 'REQ-2024-000000007' },
-    { value: 'req10',label: 'REQ-2024-000000032' },
-    { value: 'req11',label: 'REQ-2024-000000013' },
-    { value: 'req12',label: 'REQ-2024-000000003' },
-  ];
+  console.log(datos);
+  const opciones = datos && datos.length > 0 ? datos.map((requerimiento) => ({
+    value: requerimiento.codigo,
+    label: requerimiento.codigo, // o usar otro campo, como requerimiento.asunto
+  })) : [];
+  console.log(opciones); 
+  
 
-  const [selectedOption, setSelectedOption] = useState(null);
+
+  const [selectedOption, setSelectedOption] = useState<{ value: string; label: string } | null>(null);
 
   const handleCancel = () => {
     setShowCancelConfirmation(true); 
   };
 
   const handleChange = (selected: any) => {
-    setSelectedOption(selected);  
+    setSelectedOption(selected ? selected : null);  // Asegúrate de manejar null correctamente
   };
 
   const opcionesTipo = [
@@ -332,6 +326,7 @@ const handleCategoriaChange = (selected: any) => {
                   Requerimientos relacionados
                 </label>
                 <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ height: '150px' }}>
+                {console.log(opciones)}
                   <Select
                     value={selectedOption}
                     onChange={handleChange}
