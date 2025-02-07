@@ -52,6 +52,12 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
   const [fechaCierre, setFechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
 
+  const opcionesTipo = [
+    { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
+    { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
+    { value: 'error', label: 'Error', codigo: 'EER' },
+    { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
+  ]
   if (!requerimiento) return null
   
   const handleFileAction = (archivo: { nombre: string; tipo: string }) => {
@@ -128,7 +134,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-6xl rounded-2xl bg-white max-h-[90vh] overflow-y-auto">
+          <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
           <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
 
         <div className="flex justify-between items-center mt-0">
@@ -144,7 +150,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 <div className="space-y-4">
                   <div className="grid gap-4">
                   <LabeledField label="Código" value={requerimiento.codigo} noTopLeftRounded />
-                  <LabeledField label="Tipo" value={requerimiento.tipo} noTopLeftRounded />
+                  <LabeledField label="Tipo" value={opcionesTipo.find(option => option.value === requerimiento.tipo)?.label || 'Tipo desconocido'} noTopLeftRounded />
                     <LabeledField label="Categoría" value={requerimiento.categoria} noTopLeftRounded />
                     <LabeledField label="Estado" value={requerimiento.estado} noTopLeftRounded />
                     <LabeledField label="Prioridad" value={requerimiento.prioridad} noTopLeftRounded />

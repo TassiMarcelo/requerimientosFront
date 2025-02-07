@@ -151,7 +151,8 @@ const handleCategoriaChange = (selected: any) => {
     { value: 'error', label: 'Error', codigo: 'EER' },
     { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
   ]
-  
+  const tipoLabel = opcionesTipo.find(option => option.value === nuevoRequerimiento.tipo)?.label || 'Sin tipo';
+ 
   const opcionesCategoria = [
     { value: 'Solicitud reparación de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
     { value: 'Solicitud reparación de software', label: 'Solicitud reparación de software',tipo:'software'},
