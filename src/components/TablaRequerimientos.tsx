@@ -24,7 +24,7 @@ export function TablaRequerimientos() {
       codigo: "REH-2024-000000002",
       prioridad: "MEDIA",
       tipo: "hardware",
-      categoria: "hardware",
+      categoria: "Solicitud reparación de hardware",
       fechaAlta: "14/09/2024",
       estado: "Abierto",
       asunto: "unAsunto",
