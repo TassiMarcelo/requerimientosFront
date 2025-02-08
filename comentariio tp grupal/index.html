@@ -14,8 +14,9 @@
         <tr>
           <th scope="col">Emisor</th>
           <th scope="col">Título</th>
-          <th scope="col">Detalles</th>
+          <th scope="col">Detalle</th>
           <th scope="col">Fecha y Hora</th>
+          
           <th scope="col">Acciones</th>
         </tr>
       </thead>
@@ -23,7 +24,11 @@
         <tr>
           <td>Juan Pérez</td>
           <td>Confirmación de Turno</td>
-          <td>Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM.</td>
+          <td>
+            <span title="Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM.">
+              Estimado paciente, su turno ha sido reservado con éxito...
+            </span>
+          </td>
           <td>06/02/2025 14:30</td>
           <td>
             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#detalleModal1">Ver Detalle</button>
@@ -33,7 +38,7 @@
     </table>
   </div>
 
-  <!-- Modal para mostrar el detalle -->
+  <!-- Modal para mostrar el detalle completo -->
   <div class="modal fade" id="detalleModal1" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
