@@ -8,7 +8,7 @@ const comentarios = [
     titulo: "Confirmación de Turno",
     fechaHora: "06/02/2025 14:30",
     detalle:
-      "Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM. Por favor, no olvide llevar su DNI. Este turno es muy importante, así que por favor confirme su asistencia al menos 24 horas antes.",
+      "Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM. Por favor, no olvide llevar su DNI. Este turno es muy importante, así que por favor confirme su asistencia al menos 24 horas antes. Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM. Por favor, no olvide llevar su DNI. Este turno es muy importante, así que por favor confirme su asistencia al menos 24 horas antes. Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM. Por favor, no olvide llevar su DNI. Este turno es muy importante, así que por favor confirme su asistencia al menos 24 horas antes. Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM. Por favor, no olvide llevar su DNI. Este turno es muy importante, así que por favor confirme su asistencia al menos 24 horas antes. Estimado paciente, su turno ha sido reservado con éxito para el 10/02/2025 a las 10:00 AM. Por favor, no olvide llevar su DNI. Este turno es muy importante, así que por favor confirme su asistencia al menos 24 horas antes.",
     archivosAdjuntos: ["Comprobante_Turno.pdf", "Instrucciones_PreTurno.pdf"],
   },
   {
