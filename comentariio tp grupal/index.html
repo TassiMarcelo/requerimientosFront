@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,12 +21,12 @@
         </tr>
       </thead>
       <tbody id="comentariosTable">
-        <!-- Aquí se cargarán dinámicamente las filas -->
+         Aquí se cargarán dinámicamente las filas 
       </tbody>
     </table>
   </div>
 
-  <!-- Modal para mostrar el detalle -->
+  <!-- Modal para mostrar el detalle
   <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -36,7 +37,7 @@
           </button>
         </div>
         <div class="modal-body" id="detalleModalBody">
-          <!-- Aquí se insertará el detalle dinámicamente -->
+          <!-- Aquí se insertará el detalle dinámicamente --
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -49,7 +50,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script type="module">
-    import { comentarios } from './data.js';  // Simulación del archivo data.ts convertido a data.js
+    import { comentarios } from '/data.js';  // Simulación del archivo data.ts convertido a data.js
 
     const tablaComentarios = document.getElementById('comentariosTable');
 
@@ -86,6 +87,46 @@
       `;
       $('#detalleModal').modal('show');
     };
+  </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabla de Comentarios</title>
+</head>
+<body>
+  <table id="comentariosTable">
+    <tr>
+      <th>Emisor</th>
+      <th>Título</th>
+      <th>Fecha y Hora</th>
+      <th>Detalle</th>
+      <th>Acciones</th>
+    </tr>
+  </table>
+
+  <script type="module">
+    import { comentarios } from './data.js';
+    
+    const tablaComentarios = document.getElementById('comentariosTable');
+
+    comentarios.forEach(comentario => {
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+        <td>${comentario.emisor}</td>
+        <td>${comentario.titulo}</td>
+        <td>${comentario.fechaHora}</td>
+        <td title="${comentario.detalle}">
+          ${comentario.detalle.length > 50 ? comentario.detalle.substring(0, 50) + '...' : comentario.detalle}
+        </td>
+        <td><button class="btn btn-primary btn-sm" onclick="alert('Detalle: ${comentario.detalle}')">Ver Detalle</button></td>
+      `;
+      tablaComentarios.appendChild(fila);
+    });
   </script>
 </body>
 </html>
