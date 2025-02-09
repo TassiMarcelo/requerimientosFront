@@ -1,37 +1,56 @@
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql');
+const express = require("express");
+const fs = require("fs");
+const cors = require("cors");
 
 const app = express();
-const port = 5000;
+const PORT = 5000;
+const COMMENTS_FILE = "./comentarios.json"; // Archivo para almacenar los comentarios
 
-// Configuración de CORS
+app.use(express.json());
 app.use(cors());
 
-// Configuración de la base de datos MySQL (ajustar a tu base de datos)
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'comentarios_db',
-});
-
-// Conexión a la base de datos
-db.connect((err) => {
-  if (err) throw err;
-  console.log('Conectado a la base de datos');
-});
-
-// Endpoint para obtener los comentarios
-app.get('/api/comentarios', (req, res) => {
-  const query = 'SELECT * FROM comentarios';
-  db.query(query, (err, results) => {
-    if (err) throw err;
-    res.json(results);
+// Endpoint para obtener todos los comentarios
+app.get("/api/comentarios", (req, res) => {
+  fs.readFile(COMMENTS_FILE, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error al leer el archivo de comentarios:", err);
+      return res.status(500).json({ error: "Error al obtener comentarios" });
+    }
+    const comentarios = JSON.parse(data || "[]");
+    res.json(comentarios.reverse()); // Invertir el orden para mostrar los más nuevos primero
   });
 });
 
-// Arrancar el servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+// Endpoint para agregar un nuevo comentario
+app.post("/api/comentarios", (req, res) => {
+  const nuevoComentario = {
+    id: Date.now(), // Usamos la fecha como ID único
+    emisor: req.body.emisor,
+    titulo: req.body.titulo,
+    detalle: req.body.detalle,
+    fechaHora: new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" }),
+    archivosAdjuntos: req.body.archivosAdjuntos || []
+  };
+
+  fs.readFile(COMMENTS_FILE, "utf8", (err, data) => {
+    if (err && err.code !== "ENOENT") {
+      console.error("Error al leer el archivo de comentarios:", err);
+      return res.status(500).json({ error: "Error al guardar el comentario" });
+    }
+
+    const comentarios = JSON.parse(data || "[]");
+    comentarios.push(nuevoComentario);
+
+    fs.writeFile(COMMENTS_FILE, JSON.stringify(comentarios, null, 2), (err) => {
+      if (err) {
+        console.error("Error al escribir en el archivo de comentarios:", err);
+        return res.status(500).json({ error: "Error al guardar el comentario" });
+      }
+      res.status(201).json(nuevoComentario);
+    });
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
