@@ -9,6 +9,7 @@ const App = () => {
     detalle: "",
     archivosAdjuntos: [],
   });
+  const [modalFormularioVisible, setModalFormularioVisible] = useState(false);
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalDetalleVisible, setModalDetalleVisible] = useState(false);
   const [modalNuevoVisible, setModalNuevoVisible] = useState(false);
@@ -21,6 +22,8 @@ const App = () => {
       console.error("Error al cargar comentarios:", error);
     }
   };
+
+  const cerrarModalFormulario = () => setModalFormularioVisible(false);
 
   useEffect(() => {
     cargarComentarios();
@@ -80,6 +83,12 @@ const App = () => {
       archivosAdjuntos: Array.from(e.target.files),
     });
   };
+  
+  const manejarCambio = (e) => {
+    const { name, value } = e.target;
+    setNuevoComentario((prevState) => ({ ...prevState, [name]: value }));
+  };
+
 
   return (
     <div className="container mt-4">
@@ -248,3 +257,4 @@ const App = () => {
 };
 
 export default App;
+

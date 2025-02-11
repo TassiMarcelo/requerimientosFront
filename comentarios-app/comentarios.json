@@ -1,7 +1,10 @@
 [
   {
-    "id": 1739231652370,
-    "fechaHora": "10/2/2025, 08:54:12",
+    "id": 1739311959125,
+    "fechaHora": "11/2/2025, 07:12:39",
+    "titulo": "Título de prueba",
+    "detalle": "Detalle de prueba",
+    "emisor": "Usuario Actual",
     "archivosAdjuntos": []
   }
 ]

@@ -22,15 +22,20 @@ app.get("/api/comentarios", (req, res) => {
   });
 });
 
-// Endpoint para agregar un nuevo comentario
 app.post("/api/comentarios", (req, res) => {
+  const { titulo, detalle, emisor, archivosAdjuntos } = req.body;
+
+  if (!titulo || !detalle || !emisor) {
+    return res.status(400).json({ error: "Faltan campos obligatorios (titulo, detalle o emisor)." });
+  }
+
   const nuevoComentario = {
-    id: Date.now(), // Usamos la fecha como ID único
-    emisor: req.body.emisor,
-    titulo: req.body.titulo,
-    detalle: req.body.detalle,
+    id: Date.now(),
+    titulo,
+    detalle,
+    emisor,
     fechaHora: new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" }),
-    archivosAdjuntos: req.body.archivosAdjuntos || []
+    archivosAdjuntos: archivosAdjuntos || [],
   };
 
   fs.readFile(COMMENTS_FILE, "utf8", (err, data) => {
