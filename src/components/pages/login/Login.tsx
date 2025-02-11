@@ -2,6 +2,33 @@ import './Login.css'
 import React, { useState, useRef } from "react";
 
 export default function Login() {
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  
+  const handleLogin = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        });
+        
+        if (!response.ok) {
+          throw new Error("Login failed");
+        }
+        
+        const data = await response.json();
+        console.log("Login success:", data);
+      } catch (error) {
+        setError("Error logging in");
+        console.error("Login error:", error);
+      }
+  };
+
   const [isLogin, setIsLogin] = useState(true);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
@@ -27,13 +54,13 @@ export default function Login() {
         {isLogin ? (
           <form>
             <h2>Iniciar sesión</h2>
-            <input type="email" name="email" placeholder="Correo electrónico" required />
-            <input ref={passwordRef} type="password" name="password" placeholder="Contraseña" required />
+            <input type="username" onChange={(e) => setUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
+            <input ref={passwordRef} onChange={(e) => setPassword(e.target.value)} type="password" name="password" placeholder="Contraseña" required />
             <div className="showPasswordDiv">
               <input type="checkbox" onChange={togglePasswordVisibility} />
               <label>Mostrar contraseña</label>
             </div>
-            <button type="button">Iniciar sesión</button>
+            <button type="button" onClick={handleLogin}>Iniciar sesión</button>
             <h6>
               ¿No tenés una cuenta?{" "}
               <button type="button" className="toggler" onClick={toggleForm}>
