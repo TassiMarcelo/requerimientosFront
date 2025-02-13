@@ -6,5 +6,23 @@
     "detalle": "Detalle de prueba",
     "emisor": "Usuario Actual",
     "archivosAdjuntos": []
+  },
+  {
+    "id": 1739464065009,
+    "titulo": "agregar",
+    "detalle": "datos",
+    "emisor": "Usuario Actual",
+    "fechaHora": "13/2/2025, 01:27:45",
+    "archivosAdjuntos": []
+  },
+  {
+    "id": 1739464083505,
+    "titulo": "agregar",
+    "detalle": "datos",
+    "emisor": "Usuario Actual",
+    "fechaHora": "13/2/2025, 01:28:03",
+    "archivosAdjuntos": [
+      "b3b26eed4d7cb294331a97e8101c04c7"
+    ]
   }
 ]
