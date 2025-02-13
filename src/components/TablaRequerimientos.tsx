@@ -240,8 +240,8 @@ export function TablaRequerimientos() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E5E7EB]">
-      <div className="bg-[#556B2F] p-4 flex justify-between items-center">
+<div className="min-h-screen bg-[#E5E7EB] w-screen">
+<div className="bg-[#556B2F] p-4 flex justify-between items-center w-full">
         <h1 className="text-3xl font-bold text-white">Team 5</h1>
         <div className="flex items-center gap-4">
           <button
@@ -256,8 +256,8 @@ export function TablaRequerimientos() {
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="flex flex-wrap items-center gap-4 mb-6">
+      <div className="p-4 w-full">
+        <div className="flex flex-wrap items-center gap-4 mb-6 w-full">
   
   <Select
   className="w-64 h-[34px]" //
@@ -300,8 +300,8 @@ export function TablaRequerimientos() {
           </button>
         </div>
 
-        <div className="bg-white border border-gray-300 rounded-md shadow-sm overflow-x-auto">
-          <table className="w-full">
+        <div className="bg-white border border-gray-300 rounded-md shadow-sm overflow-x-auto w-full">
+          <table className="w-full min-w-[1000px]">
             <thead>
               <tr className="bg-[#B8D68F]">
                 {["Código", "Prioridad", "Tipo", "Categoría", "Fecha de Alta", "Estado", "Asunto", "Propietario"].map((columna) => (
