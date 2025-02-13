@@ -14,20 +14,27 @@ const App = () => {
   const [modalDetalleVisible, setModalDetalleVisible] = useState(false);
   const [modalNuevoVisible, setModalNuevoVisible] = useState(false);
 
+  const [cargando, setCargando] = useState(false);
+
   const cargarComentarios = async () => {
+    setCargando(true);
     try {
       const response = await axios.get("http://localhost:5000/api/comentarios");
-      setComentarios(response.data.reverse()); // Invertimos para mostrar los más recientes primero
+      setComentarios(response.data.reverse());
     } catch (error) {
       console.error("Error al cargar comentarios:", error);
+    } finally {
+      setCargando(false);
     }
   };
-
+  
   const cerrarModalFormulario = () => setModalFormularioVisible(false);
 
   useEffect(() => {
     cargarComentarios();
   }, []);
+
+  
 
   const agregarComentario = async (e) => {
     e.preventDefault();
@@ -65,10 +72,26 @@ const App = () => {
   };
 
   const manejarArchivos = (e) => {
+    const archivos = Array.from(e.target.files);
+    const archivosValidos = archivos.filter(
+      (archivo) => archivo.size <= 5 * 1024 * 1024 // Máximo 5 MB por archivo
+    );
+  
+    if (archivosValidos.length < archivos.length) {
+      alert("Algunos archivos fueron rechazados por exceder el tamaño máximo.");
+    }
+  
     setNuevoComentario({
       ...nuevoComentario,
-      archivosAdjuntos: Array.from(e.target.files),
+      archivosAdjuntos: archivosValidos,
     });
+  };
+  
+  const formatearFecha = (fecha) => {
+    return new Intl.DateTimeFormat('es-ES', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(fecha));
   };
   
   
@@ -78,7 +101,7 @@ const App = () => {
     setNuevoComentario((prevState) => ({ ...prevState, [name]: value }));
   };
 
-
+//todo esto es el jsx
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Lista de Comentarios</h2>
@@ -88,6 +111,14 @@ const App = () => {
       >
         Agregar Comentario
       </button>
+      {cargando ? (
+    <div className="text-center">
+      <div className="spinner-border" role="status">
+        <span className="sr-only">Cargando...</span>
+      </div>
+      <p>Cargando comentarios...</p>
+    </div>
+    ) : (
       <table className="table table-hover table-bordered">
         <thead className="thead-dark">
           <tr>
@@ -115,40 +146,45 @@ const App = () => {
           ))}
         </tbody>
       </table>
-
+    )}
       {/* Modal para Ver Detalle */}
-      {modalDetalleVisible && comentarioSeleccionado && (
-        <div className="modal show d-block" tabIndex="-1" role="dialog">
-          <div className="modal-dialog modal-lg" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Detalle del Comentario</h5>
-                <button
-                  type="button"
-                  className="close"
-                  onClick={cerrarModalDetalle}
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <p><strong>Emisor:</strong> {comentarioSeleccionado.emisor}</p>
-                <p><strong>Título:</strong> {comentarioSeleccionado.titulo}</p>
-                <p><strong>Fecha y Hora:</strong> {comentarioSeleccionado.fechaHora}</p>
-                <p><strong>Detalle:</strong> {comentarioSeleccionado.detalle}</p>
-                <p><strong>Archivos Adjuntos:</strong></p>
-                {comentarioSeleccionado.archivosAdjuntos.map((archivo, index) => (
-                  <p key={index}>
-                    <a
-                      href={`descargas/${archivo}`}
-                      download
-                      className="btn btn-success btn-sm"
-                    >
-                      Descargar {archivo}
-                    </a>
-                  </p>
-                ))}
+  {modalDetalleVisible && comentarioSeleccionado && (
+    <div className="modal show d-block" tabIndex="-1" role="dialog">
+      <div className="modal-dialog modal-lg" role="document">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Detalle del Comentario</h5>
+            <button
+              type="button"
+              className="close"
+              onClick={cerrarModalDetalle}
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div className="modal-body">
+            <p><strong>Emisor:</strong> {comentarioSeleccionado.emisor}</p>
+            <p><strong>Título:</strong> {comentarioSeleccionado.titulo}</p>
+            <p><strong>Fecha y Hora:</strong> {formatearFecha(comentarioSeleccionado.fechaHora)}</p>
+            <p><strong>Detalle:</strong> {comentarioSeleccionado.detalle}</p>
+            <p><strong>Archivos Adjuntos:</strong></p>
+            {comentarioSeleccionado.archivosAdjuntos.length > 0 ? (
+              comentarioSeleccionado.archivosAdjuntos.map((archivo, index) => (
+                <p key={index}>
+                  <a
+                    href={`http://localhost:5000/uploads/${archivo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-success btn-sm"
+                  >
+                    Descargar {archivo}
+                  </a>
+                </p>
+              ))
+            ) : (
+              <p>No hay archivos adjuntos.</p>
+            )}
               </div>
               <div className="modal-footer">
                 <button
@@ -220,7 +256,7 @@ const App = () => {
                       onChange={manejarArchivos}
                     />
                     <small className="form-text text-muted">
-                      Selecciona los archivos que deseas adjuntar.
+                      Maximo 5 MB por archivo
                     </small>
                   </div>
                 </div>
