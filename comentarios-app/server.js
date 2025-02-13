@@ -10,6 +10,8 @@ const COMMENTS_FILE = "./comentarios.json"; // Archivo para almacenar los coment
 app.use(express.json());
 app.use(cors());
 
+const upload = multer({ dest: "uploads/" }); // Carpeta donde se almacenarán los archivos
+
 // Endpoint para obtener todos los comentarios
 app.get("/api/comentarios", (req, res) => {
   fs.readFile(COMMENTS_FILE, "utf8", (err, data) => {
@@ -18,16 +20,19 @@ app.get("/api/comentarios", (req, res) => {
       return res.status(500).json({ error: "Error al obtener comentarios" });
     }
     const comentarios = JSON.parse(data || "[]");
-    res.json(comentarios.reverse()); // Invertir el orden para mostrar los más nuevos primero
+    res.json(comentarios.reverse());
   });
 });
 
-app.post("/api/comentarios", (req, res) => {
-  const { titulo, detalle, emisor, archivosAdjuntos } = req.body;
+// Endpoint para agregar un comentario con archivos
+app.post("/api/comentarios", upload.array("archivosAdjuntos"), (req, res) => {
+  const { titulo, detalle, emisor } = req.body;
 
   if (!titulo || !detalle || !emisor) {
     return res.status(400).json({ error: "Faltan campos obligatorios (titulo, detalle o emisor)." });
   }
+
+  const archivosAdjuntos = req.files.map((file) => file.filename); // Guardamos solo el nombre del archivo
 
   const nuevoComentario = {
     id: Date.now(),
@@ -35,7 +40,7 @@ app.post("/api/comentarios", (req, res) => {
     detalle,
     emisor,
     fechaHora: new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" }),
-    archivosAdjuntos: archivosAdjuntos || [],
+    archivosAdjuntos,
   };
 
   fs.readFile(COMMENTS_FILE, "utf8", (err, data) => {

@@ -31,28 +31,15 @@ const App = () => {
 
   const agregarComentario = async (e) => {
     e.preventDefault();
-    const comentario = {
-      ...nuevoComentario,
-      emisor: "Usuario Actual", // Aquí puedes cambiar esto por el usuario autenticado real
-      fechaHora: new Date().toLocaleString("es-ES", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
-    // Subir archivos al backend
+  
     const formData = new FormData();
-    formData.append("titulo", comentario.titulo);
-    formData.append("detalle", comentario.detalle);
-    formData.append("emisor", comentario.emisor);
-    formData.append("fechaHora", comentario.fechaHora);
+    formData.append("titulo", nuevoComentario.titulo);
+    formData.append("detalle", nuevoComentario.detalle);
+    formData.append("emisor", "Usuario Actual"); // Reemplázalo con el usuario autenticado real
     nuevoComentario.archivosAdjuntos.forEach((archivo) => {
       formData.append("archivosAdjuntos", archivo);
     });
-
+  
     try {
       await axios.post("http://localhost:5000/api/comentarios", formData, {
         headers: {
@@ -66,7 +53,7 @@ const App = () => {
       console.error("Error al agregar comentario:", error);
     }
   };
-
+  
   const mostrarDetalle = (comentario) => {
     setComentarioSeleccionado(comentario);
     setModalDetalleVisible(true);
@@ -84,6 +71,8 @@ const App = () => {
     });
   };
   
+  
+
   const manejarCambio = (e) => {
     const { name, value } = e.target;
     setNuevoComentario((prevState) => ({ ...prevState, [name]: value }));
