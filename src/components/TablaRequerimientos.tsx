@@ -114,10 +114,6 @@ export function TablaRequerimientos() {
 
   const tiposUnicos = opcionesTipo;
 
-  const categoriasUnicas = Array.from(new Set(datos.map((d) => d.categoria))).map((categoria) => ({
-    value: categoria,
-    label: categoria,
-  }));
 
   const categoriasDisponibles = filtros.tipo
   ? categoriasPorTipo.filter((categoria) => categoria.tipo === filtros.tipo)
@@ -190,12 +186,28 @@ export function TablaRequerimientos() {
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
+      height: 45,   
+      padding: '05px',
       borderColor: state.isFocused ? '#4A4A4A' : '#d1d5db', // Gris oscuro cuando está enfocado, gris claro cuando no lo está
       backgroundColor: 'white', // Fondo blanco
       boxShadow: state.isFocused ? '0 0 0 1px #4A4A4A' : 'none', // Gris oscuro para el enfoque, sin sombra cuando no está enfocado
       '&:hover': {
         borderColor: '#4A4A4A', // Gris oscuro en hover
       },
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      height: '100%', // Asegura que el contenido ocupe toda la altura
+      display: 'flex',
+      alignItems: 'center', // Centra verticalmente el texto
+    }),
+    input: (provided) => ({
+      ...provided,
+      height: '100%', // Asegura que el input interno ocupe toda la altura
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      height: '100%', // Ajusta la altura de los iconos desplegables
     }),
     menu: (provided) => ({
       ...provided,
@@ -245,10 +257,10 @@ export function TablaRequerimientos() {
       </div>
 
       <div className="p-4">
-        <div className="flex flex-wrap gap-4 mb-6">
+        <div className="flex flex-wrap items-center gap-4 mb-6">
   
   <Select
-  className="flex-1 min-w-[200px]"
+  className="w-64 h-[34px]" //
   value={filtros.tipo ? tiposUnicos.find(tipo => tipo.value === filtros.tipo) : null}
   onChange={handleTipoChange}
   options={tiposUnicos} // Usamos los tipos únicos que hemos transformado
@@ -259,7 +271,7 @@ export function TablaRequerimientos() {
 
 
 <Select
-  className="flex-1 min-w-[200px]"
+  className="w-64 h-[34px]" //
   value={filtros.categoria ? { value: filtros.categoria, label: filtros.categoria } : null}
   onChange={handleCategoriaChange}
   options={categoriasDisponibles}
@@ -270,7 +282,7 @@ export function TablaRequerimientos() {
 
 
 <Select
-  className="flex-1 min-w-[200px]"
+  className="w-64 h-[34px]" //
   value={filtros.estado ? { value: filtros.estado, label: filtros.estado } : null}
   onChange={(e) => setFiltros({ ...filtros, estado: e ? e.value : "" })}
   options={estadosUnicos}
