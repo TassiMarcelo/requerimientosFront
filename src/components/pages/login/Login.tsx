@@ -7,7 +7,6 @@ export default function Login() {
   //login
   const [loginUsername, setloginUsername] = useState("");
   const [loginPassword, setloginPassword] = useState("");
-  const [error, setError] = useState("");
 
   // register
   const [nombre, setNombre] = useState("");
@@ -20,9 +19,10 @@ export default function Login() {
   const [empresa, setEmpresa] = useState("");
   
   const handleLogin = async () => {
+      console.log(loginUsername +" : "+ loginPassword);
       try {
-        var username = loginUsername;
-        var password = loginPassword;
+        const username = loginUsername;
+        const password = loginPassword;
         const response = await fetch("http://localhost:8080/auth/login", {
           method: "POST",
           headers: {
@@ -37,17 +37,17 @@ export default function Login() {
         
         const data = await response.json();
         console.log("Login success:", data);
-        Swal.fire("Sesion iniciada");
+        Swal.fire("Exito","Sesion iniciada");
       } catch (error) {
-        setError("Error logging in");
         console.error("Login error:", error);
+        Swal.fire("Error","Error al iniciar sesion");
       }
   };
 
   const handleRegister = async () => {
     try {
-      var username = registerUsername;
-      var password = registerPassword;
+      const username = registerUsername;
+      const password = registerPassword;
       const response = await fetch("http://localhost:8080/usuarios/registrar", {
         method: "POST",
         headers: {
@@ -56,16 +56,15 @@ export default function Login() {
         body: JSON.stringify({ nombre, apellido, email, password,username,cuil,descripcion,empresa }),
       });
       
-      if (!response.ok) {
-        throw new Error("Reg failed");
-      }
-      
       const data = await response.json();
-      console.log("Register success:", data);
+      const message = data.message;
+    
+      if (!response.ok) {
+        throw new Error(message);
+      }
       Swal.fire("Exito","Usuario registrado con exito");
     } catch (error) {
-      setError("Error Registering");
-      console.error("Register error:", error);
+      Swal.fire("Error","Error al registrarse: " + error);
     }
 };
 
