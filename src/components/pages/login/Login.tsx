@@ -1,6 +1,7 @@
 import './Login.css'
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { GrLogin } from "react-icons/gr";
 
 export default function Login() {
 
@@ -59,20 +60,14 @@ export default function Login() {
       <div className="form_container">
         {isLogin ? (
           <form>
-            <h2>Iniciar sesión</h2>
-            <input type="username" onChange={(e) => setUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
+<GrLogin className="text-5xl mx-auto" />
+<input type="username" onChange={(e) => setUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
             <input ref={passwordRef} onChange={(e) => setPassword(e.target.value)} type="password" name="password" placeholder="Contraseña" required />
             <div className="showPasswordDiv">
               <input type="checkbox" onChange={togglePasswordVisibility} />
               <label>Mostrar contraseña</label>
             </div>
             <button type="button" onClick={handleLogin}>Iniciar sesión</button>
-            <h6>
-              ¿No tenés una cuenta?{" "}
-              <button type="button" className="toggler" onClick={toggleForm}>
-                Registrate acá
-              </button>
-            </h6>
           </form>
         ) : (
           <form>
