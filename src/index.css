@@ -4,6 +4,13 @@
  
 
   @layer base {
+    body {
+      @apply bg-background text-foreground;
+      background-color: hsl(var(--background));
+    }
+    .border-border {
+      border-color: hsl(var(--border));
+    }
     /* La clase para ocultar la barra de scroll pero permitir desplazamiento */
     .scroll-hidden {
       overflow-y: scroll; /* Siempre habilita el scroll */
@@ -96,12 +103,3 @@
   }
 }
  
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    background-color: hsl(var(--background));
-  }
-}
