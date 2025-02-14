@@ -267,6 +267,7 @@ export function TablaRequerimientos() {
   placeholder="Tipo"
   styles={customStyles} 
   isClearable={true}
+  isSearchable={false}
 />
 
 
@@ -278,6 +279,7 @@ export function TablaRequerimientos() {
   placeholder="Categoría"
   styles={customStyles}
   isClearable={true}
+  isSearchable={false}
   />
 
 
@@ -289,6 +291,7 @@ export function TablaRequerimientos() {
   placeholder="Estado"
   styles={customStyles}
   isClearable={true}
+  isSearchable={false}
 />
 
 
