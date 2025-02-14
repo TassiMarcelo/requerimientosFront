@@ -2,6 +2,7 @@ import './Login.css'
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { GrLogin } from "react-icons/gr";
+import { Dialog } from "@headlessui/react";
 
 export default function Login() {
 
@@ -9,6 +10,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate(); 
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
 
   const handleLogin = async () => {
       try {
@@ -31,8 +34,9 @@ export default function Login() {
         localStorage.setItem("userName", data.username);
         navigate("/tablarequerimientos");
       } catch (error) {
-        setError("Error logging in");
+        setError("Nombre de usuario o contraseña inválidos");
         console.error("Login error:", error);
+        setShowErrorModal(true);
       }
   };
 
@@ -108,6 +112,26 @@ export default function Login() {
           </form>
         )}
       </div>
+      {showErrorModal && (
+    <Dialog open={showErrorModal} onClose={() => setShowErrorModal(false)} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="w-full max-w-md rounded bg-white p-6 shadow-lg">
+          <h3 className="text-xl font-semibold text-red-600">Error</h3>
+          <p>{error}</p>
+          <div className="flex justify-end mt-4">
+            <button 
+              onClick={() => setShowErrorModal(false)}
+              className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+            >
+              Cerrar
+            </button>
+          </div>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
+  )}
     </div>
   );
+
 }
