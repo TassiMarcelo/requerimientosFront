@@ -205,18 +205,21 @@ const handleCategoriaChange = (selected: any) => {
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="w-full max-w-6xl rounded-xl bg-white max-h-[90vh] overflow-y-auto">
       <div className="p-4 space-y-4 bg-custom-grey">
-            <div className="space-y-2">
-              <label htmlFor="asunto" className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
-                Asunto:
-              </label>
-              <input
-                id="asunto"
-                value={nuevoRequerimiento.asunto}
-                onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, asunto: e.target.value })}
-                className="w-full border-2 rounded-lg p-2"
-                maxLength={50}
-              />
-            </div>
+      <div className="space-y-0">
+  <label
+    htmlFor="asunto"
+    className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg"
+  >
+    Asunto:
+  </label>
+  <input
+    id="asunto"
+    value={nuevoRequerimiento.asunto}
+    onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, asunto: e.target.value })}
+    className="w-full border-2 rounded-lg rounded-tl-none p-2"
+    maxLength={50}
+  />
+</div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
   <div>
@@ -267,13 +270,13 @@ const handleCategoriaChange = (selected: any) => {
     <input
       value="Abierto"
       disabled
-      className="w-full bg-white border rounded-b-lg p-2 h-[52px] focus:ring-0" 
+      className="w-full bg-white border rounded-b-lg rounded-t-none p-2 h-[52px] focus:ring-0"
       />
   </div>
 </div>
 
 
-            <div className="space-y-2">
+            <div className="space-y-0">
               <label htmlFor="descripcion" className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                 Descripción:
               </label>
@@ -281,7 +284,7 @@ const handleCategoriaChange = (selected: any) => {
                 id="descripcion"
                 value={nuevoRequerimiento.descripcion}
                 onChange={(e) => setNuevoRequerimiento({ ...nuevoRequerimiento, descripcion: e.target.value })}
-                className="min-h-[200px] w-full border-2 rounded-lg p-2"
+                className="min-h-[200px] w-full border-2 rounded-lg rounded-tl-none p-2"
                 maxLength={5000}
               />
             </div>
