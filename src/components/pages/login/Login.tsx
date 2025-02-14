@@ -1,12 +1,14 @@
 import './Login.css'
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  
+  const navigate = useNavigate(); 
+
   const handleLogin = async () => {
       try {
         const response = await fetch("http://localhost:8080/auth/login", {
@@ -23,6 +25,10 @@ export default function Login() {
         
         const data = await response.json();
         console.log("Login success:", data);
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("userName", data.username);
+        navigate("/tablarequerimientos");
       } catch (error) {
         setError("Error logging in");
         console.error("Login error:", error);

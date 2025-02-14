@@ -4,9 +4,56 @@ import { CrearRequerimiento } from './CrearRequerimiento'
 import { VisualizarRequerimiento } from './VisualizarRequerimiento'
 import { Requerimiento } from '../types/requerimiento'
 import UserMenu from './ui/UserMenu';
-
+import { useEffect } from 'react';
 
 export function TablaRequerimientos() {
+  const [userId, setUserId] = useState<number | null>(2);
+  const [datos, setDatos] = useState<Requerimiento[]>([]);
+  const [userName, setUserName] = useState(" ");
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+  
+    if (userId) {
+      fetch("http://localhost:8080/usuarios/todos", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data) {
+            const usuarioActual = data.data.find(user => user.id.toString() === userId);
+            if (usuarioActual) {
+              setUserName(usuarioActual.username);
+              localStorage.setItem("userName", usuarioActual.username); // Guardarlo para futuras sesiones
+            }
+          }
+        })
+        .catch(error => console.error("Error obteniendo usuarios:", error));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetch(`http://localhost:8080/requerimientos/usuario/${userId}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Error ${res.status}: No se pudieron obtener los requerimientos`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setDatos(Array.isArray(data) ? data : []);
+        })
+        .catch((error) => {
+          console.error("Error obteniendo requerimientos:", error);
+          setDatos([]); // Si hay un error, mejor asignar un array vacío
+        });
+    }
+  }, [userId]);
+  
+/*
   const [datos, setDatos] = useState<Requerimiento[]>([
     {
       codigo: "REH-2024-000000001",
@@ -64,7 +111,7 @@ export function TablaRequerimientos() {
       archivos: [],
     },
   ])
-
+*/
   const opcionesTipo = [
     { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
     { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
@@ -80,7 +127,7 @@ export function TablaRequerimientos() {
     { value: 'Nueva falla', label: 'Nueva falla',tipo:'error'}
   ]
 
-  const mapTipo = (tipo) => {
+  const mapTipo = (tipo:string) => {
     switch (tipo) {
       case "hardware":
         return "Requerimiento de Hardware";
@@ -91,7 +138,7 @@ export function TablaRequerimientos() {
       case "operativo":
         return "Gestión Operativa";
       default:
-        return tipo; // Por si aparece un tipo no esperado
+        return tipo; 
     }
   };
   
@@ -102,7 +149,6 @@ export function TablaRequerimientos() {
     estado: "",
   });
   
-
   const [ordenamiento, setOrdenamiento] = useState({
     columna: "",
     direccion: "asc",
@@ -181,7 +227,6 @@ export function TablaRequerimientos() {
     setIsViewDialogOpen(true)
   }
 
-  const userName = 'g.jorge'; 
 
   const customStyles = {
     control: (provided, state) => ({
