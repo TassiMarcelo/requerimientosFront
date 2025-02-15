@@ -11,7 +11,6 @@ export default function Login() {
   const [loginUsername, setloginUsername] = useState("");
   const [loginPassword, setloginPassword] = useState("");
 
-  const navigate = useNavigate(); 
   // register
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -21,56 +20,63 @@ export default function Login() {
   const [cuil, setCuil] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [empresa, setEmpresa] = useState("");
-  
-  const handleLogin = async () => {
-      console.log(loginUsername +" : "+ loginPassword);
-      try {
-        const username = loginUsername;
-        const password = loginPassword;
-        const response = await fetch("http://localhost:8080/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        });
-        
-        if (!response.ok) {
-          throw new Error("Login failed");
-        }
-        
-        const data = await response.json();
-        console.log("Login success:", data);
-        Swal.fire("Exito","Sesion iniciada");
-      } catch (error) {
-        console.error("Login error:", error);
-        Swal.fire("Error","Error al iniciar sesion");
-      }
-  };
+  const navigate = useNavigate();
 
-  const handleRegister = async () => {
+  const handleLogin = async () => {
+   
     try {
-      const username = registerUsername;
-      const password = registerPassword;
-      const response = await fetch("http://localhost:8080/usuarios/registrar", {
+      const username = loginUsername;
+      const password = loginPassword;
+  
+      const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nombre, apellido, email, password,username,cuil,descripcion,empresa }),
+        body: JSON.stringify({ username, password }),
       });
-      
-      const data = await response.json();
-      const message = data.message;
-    
+  
       if (!response.ok) {
-        throw new Error(message);
+        throw new Error("Login failed");
       }
-      Swal.fire("Exito","Usuario registrado con exito");
+  
+      const data = await response.json();
+      console.log("Login success:", data);
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("userId", data.userId.toString());
+      const usersResponse = await fetch("http://localhost:8080/usuarios/todos", {
+        headers: {
+          Authorization: `Bearer ${data.accessToken}`,
+        },
+      });
+
+      if (!usersResponse.ok) {
+        throw new Error("Failed to fetch users");
+      }
+  
+      const usersData = await usersResponse.json();
+      console.log("Users data:", usersData);
+      const usuarioActual = usersData.data.find(user => user.id === data.userId);
+
+      if (usuarioActual && usuarioActual.username) {
+        // Guardar el username en localStorage
+        localStorage.setItem("userName", usuarioActual.username);
+      } else {
+        console.error("Usuario no encontrado o username no disponible");
+      }
+      console.log("User ID saved:", localStorage.getItem("userId"));
+  
+      // Redirigimos según el rol del usuario
+      if (data.role === "ROLE_ADMIN") {
+        navigate("/gestionarUsuarios");
+      } else if (data.role === "ROLE_USUARIOEXTERNO") {
+        navigate("/tablaRequerimientos");
+      }
     } catch (error) {
-      Swal.fire("Error","Error al registrarse: " + error);
+      console.error("Login error:", error);
+      Swal.fire("Error", "Error al iniciar sesión");
     }
-};
+  };
 
   const [isLogin, setIsLogin] = useState(true);
   const passwordRef = useRef<HTMLInputElement>(null);

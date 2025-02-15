@@ -9,10 +9,20 @@ import { useEffect } from 'react';
 export function TablaRequerimientos() {
   const [userId, setUserId] = useState<number | null>(2);
   const [datos, setDatos] = useState<Requerimiento[]>([]);
-  const [userName, setUserName] = useState(" ");
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const storedUserName = localStorage.getItem("userName");
+  
+    console.log("User ID from localStorage:", userId); // Log del userId
+    console.log("User Name from localStorage:", storedUserName); // Log del userName
+    
+    if (storedUserName) {
+      setUserName(storedUserName); // Usa el nombre de usuario almacenado en localStorage
+    } else {
+      setUserName(null); // Si no hay username almacenado, deja null
+    }
   
     if (userId) {
       fetch("http://localhost:8080/usuarios/todos", {
@@ -31,11 +41,7 @@ export function TablaRequerimientos() {
           }
         })
         .catch(error => console.error("Error obteniendo usuarios:", error));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
+  
       fetch(`http://localhost:8080/requerimientos/usuario/${userId}`)
         .then((res) => {
           if (!res.ok) {
@@ -51,7 +57,8 @@ export function TablaRequerimientos() {
           setDatos([]); // Si hay un error, mejor asignar un array vacío
         });
     }
-  }, [userId]);
+  }, []);
+  
   
 /*
   const [datos, setDatos] = useState<Requerimiento[]>([
