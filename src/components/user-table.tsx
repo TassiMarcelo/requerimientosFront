@@ -17,6 +17,7 @@ import { UserForm } from './user-form'
 import { UserView } from './user-view'
 import Modal from './Modal'
 import type { User } from '../types/user'
+import Swal from 'sweetalert2'
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([])
@@ -111,6 +112,10 @@ export function UserTable() {
     setShowForm(false);
     setSelectedUser(null);
   };
+
+  const mostrarPop = function(){
+    Swal.fire("CUalquiera");
+  }
 
   return (
     <div className="space-y-4">

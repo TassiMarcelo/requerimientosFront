@@ -14,16 +14,35 @@ interface CrearRequerimientoProps {
 export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearRequerimientoProps) {
   const [nuevoRequerimiento, setNuevoRequerimiento] = useState<Requerimiento>({
     codigo: "",
-    prioridad: "MEDIA",
+    prioridad: "",
     tipo: "",
     categoria: "",
     fechaAlta: "",
     estado: "Abierto",
     asunto: "",
-    propietario: "g.jorge",
+    propietario: "",
     descripcion: "",
     archivos: [],
   })
+
+  console.log("tipo: " + nuevoRequerimiento.tipo);
+
+  /*
+  const username = loginUsername;
+  const password = loginPassword;
+
+  const response = await fetch("http://localhost:8080/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Login failed");
+  }
+*/
   const [archivos, setArchivos] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
