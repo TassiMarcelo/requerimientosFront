@@ -1,6 +1,9 @@
 import './Login.css'
 import React, { useState, useRef } from "react";
 import Swal from 'sweetalert2';
+import { GrLogin } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Login() {
 
@@ -8,6 +11,7 @@ export default function Login() {
   const [loginUsername, setloginUsername] = useState("");
   const [loginPassword, setloginPassword] = useState("");
 
+  const navigate = useNavigate(); 
   // register
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -92,8 +96,8 @@ export default function Login() {
       <div className="form_container">
         {isLogin ? (
           <form>
-            <h2>Iniciar sesión</h2>
-            <input type="username" onChange={(e) => setloginUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
+<GrLogin className="w-11 h-11 mx-auto mb-4" />
+<input type="username" onChange={(e) => setloginUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
             <input ref={passwordRef} onChange={(e) => setloginPassword(e.target.value)} type="password" name="password" placeholder="Contraseña" required />
             <div className="showPasswordDiv">
               <input type="checkbox" onChange={togglePasswordVisibility} />
