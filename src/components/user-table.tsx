@@ -58,8 +58,7 @@ export function UserTable() {
     );
   });
 
-  const handleDelete = (id: string) => {
-    setUserToDelete(id);
+  const handleDelete = (user) => {
     //setIsModalOpen(true);
     Swal.fire({
       title: '¿Estás seguro?', // Título de la alerta
@@ -70,8 +69,10 @@ export function UserTable() {
       cancelButtonText: 'Cancelar', // Texto del botón de cancelar
     }).then((result) => {
       if (result.isConfirmed) {
-        confirmDelete()
+        Swal.close();
+        confirmDelete(user.id);
       } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.close();
         console.log("cancelado");
       }
     });
@@ -91,18 +92,19 @@ export function UserTable() {
   };
   
   
-  const confirmDelete = async () => {
-    Swal.fire({
-      title: 'Cargando...',
-      text: 'Por favor, espera un momento.',
-      allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
-      didOpen: () => {
-        Swal.showLoading(); // Muestra el spinner de carga
-      },
-    });
-    if (userToDelete) {
+  const confirmDelete = async (id) => {
+    console.log("user to delete: " + userToDelete);
+    if (id) {
       try {
-        const response = await fetch(`http://localhost:8080/usuarios/${userToDelete}/eliminar`, {
+        Swal.fire({
+          title: 'Cargando...',
+          text: 'Por favor, espera un momento.',
+          allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+          didOpen: () => {
+            Swal.showLoading(); // Muestra el spinner de carga
+          },
+        });
+        const response = await fetch(`http://localhost:8080/usuarios/${id}/eliminar`, {
           method: 'DELETE',
         });
   
@@ -203,27 +205,27 @@ export function UserTable() {
                   <TableCell className="text-center border border-black">{user.empresa}</TableCell>
                   <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
                   <TableCell className="text-center border border-black align-middle min-h-[56px]">
-  <div className="flex items-center justify-center relative top-[-4px]">
-    <Checkbox 
-    checked={user.preferencia} 
-    disabled
-    className="text-green-800 bg-green-900"
-    />
-  </div>
-</TableCell>
-<TableCell className="text-center border border-black align-middle min-h-[56px]">
-  <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
-    <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
-      <Eye className="h-4 w-4" />
-    </Button>
-    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
-      <Pencil className="h-4 w-4" />
-    </Button>
-    <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
-      <Trash2 className="h-4 w-4" />
-    </Button>
-  </div>
-</TableCell>
+                  <div className="flex items-center justify-center relative top-[-4px]">
+                    <Checkbox 
+                    checked={user.preferencia} 
+                    disabled
+                    className="text-green-800 bg-green-900"
+                    />
+                  </div>
+                </TableCell>
+                <TableCell className="text-center border border-black align-middle min-h-[56px]">
+                  <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
+                    <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(user)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
                 </TableRow>
               ))
             ) : (
