@@ -125,6 +125,7 @@ const App = () => {
             <th>Emisor</th>
             <th>Título</th>
             <th>Fecha y Hora</th>
+            <th>Detalles</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -134,6 +135,7 @@ const App = () => {
               <td>{comentario.emisor}</td>
               <td>{comentario.titulo}</td>
               <td>{comentario.fechaHora}</td>
+              <td>{comentario.detalle}</td>
               <td>
                 <button
                   className="btn btn-primary btn-sm mr-2"
