@@ -60,7 +60,21 @@ export function UserTable() {
 
   const handleDelete = (id: string) => {
     setUserToDelete(id);
-    setIsModalOpen(true);
+    //setIsModalOpen(true);
+    Swal.fire({
+      title: '¿Estás seguro?', // Título de la alerta
+      text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
+      icon: 'warning', // Icono (warning, error, success, info, question)
+      showCancelButton: true, // Mostrar botón de cancelar
+      confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
+      cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+    }).then((result) => {
+      if (result.isConfirmed) {
+        confirmDelete()
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        console.log("cancelado");
+      }
+    });
   }
 
   const fetchUsers = async () => {
@@ -78,6 +92,14 @@ export function UserTable() {
   
   
   const confirmDelete = async () => {
+    Swal.fire({
+      title: 'Cargando...',
+      text: 'Por favor, espera un momento.',
+      allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+      didOpen: () => {
+        Swal.showLoading(); // Muestra el spinner de carga
+      },
+    });
     if (userToDelete) {
       try {
         const response = await fetch(`http://localhost:8080/usuarios/${userToDelete}/eliminar`, {
@@ -85,11 +107,18 @@ export function UserTable() {
         });
   
         if (response.ok) {
-          await fetchUsers();        } else {
+          Swal.close();
+          Swal.fire("Usuario eliminado con exito");
+          await fetchUsers();
+        } else {
+          Swal.close();
+          Swal.fire("Error al eliminar usuario", await response.json());
           console.error("Error eliminando usuario:", await response.json());
         }
       } catch (error) {
+        Swal.close();
         console.error("Error en la solicitud de eliminación:", error);
+        Swal.fire("Error al eliminar usuario", error);
       } finally {
         setUserToDelete(null);
         setIsModalOpen(false);
