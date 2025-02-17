@@ -261,14 +261,15 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   onCheckedChange={(checked) =>
                     setFormData({ ...formData, preferencia: checked as boolean })
                   }
+                  className="mt-1" 
                 />
-                <Label htmlFor="preferencia">Preferencia</Label>
-              </div>
+  <Label htmlFor="preferencia" className="flex items-center mb-0">Preferencia</Label> 
+  </div>
 
               {/* Botones alineados a la derecha */}
               <div className="flex space-x-4">
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  Cancelar
+              <Button type="button" variant="outline" onClick={handleCancel} className="bg-gray-500 text-white border-gray-600 hover:bg-gray-700">
+              Cancelar
                 </Button>
                 <Button type="submit">
                   {user ? 'Guardar cambios' : 'Crear usuario'}
@@ -284,8 +285,8 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         <div className="z-50">
           <h2>{user ? "¿Estás seguro de que deseas cancelar la edición del usuario?" : "¿Estás seguro de que deseas cancelar la creación del usuario?"}</h2>
           <div className="flex justify-center gap-2 mt-4">
-            <Button onClick={cancelCancel} variant="outline">
-              No
+          <Button onClick={cancelCancel} variant="outline" className="bg-gray-200 text-black hover:bg-gray-300">
+          No
             </Button>
             <Button onClick={confirmCancel} variant="destructive">
               Sí
