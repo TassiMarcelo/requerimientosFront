@@ -29,21 +29,9 @@ export function UserTable() {
   const [userToDelete, setUserToDelete] = useState<string | null>(null); 
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('http://localhost:8080/usuarios/todos')
-        const data = await response.json()
-
-        if (data.message === "Usuarios") {
-          setUsers(data.data)
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error)
-      }
-    }
-
-    fetchUsers()
-  }, [])
+    fetchUsers();
+  }, []);
+  
 
   // Filtrado de usuarios
   const filteredUsers = users.filter(user => {
@@ -75,13 +63,41 @@ export function UserTable() {
     setIsModalOpen(true);
   }
 
-  const confirmDelete = () => {
-    if (userToDelete) {
-      setUsers(users.filter(user => user.id !== userToDelete))
-      setUserToDelete(null); 
-      setIsModalOpen(false); 
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/usuarios/todos');
+      const data = await response.json();
+      if (data.message === "Usuarios") {
+        const usuariosActivos = data.data.filter((user: User) => user.activado); // Filtrar solo activados
+        setUsers(usuariosActivos);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
-  }
+  };
+  
+  
+  const confirmDelete = async () => {
+    if (userToDelete) {
+      try {
+        const response = await fetch(`http://localhost:8080/usuarios/${userToDelete}/eliminar`, {
+          method: 'DELETE',
+        });
+  
+        if (response.ok) {
+          await fetchUsers();        } else {
+          console.error("Error eliminando usuario:", await response.json());
+        }
+      } catch (error) {
+        console.error("Error en la solicitud de eliminación:", error);
+      } finally {
+        setUserToDelete(null);
+        setIsModalOpen(false);
+      }
+    }
+  };
+  
+  
 
   const handleEdit = (user: User) => {
     setSelectedUser(user)
