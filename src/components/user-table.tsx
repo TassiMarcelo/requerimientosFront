@@ -18,11 +18,13 @@ import { UserView } from './user-view'
 import Modal from './Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
+import { CategoriaForm } from './CategoriaForm';
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([])
   const [search, setSearch] = useState('')
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(false) // Formulario de crear usuario
+  const [showCategoriasForm, setShowCategoriasForm] = useState(false) // Formulario de categorías
   const [showView, setShowView] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,11 +33,10 @@ export function UserTable() {
   useEffect(() => {
     fetchUsers();
   }, []);
-  
 
   // Filtrado de usuarios
   const filteredUsers = users.filter(user => {
-    if (search.trim() === '') return true; // Si no hay búsqueda, mostrar todos los usuarios
+    if (search.trim() === '') return true; 
     
     const searchTerm = search.toLowerCase();
     if (searchTerm === 'true') {
@@ -58,24 +59,41 @@ export function UserTable() {
     );
   });
 
+  const handleShowCategoriasForm = () => {
+  setShowCategoriasForm(true);
+  };
+
+  const handleCloseCategoriasForm = () => {
+    setShowCategoriasForm(false);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+  };
+
   const handleDelete = (id: string) => {
     setUserToDelete(id);
     setIsModalOpen(true);
   }
+
+  const handleSaveCategoria = (categoria: any) => {
+    console.log("Categoría guardada:", categoria);
+    // Aquí se actualizaría la lista de categorías, como ejemplo lo estamos simplemente mostrando en consola
+    setShowCategoriasForm(false);
+  };
 
   const fetchUsers = async () => {
     try {
       const response = await fetch('http://localhost:8080/usuarios/todos');
       const data = await response.json();
       if (data.message === "Usuarios") {
-        const usuariosActivos = data.data.filter((user: User) => user.activado); // Filtrar solo activados
+        const usuariosActivos = data.data.filter((user: User) => user.activado);
         setUsers(usuariosActivos);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
     }
   };
-  
   
   const confirmDelete = async () => {
     if (userToDelete) {
@@ -85,7 +103,8 @@ export function UserTable() {
         });
   
         if (response.ok) {
-          await fetchUsers();        } else {
+          await fetchUsers();
+        } else {
           console.error("Error eliminando usuario:", await response.json());
         }
       } catch (error) {
@@ -96,8 +115,6 @@ export function UserTable() {
       }
     }
   };
-  
-  
 
   const handleEdit = (user: User) => {
     setSelectedUser(user)
@@ -110,7 +127,7 @@ export function UserTable() {
   }
 
   const handleSave = (user: User) => {
-    console.log("Usuario recibido en handleSave:", user); // Depuración
+    console.log("Usuario recibido en handleSave:", user);
   
     if (!user || !user.id) {
       console.error("Usuario no válido:", user);
@@ -118,25 +135,19 @@ export function UserTable() {
     }
   
     if (selectedUser) {
-      // Actualizar usuario existente
       setUsers(users.map(u => u.id === user.id ? user : u));
     } else {
-      // Crear nuevo usuario
-      setUsers([user, ...users]); // Usar el usuario devuelto por el backend
+      setUsers([user, ...users]); 
     }
   
     setShowForm(false);
     setSelectedUser(null);
   };
 
-  const mostrarPop = function(){
-    Swal.fire("CUalquiera");
-  }
-
   return (
     <div className="space-y-4 relative">
       <div className="flex justify-between items-center z-20 relative">
-      <div className="relative w-72">
+        <div className="relative w-72">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-800" />
           <Input
             placeholder="Buscar usuarios..."
@@ -145,11 +156,20 @@ export function UserTable() {
             className="pl-8 placeholder:text-gray-800"
           />
         </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Crear usuario
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleShowCategoriasForm}>
+            <Plus className="mr-2 h-4 w-4" />
+            Categorías y tipos
+          </Button>
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Crear usuario
+          </Button>
+        </div>
       </div>
+
+      {/* Mostrar el formulario de Categorías y tipos */}
+      {showCategoriasForm && <CategoriaForm onSave={handleSaveCategoria} onClose={handleCloseCategoriasForm} />}
 
       <div className="rounded-md border border-black">
         <Table>
@@ -174,27 +194,27 @@ export function UserTable() {
                   <TableCell className="text-center border border-black">{user.empresa}</TableCell>
                   <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
                   <TableCell className="text-center border border-black align-middle min-h-[56px]">
-  <div className="flex items-center justify-center relative top-[-4px]">
-    <Checkbox 
-    checked={user.preferencia} 
-    disabled
-    className="text-green-800 bg-green-900"
-    />
-  </div>
-</TableCell>
-<TableCell className="text-center border border-black align-middle min-h-[56px]">
-  <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
-    <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
-      <Eye className="h-4 w-4" />
-    </Button>
-    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
-      <Pencil className="h-4 w-4" />
-    </Button>
-    <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
-      <Trash2 className="h-4 w-4" />
-    </Button>
-  </div>
-</TableCell>
+                    <div className="flex items-center justify-center relative top-[-4px]">
+                      <Checkbox 
+                        checked={user.preferencia} 
+                        disabled
+                        className="text-green-800 bg-green-900"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center border border-black align-middle min-h-[56px]">
+                    <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
+                      <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
@@ -206,6 +226,7 @@ export function UserTable() {
         </Table>
       </div>
 
+      {/* Mostrar formulario de creación de usuario si está activo */}
       {showForm && (
         <UserForm
           user={selectedUser}
@@ -240,5 +261,5 @@ export function UserTable() {
       </Modal>
 
     </div>
-  )
+  );
 }
