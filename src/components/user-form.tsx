@@ -128,8 +128,8 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
   return (
     <>
-      <div className="flex justify-center items-center fixed inset-0 z-10">
-        <div className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? 'scroll-hidden' : ''}`}>
+<div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+<div className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? 'scroll-hidden' : ''}`}>
           <form onSubmit={handleSubmit} className="space-y-4 mt-0">
             {/* Contenedor flexible para las columnas */}
             <div className="flex space-x-6">

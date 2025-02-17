@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,6 +8,7 @@
     body {
       @apply bg-background text-foreground;
       background-color: hsl(var(--background));
+      border: none;
     }
     .border-border {
       border-color: hsl(var(--border));
@@ -21,6 +23,9 @@
     /* Para navegadores Webkit (Chrome, Safari, etc.) */
     .scroll-hidden::-webkit-scrollbar {
       display: none; /* Ocultar la barra de desplazamiento completamente */
+    }
+    html {
+      border: none;
     }
   }
 
@@ -101,5 +106,37 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+  .overlay {
+    margin: 0;
+  padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 50;
+    border: none; 
+    outline: none; 
+  }
+  .form-container {
+    border-top: none;
+    width: 100%;
+    max-width: 800px;
+    max-height: 95vh;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0; /* Asegúrate de que no haya márgenes */
+    overflow-y: auto; /* Permite el scroll vertical si es necesario */
+  }
+/* Asegúrate de que el fondo oscuro también no tenga márgenes o bordes */
+.fixed {
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 }
  

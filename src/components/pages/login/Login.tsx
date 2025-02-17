@@ -74,7 +74,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      Swal.fire("Error", "Error al iniciar sesión");
+      Swal.fire("Error", "Usuario o contraseña inválidos");
     }
   };
 

@@ -118,9 +118,9 @@ export function UserTable() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="relative w-72">
+    <div className="space-y-4 relative">
+      <div className="flex justify-between items-center z-20 relative">
+      <div className="relative w-72">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-800" />
           <Input
             placeholder="Buscar usuarios..."
@@ -157,24 +157,24 @@ export function UserTable() {
                   <TableCell className="text-center border border-black">{user.email}</TableCell>
                   <TableCell className="text-center border border-black">{user.empresa}</TableCell>
                   <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
-                  <TableCell className="text-center border border-black align-middle">
-                    <div className="flex items-center justify-center">
-                      <Checkbox checked={user.preferencia} disabled/>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center border border-black">
-                    <div className="flex items-center justify-center">
-                      <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  <TableCell className="text-center border border-black align-middle min-h-[56px]">
+  <div className="flex items-center justify-center relative top-[-4px]">
+    <Checkbox checked={user.preferencia} disabled />
+  </div>
+</TableCell>
+<TableCell className="text-center border border-black align-middle min-h-[56px]">
+  <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
+    <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
+      <Eye className="h-4 w-4" />
+    </Button>
+    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+      <Pencil className="h-4 w-4" />
+    </Button>
+    <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </div>
+</TableCell>
                 </TableRow>
               ))
             ) : (
