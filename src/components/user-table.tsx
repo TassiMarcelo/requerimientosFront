@@ -159,7 +159,11 @@ export function UserTable() {
                   <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
                   <TableCell className="text-center border border-black align-middle min-h-[56px]">
   <div className="flex items-center justify-center relative top-[-4px]">
-    <Checkbox checked={user.preferencia} disabled />
+    <Checkbox 
+    checked={user.preferencia} 
+    disabled
+    className="text-green-800 bg-green-900"
+    />
   </div>
 </TableCell>
 <TableCell className="text-center border border-black align-middle min-h-[56px]">
