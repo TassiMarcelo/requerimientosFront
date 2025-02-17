@@ -50,6 +50,11 @@ console.log(user.username);
             <h4 className="font-medium">Preferencia</h4>
             <p className="text-sm text-muted-foreground">{user.preferencia ? 'Sí' : 'No'}</p>
           </div>
+          <div>
+            <h4 className="font-medium">Rol</h4>
+            <p className="text-sm text-muted-foreground">    {user.role === "ROLE_ADMIN" ? "Administrador" : "Usuario Externo"}
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
