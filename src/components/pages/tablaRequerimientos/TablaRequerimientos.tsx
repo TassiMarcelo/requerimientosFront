@@ -54,6 +54,7 @@ export function TablaRequerimientos() {
           return res.json();
         })
         .then((data) => {
+          data = data.data;
           console.log(data);
           setDatos(Array.isArray(data) ? data : []);
         })
@@ -245,13 +246,9 @@ export function TablaRequerimientos() {
     });
   };
 
-  const datosFiltrados = datos.filter((item) => {
-    return (
-      (!filtros.tipo || item.tipo === filtros.tipo) &&
-      (!filtros.categoria || item.categoria === filtros.categoria) &&
-      (!filtros.estado || item.estado === filtros.estado)
-    );
-  });
+  const datosFiltrados = datos;
+
+  console.log("filtrados: " + datosFiltrados);
 
   const handleNuevoRequerimiento = (nuevoRequerimiento: Requerimiento) => {
     setDatos([nuevoRequerimiento, ...datos]);
