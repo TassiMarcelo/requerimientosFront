@@ -246,9 +246,13 @@ export function TablaRequerimientos() {
     });
   };
 
-  const datosFiltrados = datos;
-
-  console.log("filtrados: " + datosFiltrados);
+  const datosFiltrados = datos.filter((item) => {
+    return (
+      (!filtros.tipo || item.tipo === filtros.tipo) &&
+      (!filtros.categoria || item.categoria === filtros.categoria) &&
+      (!filtros.estado || item.estado === filtros.estado)
+    );
+  });
 
   const handleNuevoRequerimiento = (nuevoRequerimiento: Requerimiento) => {
     setDatos([nuevoRequerimiento, ...datos]);
