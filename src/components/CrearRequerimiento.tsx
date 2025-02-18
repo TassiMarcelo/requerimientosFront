@@ -3,6 +3,7 @@ import { Dialog } from '@headlessui/react'
 import { PlusSquare, X } from 'lucide-react'
 import Select from 'react-select'
 import { Requerimiento } from '../types/requerimiento'
+import Swal from 'sweetalert2'
 
 interface CrearRequerimientoProps {
   onCrear: (requerimiento: Requerimiento) => void
@@ -25,24 +26,59 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     archivos: [],
   })
 
-  console.log("tipo: " + nuevoRequerimiento.tipo);
 
-  /*
-  const username = loginUsername;
-  const password = loginPassword;
+  const sendJsonFile = async () => {
+    Swal.fire({
+      title: 'Cargando...',
+      text: 'Por favor, espera un momento.',
+      allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+      didOpen: () => {
+        Swal.showLoading(); // Muestra el spinner de carga
+      },
+    });
+    const jsonData = {
+      asunto: "nuevoRequerimiento.asunto",
+      descripcion: "nuevoRequerimiento.descripcion",
+      prioridad: "nuevoRequerimiento.prioridad",
+      tipoRequerimiento: {
+          codigo: "ERR"
+      },
+      emisor: {
+          id: "1"
+      }
+    }; // Tu JSON
+  
+    // Crear un Blob y convertirlo en un File
+    const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: "application/json" });
+    const jsonFile = new File([jsonBlob], "datos.json", { type: "application/json" });
 
-  const response = await fetch("http://localhost:8080/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
-  });
+    const file1 = new File([], "archivo_vacio.txt", { type: "text/plain" });
+  
+    // Crear FormData para enviarlo
+    const formData = new FormData();
+    formData.append("requerimientoDTO", jsonFile); // El backend debe esperar una clave "file"
+    formData.append("archivos", file1); // El backend debe esperar una clave "file"
+  
+    try {
+      const response = await fetch("http://localhost:8080/requerimientos/agregar", {
+        method: "POST",
+        body: formData
+      });
+  
+      if (!response.ok) throw new Error("Error al subir el archivo");
 
-  if (!response.ok) {
-    throw new Error("Login failed");
-  }
-*/
+      const result = await response.json();
+      console.log("Archivo subido con éxito:", result);
+      Swal.close()
+      Swal.fire("Exito","Requerimiento creado con exito");
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.close();
+      Swal.fire("Error",error.toString());
+    }
+  };
+
+
   const [archivos, setArchivos] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -151,7 +187,38 @@ const handleCategoriaChange = (selected: any) => {
   const [selectedOption, setSelectedOption] = useState<{ value: string; label: string } | null>(null);
 
   const handleCancel = () => {
-    setShowCancelConfirmation(true); 
+    Swal.fire({
+      title: '¿Estás seguro?', // Título de la alerta
+      text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
+      icon: 'warning', // Icono (warning, error, success, info, question)
+      showCancelButton: true, // Mostrar botón de cancelar
+      confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
+      cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Restablecer el formulario y cerrar el modal principal
+        setNuevoRequerimiento({
+          codigo: "",
+          prioridad: "MEDIA",
+          tipo: "",
+          categoria: "",
+          fechaAlta: "",
+          estado: "Abierto",
+          asunto: "",
+          propietario: "g.jorge",
+          descripcion: "",
+          archivos: [],
+        });
+        setArchivos([]);
+        setSelectedOption(null);
+        setShowCancelConfirmation(false); // Cerrar el modal de confirmación
+        onClose(); // Cerrar el modal principal
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // Si el usuario hace clic en "Cancelar"
+        //Swal.fire('Cancelado', 'La acción fue cancelada.', 'error');
+      }
+    });
+    //setShowCancelConfirmation(true); 
   };
 
   const handleChange = (selected: any) => {
@@ -391,7 +458,7 @@ const handleCategoriaChange = (selected: any) => {
                 Cancelar
               </button>
               <button
-                onClick={crearRequerimiento}
+                onClick={sendJsonFile}
                 className="bg-gray-700 text-white px-8 py-2 rounded-md hover:bg-gray-600 transition-colors"
               >
                 Confirmar

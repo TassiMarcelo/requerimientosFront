@@ -18,13 +18,11 @@ import { UserView } from './user-view'
 import Modal from './Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
-import { CategoriaForm } from './CategoriaForm';
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([])
   const [search, setSearch] = useState('')
-  const [showForm, setShowForm] = useState(false) // Formulario de crear usuario
-  const [showCategoriasForm, setShowCategoriasForm] = useState(false) // Formulario de categorías
+  const [showForm, setShowForm] = useState(false)
   const [showView, setShowView] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,10 +31,11 @@ export function UserTable() {
   useEffect(() => {
     fetchUsers();
   }, []);
+  
 
   // Filtrado de usuarios
   const filteredUsers = users.filter(user => {
-    if (search.trim() === '') return true; 
+    if (search.trim() === '') return true; // Si no hay búsqueda, mostrar todos los usuarios
     
     const searchTerm = search.toLowerCase();
     if (searchTerm === 'true') {
@@ -59,35 +58,32 @@ export function UserTable() {
     );
   });
 
-  const handleShowCategoriasForm = () => {
-  setShowCategoriasForm(true);
-  };
-
-  const handleCloseCategoriasForm = () => {
-    setShowCategoriasForm(false);
-  };
-
-  const handleCloseForm = () => {
-    setShowForm(false);
-  };
-
-  const handleDelete = (id: string) => {
-    setUserToDelete(id);
-    setIsModalOpen(true);
+  const handleDelete = (user) => {
+    //setIsModalOpen(true);
+    Swal.fire({
+      title: '¿Estás seguro?', // Título de la alerta
+      text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
+      icon: 'warning', // Icono (warning, error, success, info, question)
+      showCancelButton: true, // Mostrar botón de cancelar
+      confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
+      cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.close();
+        confirmDelete(user.id);
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.close();
+        console.log("cancelado");
+      }
+    });
   }
-
-  const handleSaveCategoria = (categoria: any) => {
-    console.log("Categoría guardada:", categoria);
-    // Aquí se actualizaría la lista de categorías, como ejemplo lo estamos simplemente mostrando en consola
-    setShowCategoriasForm(false);
-  };
 
   const fetchUsers = async () => {
     try {
       const response = await fetch('http://localhost:8080/usuarios/todos');
       const data = await response.json();
       if (data.message === "Usuarios") {
-        const usuariosActivos = data.data.filter((user: User) => user.activado);
+        const usuariosActivos = data.data.filter((user: User) => user.activado); // Filtrar solo activados
         setUsers(usuariosActivos);
       }
     } catch (error) {
@@ -95,26 +91,44 @@ export function UserTable() {
     }
   };
   
-  const confirmDelete = async () => {
-    if (userToDelete) {
+  
+  const confirmDelete = async (id) => {
+    console.log("user to delete: " + userToDelete);
+    if (id) {
       try {
-        const response = await fetch(`http://localhost:8080/usuarios/${userToDelete}/eliminar`, {
+        Swal.fire({
+          title: 'Cargando...',
+          text: 'Por favor, espera un momento.',
+          allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+          didOpen: () => {
+            Swal.showLoading(); // Muestra el spinner de carga
+          },
+        });
+        const response = await fetch(`http://localhost:8080/usuarios/${id}/eliminar`, {
           method: 'DELETE',
         });
   
         if (response.ok) {
+          Swal.close();
+          Swal.fire("Usuario eliminado con exito");
           await fetchUsers();
         } else {
+          Swal.close();
+          Swal.fire("Error al eliminar usuario", await response.json());
           console.error("Error eliminando usuario:", await response.json());
         }
       } catch (error) {
+        Swal.close();
         console.error("Error en la solicitud de eliminación:", error);
+        Swal.fire("Error al eliminar usuario", error);
       } finally {
         setUserToDelete(null);
         setIsModalOpen(false);
       }
     }
   };
+  
+  
 
   const handleEdit = (user: User) => {
     setSelectedUser(user)
@@ -127,7 +141,7 @@ export function UserTable() {
   }
 
   const handleSave = (user: User) => {
-    console.log("Usuario recibido en handleSave:", user);
+    console.log("Usuario recibido en handleSave:", user); // Depuración
   
     if (!user || !user.id) {
       console.error("Usuario no válido:", user);
@@ -135,19 +149,25 @@ export function UserTable() {
     }
   
     if (selectedUser) {
+      // Actualizar usuario existente
       setUsers(users.map(u => u.id === user.id ? user : u));
     } else {
-      setUsers([user, ...users]); 
+      // Crear nuevo usuario
+      setUsers([user, ...users]); // Usar el usuario devuelto por el backend
     }
   
     setShowForm(false);
     setSelectedUser(null);
   };
 
+  const mostrarPop = function(){
+    Swal.fire("CUalquiera");
+  }
+
   return (
     <div className="space-y-4 relative">
       <div className="flex justify-between items-center z-20 relative">
-        <div className="relative w-72">
+      <div className="relative w-72">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-800" />
           <Input
             placeholder="Buscar usuarios..."
@@ -156,20 +176,11 @@ export function UserTable() {
             className="pl-8 placeholder:text-gray-800"
           />
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleShowCategoriasForm}>
-            <Plus className="mr-2 h-4 w-4" />
-            Categorías y tipos
-          </Button>
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Crear usuario
-          </Button>
-        </div>
+        <Button onClick={() => setShowForm(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Crear usuario
+        </Button>
       </div>
-
-      {/* Mostrar el formulario de Categorías y tipos */}
-      {showCategoriasForm && <CategoriaForm onSave={handleSaveCategoria} onClose={handleCloseCategoriasForm} />}
 
       <div className="rounded-md border border-black">
         <Table>
@@ -194,27 +205,27 @@ export function UserTable() {
                   <TableCell className="text-center border border-black">{user.empresa}</TableCell>
                   <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
                   <TableCell className="text-center border border-black align-middle min-h-[56px]">
-                    <div className="flex items-center justify-center relative top-[-4px]">
-                      <Checkbox 
-                        checked={user.preferencia} 
-                        disabled
-                        className="text-green-800 bg-green-900"
-                      />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center border border-black align-middle min-h-[56px]">
-                    <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
-                      <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  <div className="flex items-center justify-center relative top-[-4px]">
+                    <Checkbox 
+                    checked={user.preferencia} 
+                    disabled
+                    className="text-green-800 bg-green-900"
+                    />
+                  </div>
+                </TableCell>
+                <TableCell className="text-center border border-black align-middle min-h-[56px]">
+                  <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
+                    <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(user)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
                 </TableRow>
               ))
             ) : (
@@ -226,7 +237,6 @@ export function UserTable() {
         </Table>
       </div>
 
-      {/* Mostrar formulario de creación de usuario si está activo */}
       {showForm && (
         <UserForm
           user={selectedUser}
@@ -261,5 +271,5 @@ export function UserTable() {
       </Modal>
 
     </div>
-  );
+  )
 }

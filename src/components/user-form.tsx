@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import Modal from './Modal'
 import type { User } from '../types/user'
+import Swal from 'sweetalert2'
 
 interface UserFormProps {
   user?: User | null
@@ -97,7 +98,22 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   };
 
   const handleCancel = () => {
-    setIsCancelModalOpen(true);
+    //setIsCancelModalOpen(true);
+    Swal.fire({
+      title: '¿Estás seguro?', // Título de la alerta
+      text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
+      icon: 'warning', // Icono (warning, error, success, info, question)
+      showCancelButton: true, // Mostrar botón de cancelar
+      confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
+      cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+    }).then((result) => {
+      if (result.isConfirmed) {
+        confirmCancel();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        console.log("cancelado");
+        setIsCancelModalOpen(false);
+      }
+    });
   }
 
   const confirmCancel = () => {
@@ -113,6 +129,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
     const password = e.target.value;
     setFormData({ ...formData, password });
 
+    /*
     if (password.length < 8) {
       setErrorMessage('La contraseña debe tener al menos 8 caracteres.');
     } else if (!/[A-Z]/.test(password)) {
@@ -124,6 +141,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
     } else {
       setErrorMessage('');
     }
+    */
   };
 
   return (

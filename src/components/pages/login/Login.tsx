@@ -27,7 +27,14 @@ export default function Login() {
     try {
       const username = loginUsername;
       const password = loginPassword;
-  
+      Swal.fire({
+        title: 'Iniciando sesion...',
+        text: 'Por favor, espera un momento.',
+        allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+        didOpen: () => {
+          Swal.showLoading(); // Muestra el spinner de carga
+        },
+      });
       const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: {
@@ -37,9 +44,11 @@ export default function Login() {
       });
   
       if (!response.ok) {
+        Swal.close();
         throw new Error("Login failed");
       }
   
+      Swal.close();
       const data = await response.json();
       console.log("Login success:", data);
       localStorage.setItem("accessToken", data.accessToken);
