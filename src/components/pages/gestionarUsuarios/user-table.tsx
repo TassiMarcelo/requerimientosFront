@@ -15,7 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { UserForm } from './user-form'
 import { UserView } from './user-view'
-import Modal from './Modal'
+import Modal from '../../Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
 

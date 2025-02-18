@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import Modal from './Modal'
+import Modal from '../../Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
 

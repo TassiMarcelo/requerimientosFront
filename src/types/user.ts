@@ -1,4 +1,4 @@
-export interface User {
+export interface Requerimiento {
     id: string
     cuil: string
     email: string

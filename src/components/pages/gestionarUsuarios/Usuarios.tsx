@@ -1,5 +1,5 @@
 import UserMenu from '../../ui/UserMenu';
-import { UserTable } from '../../user-table';
+import { UserTable } from './user-table';
 import { useState, useEffect } from 'react';
 
 export default function Usuarios() {

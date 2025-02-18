@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { Dialog } from '@headlessui/react'
-import { User, FileText, Paperclip, Send, Download, X } from 'lucide-react'
+import { FileText, Paperclip, Send, Download, X } from 'lucide-react'
 import { CrearRequerimiento } from './CrearRequerimiento'
-import { Requerimiento } from '../types/requerimiento'
+import { Requerimiento } from '../../../types/user'
 
 interface Comentario {
   fecha: string
