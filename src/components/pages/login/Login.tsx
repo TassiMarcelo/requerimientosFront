@@ -118,7 +118,7 @@ export default function Login() {
               <input type="checkbox" onChange={togglePasswordVisibility} />
               <label>Mostrar contraseña</label>
             </div>
-            <button type="button" onClick={handleLogin}>Iniciar sesión</button>
+            <button type="button" className='loginButton' onClick={handleLogin}>Iniciar sesión</button>
           </form>
         ) : (
           <form>

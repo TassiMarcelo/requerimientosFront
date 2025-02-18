@@ -1,49 +1,52 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import Modal from '../../Modal'
-import type { User } from '../types/user'
-import Swal from 'sweetalert2'
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Button2 from "../../ui/Button2/Button2";
+import { Button } from "../../ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import Modal from "../../Modal";
+import type { User } from "../types/user";
+import Swal from "sweetalert2";
 
 interface UserFormProps {
-  user?: User | null
-  onSave: (user: User) => void
-  onCancel: () => void
+  user?: User | null;
+  onSave: (user: User) => void;
+  onCancel: () => void;
 }
 
 export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   const [formData, setFormData] = useState<Partial<User>>(
     user || {
-      cuil: '',
-      email: '',
-      nombre: '',
-      apellido: '',
-      empresa: '',
-      descripcion: '',
+      cuil: "",
+      email: "",
+      nombre: "",
+      apellido: "",
+      empresa: "",
+      descripcion: "",
       preferencia: false,
-      username: '',
-      password: ''
+      username: "",
+      password: "",
     }
-  )
+  );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (errorMessage) {
       return;
     }
-  
+
     try {
-      const url = user ? `http://localhost:8080/usuarios/${user.id}/update` : 'http://localhost:8080/usuarios/registrar';
-      const method = user ? 'PUT' : 'POST';
-  
+      const url = user
+        ? `http://localhost:8080/usuarios/${user.id}/update`
+        : "http://localhost:8080/usuarios/registrar";
+      const method = user ? "PUT" : "POST";
+
       const requestBody: any = {
         cuil: formData.cuil,
         email: formData.email,
@@ -56,34 +59,35 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         role: formData.role,
         activado: formData.activado,
       };
-  
+
       if (!user) {
         requestBody.password = formData.password;
       }
-  
+
       console.log("URL:", url);
       console.log("Método:", method);
       console.log("Cuerpo de la solicitud:", requestBody);
-  
+
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
       });
-  
+
       console.log("Respuesta del servidor:", response);
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage = errorData.message || errorData.error || 'Error desconocido';
+        const errorMessage =
+          errorData.message || errorData.error || "Error desconocido";
         throw new Error(errorMessage);
       }
-  
+
       const data = await response.json();
       console.log("Respuesta completa del servidor:", data);
-  
+
       if (!data || data.data === null) {
         // Si el servidor no devuelve el usuario actualizado, usa el formulario actual
         onSave({ ...formData, id: user?.id } as User);
@@ -92,20 +96,20 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         onSave(data.data);
       }
     } catch (error) {
-      console.error('Error en la solicitud:', error);
-      alert(error.message || 'Hubo un problema con la conexión');
+      console.error("Error en la solicitud:", error);
+      alert(error.message || "Hubo un problema con la conexión");
     }
   };
 
   const handleCancel = () => {
     //setIsCancelModalOpen(true);
     Swal.fire({
-      title: '¿Estás seguro?', // Título de la alerta
+      title: "¿Estás seguro?", // Título de la alerta
       text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
-      icon: 'warning', // Icono (warning, error, success, info, question)
+      icon: "warning", // Icono (warning, error, success, info, question)
       showCancelButton: true, // Mostrar botón de cancelar
-      confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
-      cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+      confirmButtonText: "Sí, continuar", // Texto del botón de confirmación
+      cancelButtonText: "Cancelar", // Texto del botón de cancelar
     }).then((result) => {
       if (result.isConfirmed) {
         confirmCancel();
@@ -114,16 +118,16 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         setIsCancelModalOpen(false);
       }
     });
-  }
+  };
 
   const confirmCancel = () => {
     setIsCancelModalOpen(false);
     onCancel();
-  }
+  };
 
   const cancelCancel = () => {
     setIsCancelModalOpen(false);
-  }
+  };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const password = e.target.value;
@@ -146,8 +150,12 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
   return (
     <>
-<div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-<div className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? 'scroll-hidden' : ''}`}>
+      <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+        <div
+          className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${
+            errorMessage ? "scroll-hidden" : ""
+          }`}
+        >
           <form onSubmit={handleSubmit} className="space-y-4 mt-0">
             {/* Contenedor flexible para las columnas */}
             <div className="flex space-x-6">
@@ -158,7 +166,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   <Input
                     id="nombre"
                     value={formData.nombre}
-                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nombre: e.target.value })
+                    }
                     onKeyPress={(e) => {
                       if (!/[a-zA-Z\s]/.test(e.key)) {
                         e.preventDefault();
@@ -173,7 +183,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   <Input
                     id="apellido"
                     value={formData.apellido}
-                    onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, apellido: e.target.value })
+                    }
                     onKeyPress={(e) => {
                       if (!/[a-zA-Z\s]/.test(e.key)) {
                         e.preventDefault();
@@ -189,7 +201,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -199,7 +213,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   <Input
                     id="empresa"
                     value={formData.empresa}
-                    onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, empresa: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -212,7 +228,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   <Input
                     id="cuil"
                     value={formData.cuil}
-                    onChange={(e) => setFormData({ ...formData, cuil: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, cuil: e.target.value })
+                    }
                     onKeyPress={(e) => {
                       if (!/[0-9]/.test(e.key)) {
                         e.preventDefault();
@@ -227,7 +245,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   <Input
                     id="descripcion"
                     value={formData.descripcion}
-                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, descripcion: e.target.value })
+                    }
                   />
                 </div>
 
@@ -236,7 +256,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   <Input
                     id="username"
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -249,7 +271,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                       type="text"
                       value="*********"
                       disabled
-                      className="bg-gray-400 cursor-not-allowed" 
+                      className="bg-gray-400 cursor-not-allowed"
                     />
                   ) : (
                     <Input
@@ -264,7 +286,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                       title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
                     />
                   )}
-                  {errorMessage && <span className="text-red-500 text-sm">{errorMessage}</span>}
+                  {errorMessage && (
+                    <span className="text-red-500 text-sm">{errorMessage}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -277,21 +301,22 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   id="preferencia"
                   checked={formData.preferencia}
                   onCheckedChange={(checked) =>
-                    setFormData({ ...formData, preferencia: checked as boolean })
+                    setFormData({
+                      ...formData,
+                      preferencia: checked as boolean,
+                    })
                   }
-                  className="mt-1" 
+                  className="mt-1"
                 />
-  <Label htmlFor="preferencia" className="flex items-center mb-0">Preferencia</Label> 
-  </div>
+                <Label htmlFor="preferencia" className="flex items-center mb-0">
+                  Preferencia
+                </Label>
+              </div>
 
               {/* Botones alineados a la derecha */}
               <div className="flex space-x-4">
-              <Button type="button" variant="outline" onClick={handleCancel} className="bg-gray-500 text-white border-gray-600 hover:bg-gray-700">
-              Cancelar
-                </Button>
-                <Button type="submit">
-                  {user ? 'Guardar cambios' : 'Crear usuario'}
-                </Button>
+                <Button2 title={"Cancelar"} onClick={handleCancel} className={"Button2 CancelButton"}></Button2>
+                <Button2 type={"submit"} title={"Guardar cambios"} className={"Button2 AcceptButton"}></Button2>
               </div>
             </div>
           </form>
@@ -301,10 +326,18 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       {/* Modal de cancelación */}
       <Modal isOpen={isCancelModalOpen} onClose={cancelCancel}>
         <div className="z-50">
-          <h2>{user ? "¿Estás seguro de que deseas cancelar la edición del usuario?" : "¿Estás seguro de que deseas cancelar la creación del usuario?"}</h2>
+          <h2>
+            {user
+              ? "¿Estás seguro de que deseas cancelar la edición del usuario?"
+              : "¿Estás seguro de que deseas cancelar la creación del usuario?"}
+          </h2>
           <div className="flex justify-center gap-2 mt-4">
-          <Button onClick={cancelCancel} variant="outline" className="bg-gray-200 text-black hover:bg-gray-300">
-          No
+            <Button
+              onClick={cancelCancel}
+              variant="outline"
+              className="bg-gray-200 text-black hover:bg-gray-300"
+            >
+              No
             </Button>
             <Button onClick={confirmCancel} variant="destructive">
               Sí
@@ -313,5 +346,5 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         </div>
       </Modal>
     </>
-  )
+  );
 }

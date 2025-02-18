@@ -15,12 +15,6 @@ html, body {
     padding: 2rem;
 }
 
-#icono_hospital_img {
-    height: 3rem;
-    width: 4rem;
-    display: block;
-    margin: 0 auto 10px;
-}
 
 .box h2 {
     text-align: center;
@@ -57,7 +51,7 @@ input:hover {
     background-color: rgb(247, 247, 247);
 }
 
-button {
+.loginButton {
     background-color: #006004;
     color: white;
     font-size: 18px;
@@ -69,7 +63,7 @@ button {
     transition: background 0.3s ease;
 }
 
-button:hover {
+.loginButton:hover {
     background-color: #e0e0e0;
     color:black;
 }
