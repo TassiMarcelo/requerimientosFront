@@ -18,6 +18,7 @@ import { UserView } from './user-view'
 import Modal from '../../Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
+import Button2 from '../../ui/Button2/Button2'
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([])
@@ -176,10 +177,8 @@ export function UserTable() {
             className="pl-8 placeholder:text-gray-800"
           />
         </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Crear usuario
-        </Button>
+        <Button2 title={"+  Crear usuario"} onClick={() => setShowForm(true)} className={"NeutralButton"}></Button2>
+
       </div>
 
       <div className="rounded-md border border-black">

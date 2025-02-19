@@ -4,6 +4,7 @@ import { PlusSquare, X } from 'lucide-react'
 import Select from 'react-select'
 import { Requerimiento } from '../types/requerimiento'
 import Swal from 'sweetalert2'
+import Button2 from '../../ui/Button2/Button2'
 
 interface CrearRequerimientoProps {
   onCrear: (requerimiento: Requerimiento) => void
@@ -451,18 +452,8 @@ const handleCategoriaChange = (selected: any) => {
             </div>
 
             <div className="flex justify-end gap-4 mt-8">
-              <button
-                onClick={handleCancel}
-                className="bg-gray-700 text-white px-8 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={sendJsonFile}
-                className="bg-gray-700 text-white px-8 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                Confirmar
-              </button>
+              <Button2 title={"Cancelar"} onClick={handleCancel} className='CancelButton'></Button2>
+              <Button2 onClick={sendJsonFile} className='AcceptButton' title={"Confirmar"}></Button2>
             </div>
           </div>
         </Dialog.Panel>

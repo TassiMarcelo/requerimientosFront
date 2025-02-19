@@ -315,8 +315,8 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
               {/* Botones alineados a la derecha */}
               <div className="flex space-x-4">
-                <Button2 title={"Cancelar"} onClick={handleCancel} className={"Button2 CancelButton"}></Button2>
-                <Button2 type={"submit"} title={"Guardar cambios"} className={"Button2 AcceptButton"}></Button2>
+                <Button2 title={"Cancelar"} onClick={handleCancel} className={"CancelButton"}></Button2>
+                <Button2 type={"submit"} title={"Guardar cambios"} className={"NeutralButton"}></Button2>
               </div>
             </div>
           </form>
