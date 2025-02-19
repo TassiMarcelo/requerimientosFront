@@ -19,6 +19,7 @@ import Modal from '../../Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
 import Button2 from '../../ui/Button2/Button2'
+import { CategoriaForm } from '../../CategoriaForm';
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([])
@@ -28,6 +29,7 @@ export function UserTable() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null); 
+  const [showCategoriasForm, setShowCategoriasForm] = useState(false) 
 
   useEffect(() => {
     fetchUsers();
@@ -49,6 +51,7 @@ export function UserTable() {
     const cuil = (user.cuil ? String(user.cuil) : '').toLowerCase();
     const empresa = user.empresa?.toLowerCase() ?? '';
     const descripcion = user.descripcion?.toLowerCase() ?? '';
+   
 
     return (
       fullName.includes(searchTerm) || 
@@ -58,6 +61,24 @@ export function UserTable() {
       descripcion.includes(searchTerm)
     );
   });
+
+  const handleShowCategoriasForm = () => {
+    setShowCategoriasForm(true);
+    };
+  
+    const handleCloseCategoriasForm = () => {
+      setShowCategoriasForm(false);
+    };
+  
+    const handleCloseForm = () => {
+      setShowForm(false);
+    };
+
+    const handleSaveCategoria = (categoria: any) => {
+      console.log("Categoría guardada:", categoria);
+      // Aquí se actualizaría la lista de categorías, como ejemplo lo estamos simplemente mostrando en consola
+      setShowCategoriasForm(false);
+    };
 
   const handleDelete = (user) => {
     //setIsModalOpen(true);
@@ -161,9 +182,6 @@ export function UserTable() {
     setSelectedUser(null);
   };
 
-  const mostrarPop = function(){
-    Swal.fire("CUalquiera");
-  }
 
   return (
     <div className="space-y-4 relative">
@@ -177,10 +195,16 @@ export function UserTable() {
             className="pl-8 placeholder:text-gray-800"
           />
         </div>
-        <Button2 title={"+  Crear usuario"} onClick={() => setShowForm(true)} className={"NeutralButton"}></Button2>
+        
 
+ <div className="flex gap-2">
+          <Button2 onClick={handleShowCategoriasForm} title={"+ Categorías y tipos"} className='NeutralButton'></Button2>
+          <Button2 title={"+  Crear usuario"} onClick={() => setShowForm(true)} className={"NeutralButton"}></Button2>
+        </div>
       </div>
 
+      {showCategoriasForm && <CategoriaForm onSave={handleSaveCategoria} onClose={handleCloseCategoriasForm} />}
+      
       <div className="rounded-md border border-black">
         <Table>
           <TableHeader>
