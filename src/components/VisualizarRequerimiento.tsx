@@ -8,6 +8,7 @@ interface Comentario {
   fecha: string
   hora: string
   usuario: string
+  titulo: string
   mensaje: string
   archivos: Array<{ nombre: string; tipo: string }>
 }
@@ -28,6 +29,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       fecha: '12/10/2024',
       hora: '11:10',
       usuario: 'd.ramon',
+      titulo: "que hacer?",
       mensaje: 'archivo reh-1-ar1 mal ingresado',
       archivos: []
     },
@@ -35,14 +37,16 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       fecha: '12/10/2024',
       hora: '11:41',
       usuario: 'g.jorge',
-      mensaje: 'corregido.',
+      titulo: "corregido",
+      mensaje: 'archivo reh-1-ar1 ya fue corregido.',
       archivos: []
     },
     {
       fecha: '15/10/2024',
       hora: '11:10',
       usuario: 'd.ramon',
-      mensaje: 'perfecto',
+      titulo: "gracias",
+      mensaje: 'perfecto, muchas gracias por todo',
       archivos: []
     }
   ])
@@ -143,7 +147,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       <strong>Fecha de Cierre: </strong>{fechaCierre}
     </div>
   )}
-</div>
+  </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda */}
@@ -208,23 +212,23 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
               </div>
 
               <div>
-  <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg mt-4">
-    Requerimientos Relacionados
-  </label>
-  <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
-    {requerimiento.requerimientosRelacionados && requerimiento.requerimientosRelacionados.length > 0 ? (
-      <ul className="list-disc pl-5">
-        {requerimiento.requerimientosRelacionados.map((relatedRequerimiento, index) => (
-          <li key={index} className="text-gray-700">
-            <span className="font-semibold">{relatedRequerimiento}</span> 
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <span className="text-gray-500">No hay requerimientos relacionados.</span>
-    )}
-  </div>
-</div>
+                <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg mt-4">
+                  Requerimientos Relacionados
+                </label>
+                <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
+                  {requerimiento.requerimientosRelacionados && requerimiento.requerimientosRelacionados.length > 0 ? (
+                    <ul className="list-disc pl-5">
+                      {requerimiento.requerimientosRelacionados.map((relatedRequerimiento, index) => (
+                        <li key={index} className="text-gray-700">
+                          <span className="font-semibold">{relatedRequerimiento}</span> 
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="text-gray-500">No hay requerimientos relacionados.</span>
+                  )}
+                </div>
+              </div>
 
   
               {/* Sección de comentarios */}
@@ -232,23 +236,45 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                   Comentarios
                 </label>
+                
                 <div className="w-full border-2 rounded-lg rounded-tl-none bg-white">
+                  <div className="grid grid-cols-5 gap-4 border-b pb-2 p-4 max-h-[300px] overflow-y-auto">
+                    <h2>Emisor</h2>
+                    <h2>Fecha y Hora</h2>
+                    <h2>Título</h2>
+                    <h2>Detalles</h2>
+                    <h2>Acciones</h2>
+                  </div>
                   <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
                     {comentarios.map((comentario, index) => (
                       <div key={index} className="border-b pb-4">
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="grid grid-cols-5 gap-4 items-start mb-2">
                           <div>
                             <span className="font-semibold">{comentario.usuario}</span>
-                            <span className="text-gray-500 ml-2">
-                              {comentario.fecha} {comentario.hora}
+                          </div>
+                          <div>
+                            <span className="text-gray-500">{comentario.fecha} {comentario.hora}
                             </span>
                           </div>
+                          <div>
+                            <span className="font-semibold">{comentario.titulo}</span>  
+                          </div>
+                          <p className="text-gray-700 mb-2">{comentario.mensaje}</p>
+                          <button
+                            onClick={agregarComentario} //SE DEBERÍA DIRIGIR A VER DETALLE
+                            className="bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
+                          >
+                            Ver Detalles
+                          </button>
+                          
                         </div>
-                        <p className="text-gray-700 mb-2">{comentario.mensaje}</p>
+                        
                         {comentario.archivos.length > 0 && (
                           <div className="mt-2">
                             <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
+                            {/* Seccion de enviar nuevo comentario */}
                             <div className="flex flex-wrap gap-2">
+                              
                               {comentario.archivos.map((archivo, fileIndex) => (
                                 <button
                                   key={fileIndex}
@@ -267,6 +293,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   </div>
                   <div className="border-t p-4">
                     <div className="flex items-center gap-2 mb-2">
+                      {/* 
                       <input
                         type="text"
                         value={nuevoComentario}
@@ -274,10 +301,13 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                         placeholder="Escribir un comentario..."
                         className="flex-1 p-2 border rounded-md"
                       />
+                      */}
+                      
                       <button
                         onClick={agregarComentario}
                         className="bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
                       >
+                        Comentario nuevo 
                         <Send className="h-5 w-5" />
                       </button>
                     </div>
