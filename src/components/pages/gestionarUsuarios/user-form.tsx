@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Modal from "../../Modal";
 import type { User } from "../types/user";
 import Swal from "sweetalert2";
+import CloseButton from "../../ui/CloseButton";
 
 interface UserFormProps {
   user?: User | null;
@@ -102,14 +103,13 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   };
 
   const handleCancel = () => {
-    //setIsCancelModalOpen(true);
     Swal.fire({
-      title: "¿Estás seguro?", // Título de la alerta
-      text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
-      icon: "warning", // Icono (warning, error, success, info, question)
-      showCancelButton: true, // Mostrar botón de cancelar
-      confirmButtonText: "Sí, continuar", // Texto del botón de confirmación
-      cancelButtonText: "Cancelar", // Texto del botón de cancelar
+      title: "¿Estás seguro?",
+      text: "¡No podrás revertir esta acción!", 
+      icon: "warning", 
+      showCancelButton: true, 
+      confirmButtonText: "Sí, continuar", 
+      cancelButtonText: "Cancelar", 
     }).then((result) => {
       if (result.isConfirmed) {
         confirmCancel();
@@ -152,11 +152,10 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
     <>
       <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
         <div
-          className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${
-            errorMessage ? "scroll-hidden" : ""
-          }`}
+                className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? "scroll-hidden" : ""} relative`} 
         >
-          <form onSubmit={handleSubmit} className="space-y-4 mt-0">
+          <CloseButton onClick={onCancel} />
+          <form onSubmit={handleSubmit} className="space-y-4 mt-6">            
             {/* Contenedor flexible para las columnas */}
             <div className="flex space-x-6">
               {/* Columna izquierda */}

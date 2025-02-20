@@ -5,6 +5,7 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import Select from 'react-select'
+import CloseButton from "./ui/CloseButton";
 
 interface TipoRequerimiento {
   id: number;
@@ -85,9 +86,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   }, [tipos]); 
   
   
-// Función para manejar la creación de una nueva categoría
-
-/*agrego aca */
 const handleTipoSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
@@ -113,10 +111,8 @@ const handleTipoSubmit = async (e: React.FormEvent) => {
       throw new Error('Error al crear el tipo de requerimiento.');
     }
 
-    // Verificar si la respuesta está vacía
     const responseText = await response.text();
     if (!responseText) {
-      // Si la respuesta está vacía, crear un tipo con id temporal
       const tipoConId = { id: Date.now(), descripcion: descripcionTipo, codigo, categoriaRequerimiento: [] };
       setTipos(prevTipos => [...prevTipos, tipoConId]);
       setDescripcionTipo('');
@@ -127,13 +123,10 @@ const handleTipoSubmit = async (e: React.FormEvent) => {
       return;
     }
 
-    // Si la respuesta tiene datos, procesarlos como JSON
     const newTipo = JSON.parse(responseText);
 
-    // Si el backend responde vacío, crear el tipo con id temporal
     const tipoConId = newTipo?.id ? newTipo : { id: Date.now(), descripcion: descripcionTipo, codigo, categoriaRequerimiento: [] };
 
-    // Agregar el tipo recién creado a la lista
     setTipos(prevTipos => [...prevTipos, tipoConId]);
 
     setDescripcionTipo('');
@@ -212,8 +205,9 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
       <div className="w-full max-w-4xl bg-white p-6 rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
+      <CloseButton onClick={onClose} />
         {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
-        <div className="mb-4">
+        <div className="mb-4 mt-6">
         <Input
           placeholder="Buscar tipos o categorías..."
           value={searchTerm}
@@ -261,8 +255,9 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
 
         {showTipoForm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-          <div className="w-full max-w-md bg-white p-4 rounded-md shadow-lg">
-            <form onSubmit={handleTipoSubmit} className="space-y-4">
+          <div className="w-full max-w-md bg-white p-4 rounded-md shadow-lg relative">
+          <CloseButton onClick={() => setShowTipoForm(false)} />
+            <form onSubmit={handleTipoSubmit} className="space-y-4 mt-6">
               <h1 className="text-lg font-semibold">Registrar Tipo de Requerimiento</h1>
               <div>
                 <Label htmlFor="descripcionTipo">Descripción</Label>
@@ -282,7 +277,8 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
         {/* Formulario para crear Categoría */}
         {showCategoriaForm && (
           <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-            <div className="w-full max-w-md bg-white p-4 rounded-md shadow-lg">
+            <div className="w-full max-w-md bg-white p-4 rounded-md shadow-lg relative">
+            <CloseButton onClick={() => setShowCategoriaForm(false)} />
               <form onSubmit={handleCategoriaSubmit} className="space-y-4">
                 <h1 className="text-lg font-semibold">Registrar Categoría</h1>
                 <div>
