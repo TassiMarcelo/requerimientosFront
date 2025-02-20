@@ -26,7 +26,7 @@ interface CategoriaFormProps {
 export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const [tipos, setTipos] = useState<TipoRequerimiento[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  
+  const [searchTerm, setSearchTerm] = useState('');
   const [showTipoForm, setShowTipoForm] = useState(false);
   const [showCategoriaForm, setShowCategoriaForm] = useState(false);
   
@@ -35,6 +35,14 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   
   const [descripcionCategoria, setDescripcionCategoria] = useState('');
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoRequerimiento | null>(null);
+  const filteredTipos = tipos.filter((tipo) => {
+    const matchesTipo = tipo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        tipo.codigo.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategoria = tipo.categoriaRequerimiento.some(
+      (categoria) => categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+        return matchesTipo || matchesCategoria;
+  });
   
     useEffect(() => {
     const fetchData = async () => {
@@ -205,30 +213,43 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
       <div className="w-full max-w-4xl bg-white p-6 rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
         {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
-
-        <div>
-          {tipos.length === 0 ? (
-            <p>No hay tipos de requerimiento disponibles.</p>
-          ) : (
-            tipos.map((tipo) => (
-              <div key={tipo.id} className="mb-4 p-4 border rounded-md">
-                <h2 className="font-semibold">{tipo.descripcion} ({tipo.codigo})</h2>
-                <div className="mt-2">
-                  <h3 className="font-semibold">Categorías:</h3>
-                  {tipo.categoriaRequerimiento.length === 0 ? (
-                    <p>No hay categorías asociadas a este tipo.</p>
-                  ) : (
-                    <ul className="list-disc pl-5">
-                      {tipo.categoriaRequerimiento.map((categoria) => (
-                        <li key={categoria.id}>{categoria.descripcion}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+        <div className="mb-4">
+        <Input
+          placeholder="Buscar tipos o categorías..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full"
+        />
+      </div>
+       
+      <div>
+        {filteredTipos.length === 0 ? (
+          <p>No se encontraron coincidencias.</p>
+        ) : (
+          filteredTipos.map((tipo) => (
+            <div key={tipo.id} className="mb-4 p-4 border rounded-md">
+              <h2 className="font-semibold">{tipo.descripcion} ({tipo.codigo})</h2>
+              <div className="mt-2">
+                <h3 className="font-semibold">Categorías:</h3>
+                {tipo.categoriaRequerimiento.length === 0 ? (
+                  <p>No hay categorías asociadas a este tipo.</p>
+                ) : (
+                  <ul className="list-disc pl-5">
+                  {tipo.categoriaRequerimiento.map((categoria) => {
+                    const matchesCategoria = categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+                    return (
+                      <li key={categoria.id} className={matchesCategoria ? "font-semibold" : ""}>
+                        {categoria.descripcion}
+                      </li>
+                    );
+                  })}
+                  </ul>
+                )}
               </div>
-            ))
-          )}
-        </div>
+            </div>
+          ))
+        )}
+      </div>
 
         <div className="flex justify-between mt-4">
           <div className="flex space-x-2">
