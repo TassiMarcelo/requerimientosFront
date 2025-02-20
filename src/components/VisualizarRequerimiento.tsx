@@ -5,6 +5,7 @@ import { CrearRequerimiento } from './CrearRequerimiento'
 import { Requerimiento } from '../types/requerimiento'
 
 interface Comentario {
+  key:number
   fecha: string
   hora: string
   usuario: string
@@ -26,6 +27,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
     {
+      key:1,
       fecha: '12/10/2024',
       hora: '11:10',
       usuario: 'd.ramon',
@@ -34,6 +36,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       archivos: []
     },
     {
+      key:2,
       fecha: '12/10/2024',
       hora: '11:41',
       usuario: 'g.jorge',
@@ -42,6 +45,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       archivos: []
     },
     {
+      key:3,
       fecha: '15/10/2024',
       hora: '11:10',
       usuario: 'd.ramon',
@@ -371,42 +375,53 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
               </div>
             </div>
           {/* Modal para Ver Detalle */}
-            {modalDetalleVisible && comentarioSeleccionado && (
-              comentarios.map((comentario, index) => (
-              <div className="modal show d-block" tabIndex={-1} role="dialog">
-                <div className="modal-dialog modal-lg" role="document">
-                  <div className="modal-content">
-                    <div className="modal-header">
-                      <h5 className="modal-title">Detalle del Comentario</h5>
-                      <button
-                        type="button"
-                        className="close"
-                        onClick={cerrarModalDetalle}
-                        aria-label="Close"
-                      >
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div className="modal-body">
-                      <p><strong>Emisor:</strong> {comentario.usuario}</p>
-                      <p><strong>Título:</strong> {comentario.titulo}</p>
-                      <p><strong>Fecha y Hora:</strong> {(comentario.fecha)}</p>
-                      <p><strong>Detalle:</strong> {comentario.mensaje}</p>
-                      <p><strong>Archivos Adjuntos:</strong></p>
-                    </div>
-                    <div className="modal-footer">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={cerrarModalDetalle}
-                      >
-                        Cerrar
-                      </button>
-                    </div>
-                  </div>
+          {modalDetalleVisible && comentarioSeleccionado && (
+            <Dialog open={modalDetalleVisible} onClose={cerrarModalDetalle} className="relative z-50">
+              <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
+              <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
+                <div className="inset-0 flex items-rigth justify-right">
+                <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg mt-4">
+                  <h1 className="text-xl font-black">{comentarioSeleccionado.usuario}</h1>
+                </label>
                 </div>
+                <Dialog.Panel className="w-full max-w-md rounded-lg bg-white shadow-lg p-4">
+                
+                
+                  <h1 className="text-xl font-bold">{comentarioSeleccionado.titulo}</h1>
+                  <p className="text-s font-bold">{comentarioSeleccionado.fecha}</p>
+                  <p className="text-s font-bold">{comentarioSeleccionado.hora}</p>
+                  <p className="text-gray-700 mt-2">{comentarioSeleccionado.mensaje}</p>
+                  {comentarioSeleccionado.archivos.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
+                            {/* Seccion de enviar nuevo comentario */}
+                            <div className="flex flex-wrap gap-2">
+                              
+                              {comentarioSeleccionado.archivos.map((archivo, fileIndex) => (
+                                <button
+                                  key={fileIndex}
+                                  onClick={() => handleFileAction(archivo)}
+                                  className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+                                >
+                                  <FileText className="h-4 w-4 mr-1" />
+                                  {archivo.nombre}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                  <button
+                    onClick={cerrarModalDetalle}
+                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                    Cerrar
+                  </button>
+                </Dialog.Panel>
               </div>
-            )))}
+            </Dialog>
+          )}
+
+            
             
             {/* Botones de acción */}
             <div className="bg-custom-grey p-4 rounded-b-lg">
