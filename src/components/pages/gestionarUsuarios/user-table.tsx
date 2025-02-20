@@ -69,10 +69,6 @@ export function UserTable() {
     const handleCloseCategoriasForm = () => {
       setShowCategoriasForm(false);
     };
-  
-    const handleCloseForm = () => {
-      setShowForm(false);
-    };
 
     const handleSaveCategoria = (categoria: any) => {
       console.log("Categoría guardada:", categoria);
@@ -198,12 +194,24 @@ export function UserTable() {
         
 
  <div className="flex gap-2">
-          <Button2 onClick={handleShowCategoriasForm} title={"+ Categorías y tipos"} className='NeutralButton'></Button2>
-          <Button2 title={"+  Crear usuario"} onClick={() => setShowForm(true)} className={"NeutralButton"}></Button2>
+ <Button2 
+  onClick={handleShowCategoriasForm} 
+  title={"+ Categorías y tipos"} 
+  className="NeutralButton" 
+  color="black"  
+  type="button"  
+/>
+<Button2 
+  title={"+ Crear usuario"} 
+  onClick={() => setShowForm(true)} 
+  className="NeutralButton" 
+  color="black" 
+  type="button"  
+></Button2>
         </div>
       </div>
 
-      {showCategoriasForm && <CategoriaForm onSave={handleSaveCategoria} onClose={handleCloseCategoriasForm} />}
+      {showCategoriasForm && <CategoriaForm onClose={handleCloseCategoriasForm} />}
       
       <div className="rounded-md border border-black">
         <Table>

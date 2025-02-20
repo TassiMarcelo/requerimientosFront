@@ -20,10 +20,10 @@ interface CategoriaRequerimiento {
 }
 
 interface CategoriaFormProps {
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-export function CategoriaForm({ onCancel }: CategoriaFormProps) {
+export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const [tipos, setTipos] = useState<TipoRequerimiento[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   
@@ -230,15 +230,12 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
           )}
         </div>
 
-        {/* Botones para agregar tipo y categoría */}
         <div className="flex justify-between mt-4">
           <div className="flex space-x-2">
             <Button onClick={() => setShowTipoForm(true)}>+ Tipo</Button>
             <Button onClick={() => setShowCategoriaForm(true)}>+ Categoría</Button>
           </div>
-
-          {/* Botón de Cerrar alineado a la derecha */}
-          <Button onClick={onCancel}>Cerrar</Button>
+          <Button onClick={onClose}>Cerrar</Button>
         </div>
 
         {showTipoForm && (
