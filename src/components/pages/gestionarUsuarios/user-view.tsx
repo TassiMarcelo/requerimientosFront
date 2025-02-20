@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { User } from '@/types/user'
 import { useEffect, useState } from 'react'
+import CloseButton from "@/components/ui/CloseButton" // Importa tu componente CloseButton
 
 interface UserViewProps {
   user: User 
@@ -10,17 +11,25 @@ interface UserViewProps {
 }
 
 export function UserView({ user, onClose }: UserViewProps) {
-console.log(user.username);
+  console.log(user.username);
+
   if (!user) {
     return <div>No se encontraron detalles del usuario.</div>
   }
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] [&>button]:hidden p-0"> 
+      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-4 rounded-t-md"> 
+      <div className="absolute -top-0 right-0">
+                  <CloseButton onClick={onClose} />
+        </div>
+
         <DialogHeader>
           <DialogTitle>Detalles del Usuario</DialogTitle>
         </DialogHeader>
+        </div>
+        <div className="p-6">
         <div className="space-y-4">
           <div>
             <h4 className="font-medium">Nombre Completo</h4>
@@ -52,8 +61,10 @@ console.log(user.username);
           </div>
           <div>
             <h4 className="font-medium">Rol</h4>
-            <p className="text-sm text-muted-foreground">    {user.role === "ROLE_ADMIN" ? "Administrador" : "Usuario Externo"}
+            <p className="text-sm text-muted-foreground">
+              {user.role === "ROLE_ADMIN" ? "Administrador" : "Usuario Externo"}
             </p>
+          </div>
           </div>
         </div>
       </DialogContent>

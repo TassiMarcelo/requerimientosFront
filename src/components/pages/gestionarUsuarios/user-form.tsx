@@ -151,11 +151,14 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-        <div
-                className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? "scroll-hidden" : ""} relative`} 
-        >
+      <div className={`w-full max-w-[800px] max-h-[95vh] bg-white rounded-md shadow-lg ${errorMessage ? "scroll-hidden" : ""} relative`}>
+      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md"> 
+      <div className="absolute -top-1 right-0"> 
           <CloseButton onClick={onCancel} />
-          <form onSubmit={handleSubmit} className="space-y-4 mt-6">            
+          </div>
+          </div>
+          <div className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4 mt-0">            
             {/* Contenedor flexible para las columnas */}
             <div className="flex space-x-6">
               {/* Columna izquierda */}
@@ -176,7 +179,6 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                     required
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="apellido">Apellido</Label>
                   <Input
@@ -321,6 +323,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
           </form>
         </div>
       </div>
+          </div>
 
       {/* Modal de cancelación */}
       <Modal isOpen={isCancelModalOpen} onClose={cancelCancel}>

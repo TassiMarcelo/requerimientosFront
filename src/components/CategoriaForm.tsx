@@ -202,11 +202,20 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
 };
 
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-      <div className="w-full max-w-4xl bg-white p-6 rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
-      <CloseButton onClick={onClose} />
+return (
+  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+    <div className="w-full max-w-4xl bg-white rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
+      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5"> {/* Aseguramos w-full y ajustamos el padding */}
+        <div className="absolute -top-1 right-4"> {/* Ajustamos la posición del botón */}
+          <CloseButton onClick={onClose} />
+        </div>
+      </div>
+
+      {/* Contenido del formulario */}
+      <div className="p-6"> {/* Padding interno para el contenido del formulario */}
         {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
+       
+       
         <div className="mb-4 mt-6">
         <Input
           placeholder="Buscar tipos o categorías..."
@@ -255,8 +264,18 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
 
         {showTipoForm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-          <div className="w-full max-w-md bg-white p-4 rounded-md shadow-lg relative">
-          <CloseButton onClick={() => setShowTipoForm(false)} />
+        {/* Contenedor principal con padding en los lados y abajo */}
+        <div className="w-full max-w-md bg-white rounded-md shadow-lg relative"> {/* Padding en los lados y abajo */}
+          {/* Barra horizontal sin espacios blancos arriba y a los costados */}
+          <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md"> {/* Ajustamos márgenes y padding */}
+            <div className="absolute -top-1 right-0"> {/* Ajustamos la posición del botón */}
+              <CloseButton onClick={() => setShowTipoForm(false)} />
+            </div>
+          </div>
+    
+          {/* Contenido del formulario */}
+          <div className="p-6">
+          
             <form onSubmit={handleTipoSubmit} className="space-y-4 mt-6">
               <h1 className="text-lg font-semibold">Registrar Tipo de Requerimiento</h1>
               <div>
@@ -272,13 +291,22 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
             </form>
           </div>
         </div>
+        </div>
       )}
 
-        {/* Formulario para crear Categoría */}
-        {showCategoriaForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-            <div className="w-full max-w-md bg-white p-4 rounded-md shadow-lg relative">
-            <CloseButton onClick={() => setShowCategoriaForm(false)} />
+{showCategoriaForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+    {/* Contenedor principal con padding en los lados y abajo */}
+    <div className="w-full max-w-md bg-white rounded-md shadow-lg relative"> {/* Padding en los lados y abajo */}
+      {/* Barra horizontal sin espacios blancos arriba y a los costados */}
+      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md"> {/* Ajustamos márgenes y padding */}
+        <div className="absolute -top-1 right-0"> {/* Ajustamos la posición del botón */}
+          <CloseButton onClick={() => setShowCategoriaForm(false)} />
+        </div>
+      </div>
+
+      {/* Contenido del formulario */}
+      <div className="p-6">
               <form onSubmit={handleCategoriaSubmit} className="space-y-4">
                 <h1 className="text-lg font-semibold">Registrar Categoría</h1>
                 <div>
@@ -343,8 +371,10 @@ const handleCategoriaSubmit = async (e: React.FormEvent) => {
               </form>
             </div>
           </div>
+          </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
