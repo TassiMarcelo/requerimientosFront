@@ -6,6 +6,7 @@ import { Requerimiento } from '../types/requerimiento'
 import UserMenu from './ui/UserMenu';
 
 
+
 export function TablaRequerimientos() {
   const [datos, setDatos] = useState<Requerimiento[]>([
     {

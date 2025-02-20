@@ -56,6 +56,11 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
   const [fechaCierre, setFechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
 
+  const [modalFormularioVisible, setModalFormularioVisible] = useState<boolean>(false);
+  const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
+  const [isComentarioOpen, setModalNuevoVisible] = useState<boolean>(false);
+  const [modalDetalleVisible, setModalDetalleVisible] = useState<boolean>(false);
+
   const opcionesTipo = [
     { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
     { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
@@ -72,6 +77,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     link.click()
     document.body.removeChild(link)
   }
+
+  const cerrarModalFormulario = () => setModalFormularioVisible(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -132,7 +139,18 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
   }
 
+  const mostrarDetalle = (comentario: Comentario) => {
+    setComentarioSeleccionado(comentario);
+    setModalDetalleVisible(true);
+  };
+
+  const cerrarModalDetalle = () => {
+    setModalDetalleVisible(false);
+    setComentarioSeleccionado(null);
+  };
+
   return (
+    <div>
     <>
       <Dialog open={isOpen} onClose={onClose} className="relative z-50">
         <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
@@ -230,6 +248,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
               </div>
 
+
   
               {/* Sección de comentarios */}
               <div className="mt-6">
@@ -259,9 +278,13 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                           <div>
                             <span className="font-semibold">{comentario.titulo}</span>  
                           </div>
-                          <p className="text-gray-700 mb-2">{comentario.mensaje}</p>
+                          <p className="text-gray-700 mb-2">
+                            {comentario.mensaje.length > 20
+                            ? comentario.mensaje.substring(0, 20)
+                            : comentario.mensaje}
+                          </p>
                           <button
-                            onClick={agregarComentario} //SE DEBERÍA DIRIGIR A VER DETALLE
+                            onClick={() => mostrarDetalle(comentario)}
                             className="bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
                           >
                             Ver Detalles
@@ -304,11 +327,11 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                       */}
                       
                       <button
-                        onClick={agregarComentario}
-                        className="bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
+                        onClick={() => setModalNuevoVisible(true)}
+                        className="flex bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
                       >
-                        Comentario nuevo 
-                        <Send className="h-5 w-5" />
+                        Crear comentario nuevo
+                        <Send className="ml-3 h-5 w-5 m-1 justify-center" />
                       </button>
                     </div>
                     <div>
@@ -321,13 +344,15 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                         id="comment-file-upload"
                         multiple
                       />
-                      <label
+                      {/* adjuntar archivo marce
+                       <label
                         htmlFor="comment-file-upload"
                         className="cursor-pointer text-blue-600 hover:text-blue-800 flex items-center"
                       >
                         <Paperclip className="h-5 w-5 mr-1" />
                         Adjuntar archivos (máx. 5)
                       </label>
+                       */}
                     </div>
                     {archivosNuevoComentario.length > 0 && (
                       <div className="mt-2 space-y-1">
@@ -345,7 +370,44 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
               </div>
             </div>
-
+          {/* Modal para Ver Detalle */}
+            {modalDetalleVisible && comentarioSeleccionado && (
+              comentarios.map((comentario, index) => (
+              <div className="modal show d-block" tabIndex={-1} role="dialog">
+                <div className="modal-dialog modal-lg" role="document">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Detalle del Comentario</h5>
+                      <button
+                        type="button"
+                        className="close"
+                        onClick={cerrarModalDetalle}
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div className="modal-body">
+                      <p><strong>Emisor:</strong> {comentario.usuario}</p>
+                      <p><strong>Título:</strong> {comentario.titulo}</p>
+                      <p><strong>Fecha y Hora:</strong> {(comentario.fecha)}</p>
+                      <p><strong>Detalle:</strong> {comentario.mensaje}</p>
+                      <p><strong>Archivos Adjuntos:</strong></p>
+                    </div>
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={cerrarModalDetalle}
+                      >
+                        Cerrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )))}
+            
             {/* Botones de acción */}
             <div className="bg-custom-grey p-4 rounded-b-lg">
               <div className="flex justify-end gap-4">
@@ -392,6 +454,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         </Dialog>
       )}
 
+
+
+
       <CrearRequerimiento
         onCrear={(nuevoRequerimiento) => {
           onCrear(nuevoRequerimiento);
@@ -402,8 +467,11 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         onClose={() => setIsCreateDialogOpen(false)}
       />
     </>
+
+    </div>
   )
 }
+
 
 function LabeledField({ label, value, noTopLeftRounded }: { label: string; value: string; noTopLeftRounded?: boolean }) {
   return (

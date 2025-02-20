@@ -135,7 +135,11 @@ const App = () => {
               <td>{comentario.emisor}</td>
               <td>{comentario.titulo}</td>
               <td>{comentario.fechaHora}</td>
-              <td>{comentario.detalle}</td>
+              <td>
+                {comentario.detalle.length > 50
+                  ? comentario.detalle.substring(0, 50)
+                  : comentario.detalle}
+              </td>
               <td>
                 <button
                   className="btn btn-primary btn-sm mr-2"
