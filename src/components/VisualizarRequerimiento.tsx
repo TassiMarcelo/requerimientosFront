@@ -376,50 +376,54 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             </div>
           {/* Modal para Ver Detalle */}
           {modalDetalleVisible && comentarioSeleccionado && (
-            <Dialog open={modalDetalleVisible} onClose={cerrarModalDetalle} className="relative z-50">
-              <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
-              <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
-                <div className="inset-0 flex items-rigth justify-right">
-                <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg mt-4">
-                  <h1 className="text-xl font-black">{comentarioSeleccionado.usuario}</h1>
-                </label>
-                </div>
-                <Dialog.Panel className="w-full max-w-md rounded-lg bg-white shadow-lg p-4">
-                
-                
-                  <h1 className="text-xl font-bold">{comentarioSeleccionado.titulo}</h1>
-                  <p className="text-s font-bold">{comentarioSeleccionado.fecha}</p>
-                  <p className="text-s font-bold">{comentarioSeleccionado.hora}</p>
-                  <p className="text-gray-700 mt-2">{comentarioSeleccionado.mensaje}</p>
-                  {comentarioSeleccionado.archivos.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
-                            {/* Seccion de enviar nuevo comentario */}
-                            <div className="flex flex-wrap gap-2">
-                              
-                              {comentarioSeleccionado.archivos.map((archivo, fileIndex) => (
-                                <button
-                                  key={fileIndex}
-                                  onClick={() => handleFileAction(archivo)}
-                                  className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-                                >
-                                  <FileText className="h-4 w-4 mr-1" />
-                                  {archivo.nombre}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                  <button
-                    onClick={cerrarModalDetalle}
-                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                  >
-                    Cerrar
-                  </button>
-                </Dialog.Panel>
-              </div>
-            </Dialog>
-          )}
+  <Dialog open={modalDetalleVisible} onClose={cerrarModalDetalle} className="relative z-50">
+    {/* Fondo oscuro */}
+    <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
+    <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
+      
+      {/* Panel principal del modal */}
+      <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
+        
+        {/* Etiqueta del usuario (colocada por debajo del panel) */}
+        <div className="absolute -top-11 left-0 bg-[#B8D68F] text-black px-10 py-3 rounded-tl-lg rounded-tr-lg shadow z-[-1]">
+          <h1 className="text-xl font-bold">{comentarioSeleccionado.usuario}</h1>
+        </div>
+
+        <h1 className="text-xl font-bold mt-0">{comentarioSeleccionado.titulo}</h1>
+        <p className="text-gray-500">{comentarioSeleccionado.fecha}</p>
+        <p className="text-gray-500">{comentarioSeleccionado.hora}</p>
+        <p className="text-gray-700 mt-4">{comentarioSeleccionado.mensaje}</p>
+        
+        {comentarioSeleccionado.archivos.length > 0 && (
+          <div className="mt-2">
+            <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
+            <div className="flex flex-wrap gap-2">
+              {comentarioSeleccionado.archivos.map((archivo, fileIndex) => (
+                <button
+                  key={fileIndex}
+                  onClick={() => handleFileAction(archivo)}
+                  className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  {archivo.nombre}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={cerrarModalDetalle}
+          className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Cerrar
+        </button>
+      </Dialog.Panel>
+    </div>
+  </Dialog>
+)}
+
+
 
             
             
