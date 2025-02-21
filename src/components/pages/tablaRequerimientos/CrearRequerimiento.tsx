@@ -44,7 +44,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       descripcion: "nuevoRequerimiento.descripcion",
       prioridad: "nuevoRequerimiento.prioridad",
       tipoRequerimiento: {
-          codigo: "ERR"
+          codigo: "REH"
       },
       emisor: {
           id: "1"
