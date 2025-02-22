@@ -164,11 +164,6 @@ export function TablaRequerimientos() {
     setIsViewDialogOpen(true);
   };
 
-  const handleCerrarCaso = (requerimientoCerrado: Requerimiento) => {
-    setDatos(prev => prev.map(req => 
-      req.codigo === requerimientoCerrado.codigo ? requerimientoCerrado : req
-    ));
-  };
 
   // Estilos y configuraciones de Select
   const customStyles = { /* ... (mantener mismo estilo) */ };
@@ -291,7 +286,6 @@ export function TablaRequerimientos() {
         isOpen={isViewDialogOpen}
         onClose={() => setIsViewDialogOpen(false)}
         onCrear={setDatos}
-        onCerrarCaso={handleCerrarCaso}
       />
 
       <CrearRequerimiento
