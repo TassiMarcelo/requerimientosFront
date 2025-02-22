@@ -1,28 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { CrearRequerimiento } from "./CrearRequerimiento";
 import { VisualizarRequerimiento } from "./VisualizarRequerimiento";
 import { Requerimiento } from "../types/requerimiento";
 import UserMenu from "../../ui/UserMenu";
-import { useEffect } from "react";
 import Button2 from "../../ui/Button2/Button2";
 
 export function TablaRequerimientos() {
   const [userId, setUserId] = useState<number | null>(2);
   const [datos, setDatos] = useState<Requerimiento[]>([]);
   const [userName, setUserName] = useState<string | null>(null);
+  const [filtros, setFiltros] = useState({
+    tipo: "",
+    categoria: "",
+    estado: "",
+  });
+  const [ordenamiento, setOrdenamiento] = useState({
+    columna: "",
+    direccion: "asc",
+  });
+  const [selectedRequerimiento, setSelectedRequerimiento] = useState<Requerimiento | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     const storedUserName = localStorage.getItem("userName");
 
-    console.log("User ID from localStorage:", userId); // Log del userId
-    console.log("User Name from localStorage:", storedUserName); // Log del userName
-
     if (storedUserName) {
-      setUserName(storedUserName); // Usa el nombre de usuario almacenado en localStorage
+      setUserName(storedUserName);
     } else {
-      setUserName(null); // Si no hay username almacenado, deja null
+      setUserName(null);
     }
 
     if (userId) {
@@ -39,92 +47,43 @@ export function TablaRequerimientos() {
             );
             if (usuarioActual) {
               setUserName(usuarioActual.username);
-              localStorage.setItem("userName", usuarioActual.username); // Guardarlo para futuras sesiones
+              localStorage.setItem("userName", usuarioActual.username);
             }
           }
         })
         .catch((error) => console.error("Error obteniendo usuarios:", error));
-
-      fetch(`http://localhost:8080/requerimientos/usuario/${userId}`)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(
-              `Error ${res.status}: No se pudieron obtener los requerimientos`
-            );
-          }
-          return res.json();
-        })
-        .then((data) => {
-          data = data.data;
-          console.log(data);
-          setDatos(Array.isArray(data) ? data : []);
-        })
-        .catch((error) => {
-          console.error("Error obteniendo requerimientos:", error);
-          setDatos([]); // Si hay un error, mejor asignar un array vacío
-        });
     }
   }, []);
 
-  /*
-  const [datos, setDatos] = useState<Requerimiento[]>([
-    {
-      codigo: "REH-2024-000000001",
-      prioridad: "MEDIA",
-      tipo: "hardware",
-      categoria: "Solicitud reparación de hardware",
-      fechaAlta: "12/09/2024",
-      estado: "Abierto",
-      asunto: "unAsunto",
-      propietario: "Gutierrez Jorge",
-      archivos: [{ nombre: "documento1.pdf", tipo: "application/pdf" }],
-    },
-    {
-      codigo: "REH-2024-000000002",
-      prioridad: "MEDIA",
-      tipo: "hardware",
-      categoria: "Solicitud reparación de hardware",
-      fechaAlta: "14/09/2024",
-      estado: "Abierto",
-      asunto: "unAsunto",
-      propietario: "Gutierrez Jorge",
-      archivos: [{ nombre: "documento2.docx", tipo: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }],
-    },
-    {
-      codigo: "REH-2024-000000003",
-      prioridad: "BAJA",
-      tipo: "hardware",
-      categoria: "Solicitud reparación de hardware",
-      fechaAlta: "18/09/2024",
-      estado: "Abierto",
-      asunto: "unAsunto",
-      propietario: "Gutierrez Jorge",
-      archivos: [],
-    },
-    {
-      codigo: "ERR-2024-000000004",
-      prioridad: "URGENTE",
-      tipo: "error",
-      categoria: "Nueva falla",
-      fechaAlta: "10/10/2024",
-      estado: "Abierto",
-      asunto: "unAsunto",
-      propietario: "Gutierrez Jorge",
-      archivos: [],
-    },
-    {
-      codigo: "ERR-2024-000000005",
-      prioridad: "URGENTE",
-      tipo: "error",
-      categoria: "Nueva falla",
-      fechaAlta: "12/10/2024",
-      estado: "Abierto",
-      asunto: "unAsunto",
-      propietario: "Gutierrez Jorge",
-      archivos: [],
-    },
-  ])
-*/
+  useEffect(() => {
+    const fetchRequerimientos = async () => {
+      try {
+        const url = new URL("http://localhost:8080/requerimientos/filtrar");
+        if (filtros.tipo) url.searchParams.append("tipoRequerimiento", filtros.tipo);
+        if (filtros.categoria) url.searchParams.append("categoria", filtros.categoria);
+        if (filtros.estado) url.searchParams.append("estado", filtros.estado);
+
+        const response = await fetch(url.toString(), {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: No se pudieron obtener los requerimientos`);
+        }
+
+        const data = await response.json();
+        setDatos(data.data || []);
+      } catch (error) {
+        console.error("Error obteniendo requerimientos:", error);
+        setDatos([]);
+      }
+    };
+
+    fetchRequerimientos();
+  }, [filtros]);
+
   const opcionesTipo = [
     { value: "hardware", label: "Requerimiento de Hardware", codigo: "REH" },
     { value: "software", label: "Requerimiento de Software", codigo: "RES" },
@@ -170,22 +129,6 @@ export function TablaRequerimientos() {
         return tipo;
     }
   };
-
-  const [filtros, setFiltros] = useState({
-    tipo: "",
-    categoria: "",
-    estado: "",
-  });
-
-  const [ordenamiento, setOrdenamiento] = useState({
-    columna: "",
-    direccion: "asc",
-  });
-
-  const [selectedRequerimiento, setSelectedRequerimiento] =
-    useState<Requerimiento | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const tiposUnicos = opcionesTipo;
 
@@ -247,14 +190,6 @@ export function TablaRequerimientos() {
     });
   };
 
-  const datosFiltrados = datos.filter((item) => {
-    return (
-      (!filtros.tipo || item.tipo === filtros.tipo) &&
-      (!filtros.categoria || item.categoria === filtros.categoria) &&
-      (!filtros.estado || item.estado === filtros.estado)
-    );
-  });
-
   const handleNuevoRequerimiento = (nuevoRequerimiento: Requerimiento) => {
     setDatos([nuevoRequerimiento, ...datos]);
   };
@@ -269,30 +204,30 @@ export function TablaRequerimientos() {
       ...provided,
       height: 45,
       padding: "05px",
-      borderColor: state.isFocused ? "#4A4A4A" : "#d1d5db", // Gris oscuro cuando está enfocado, gris claro cuando no lo está
-      backgroundColor: "white", // Fondo blanco
-      boxShadow: state.isFocused ? "0 0 0 1px #4A4A4A" : "none", // Gris oscuro para el enfoque, sin sombra cuando no está enfocado
+      borderColor: state.isFocused ? "#4A4A4A" : "#d1d5db",
+      backgroundColor: "white",
+      boxShadow: state.isFocused ? "0 0 0 1px #4A4A4A" : "none",
       "&:hover": {
-        borderColor: "#4A4A4A", // Gris oscuro en hover
+        borderColor: "#4A4A4A",
       },
     }),
     valueContainer: (provided) => ({
       ...provided,
-      height: "100%", // Asegura que el contenido ocupe toda la altura
+      height: "100%",
       display: "flex",
-      alignItems: "center", // Centra verticalmente el texto
+      alignItems: "center",
     }),
     input: (provided) => ({
       ...provided,
-      height: "100%", // Asegura que el input interno ocupe toda la altura
+      height: "100%",
     }),
     indicatorsContainer: (provided) => ({
       ...provided,
-      height: "100%", // Ajusta la altura de los iconos desplegables
+      height: "100%",
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: "white", // Fondo blanco para el menú desplegable
+      backgroundColor: "white",
     }),
     option: (provided, state) => ({
       ...provided,
@@ -300,19 +235,19 @@ export function TablaRequerimientos() {
         ? "#4A4A4A"
         : state.isFocused
         ? "#f3f4f6"
-        : "white", // Gris oscuro para la opción seleccionada, gris claro para la opción enfocada
-      color: state.isSelected ? "white" : "#333", // Blanco para la opción seleccionada, negro para las demás
+        : "white",
+      color: state.isSelected ? "white" : "#333",
       "&:hover": {
-        backgroundColor: "#e2e8f0", // Gris más claro cuando se pasa el mouse por encima
+        backgroundColor: "#e2e8f0",
       },
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: "#4A4A4A", // Gris oscuro para el texto del placeholder
+      color: "#4A4A4A",
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: "#333", // Color del texto seleccionado
+      color: "#333",
     }),
   };
 
@@ -339,14 +274,14 @@ export function TablaRequerimientos() {
       <div className="p-4 w-full">
         <div className="flex flex-wrap items-center gap-4 mb-6 w-full">
           <Select
-            className="w-64 h-[34px]" //
+            className="w-64 h-[34px]"
             value={
               filtros.tipo
                 ? tiposUnicos.find((tipo) => tipo.value === filtros.tipo)
                 : null
             }
             onChange={handleTipoChange}
-            options={tiposUnicos} // Usamos los tipos únicos que hemos transformado
+            options={tiposUnicos}
             placeholder="Tipo"
             styles={customStyles}
             isClearable={true}
@@ -354,7 +289,7 @@ export function TablaRequerimientos() {
           />
 
           <Select
-            className="w-64 h-[34px]" //
+            className="w-64 h-[34px]"
             value={
               filtros.categoria
                 ? { value: filtros.categoria, label: filtros.categoria }
@@ -369,7 +304,7 @@ export function TablaRequerimientos() {
           />
 
           <Select
-            className="w-64 h-[34px]" //
+            className="w-64 h-[34px]"
             value={
               filtros.estado
                 ? { value: filtros.estado, label: filtros.estado }
@@ -425,7 +360,7 @@ export function TablaRequerimientos() {
               </tr>
             </thead>
             <tbody>
-              {datosFiltrados.map((requerimiento) => (
+              {datos.map((requerimiento) => (
                 <tr
                   key={requerimiento.codigo}
                   className="hover:bg-gray-50 border-b border-gray-200 cursor-pointer"
@@ -443,24 +378,18 @@ export function TablaRequerimientos() {
                   >
                     {requerimiento.prioridad}
                   </td>
-                  <td className="p-3 text-center">
-                    {mapTipo(requerimiento.tipo)}
-                  </td>
+                  <td className="p-3 text-center">{mapTipo(requerimiento.tipo)}</td>
                   <td className="p-3 text-center">{requerimiento.categoria}</td>
                   <td className="p-3 text-center">{requerimiento.fechaAlta}</td>
                   <td
                     className={`p-3 text-center font-semibold ${
-                      requerimiento.estado === "Abierto"
-                        ? "text-green-600"
-                        : "text-red-600"
+                      requerimiento.estado === "Abierto" ? "text-green-600" : "text-red-600"
                     }`}
                   >
                     {requerimiento.estado}
                   </td>
                   <td className="p-3 text-center">{requerimiento.asunto}</td>
-                  <td className="p-3 text-center">
-                    {requerimiento.propietario}
-                  </td>
+                  <td className="p-3 text-center">{requerimiento.propietario}</td>
                 </tr>
               ))}
             </tbody>
