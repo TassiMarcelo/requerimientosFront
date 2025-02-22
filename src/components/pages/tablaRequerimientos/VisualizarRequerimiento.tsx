@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
-import { Dialog } from '@headlessui/react'
-import { FileText, Paperclip, Send, Download, X } from 'lucide-react'
+import { Dialog, DialogPanel } from '@headlessui/react'
+import { User, FileText, Paperclip, Send, Download, X } from 'lucide-react'
 import { CrearRequerimiento } from './CrearRequerimiento'
 import { Requerimiento } from '../../../types/user'
 
@@ -62,7 +62,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
   const [modalFormularioVisible, setModalFormularioVisible] = useState<boolean>(false);
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
-  const [isComentarioOpen, setModalNuevoVisible] = useState<boolean>(false);
+  const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
   const [modalDetalleVisible, setModalDetalleVisible] = useState<boolean>(false);
 
   const opcionesTipo = [
@@ -119,6 +119,21 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario([])
   }
 
+  const comentarioNuevo = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("titulo", nuevoComentario.titulo);
+    formData.append("detalle", nuevoComentario.detalle);
+    formData.append("emisor", "Usuario Actual"); // Reemplázalo con el usuario autenticado real
+    nuevoComentario.archivosAdjuntos.forEach((archivo) => {
+      formData.append("archivosAdjuntos", archivo);
+    });
+      setNuevoComentario({ titulo: "", detalle: "", archivosAdjuntos: [] });
+      setModalNuevoVisible(false);
+      cargarComentarios();
+  };
+
   const handleCerrarCaso = () => {
     setIsConfirmCloseOpen(true) // Mostrar el pop-up de confirmación
   }
@@ -138,6 +153,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     }
     setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
   }
+  const cancelarNuevoComentarios = () => {
+    setModalNuevoVisible(false); // Cerrar el pop-up de confirmación
+  }
 
   const cancelarCerrarCaso = () => {
     setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
@@ -152,6 +170,11 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setModalDetalleVisible(false);
     setComentarioSeleccionado(null);
   };
+
+  const cerrarModalNuevo = () => {
+    setModalNuevoVisible(false);
+  };
+
 
   return (
     <div>
@@ -320,7 +343,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   </div>
                   <div className="border-t p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      {/* 
+                      
                       <input
                         type="text"
                         value={nuevoComentario}
@@ -328,7 +351,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                         placeholder="Escribir un comentario..."
                         className="flex-1 p-2 border rounded-md"
                       />
-                      */}
+                      
                       
                       <button
                         onClick={() => setModalNuevoVisible(true)}
@@ -389,9 +412,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
           <h1 className="text-xl font-bold">{comentarioSeleccionado.usuario}</h1>
         </div>
 
-        <h1 className="text-xl font-bold mt-0">{comentarioSeleccionado.titulo}</h1>
-        <p className="text-gray-500">{comentarioSeleccionado.fecha}</p>
-        <p className="text-gray-500">{comentarioSeleccionado.hora}</p>
+        <h1 className="text-xl font-bold mt-0 pb-2 border-b">{comentarioSeleccionado.titulo}</h1>
+        <p className="text-gray-500 pt-2 ">{comentarioSeleccionado.fecha}</p>
+        <p className="text-gray-500 pb-2 border-b">{comentarioSeleccionado.hora}</p>
         <p className="text-gray-700 mt-4">{comentarioSeleccionado.mensaje}</p>
         
         {comentarioSeleccionado.archivos.length > 0 && (
@@ -473,6 +496,59 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         </Dialog>
       )}
 
+{modalNuevoVisible && (
+ <Dialog open={modalNuevoVisible} onClose={cerrarModalNuevo} className="relative z-50">
+ {/* Fondo oscuro */}
+ <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
+ <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
+   
+   {/* Panel principal del modal */}
+   <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
+   <Dialog.Title className="text-xl font-bold pb-2">Nuevo Comentario</Dialog.Title>
+    
+    <form action=""></form>
+    <div>
+      <label className="block font-medium pl-1">Título</label>
+      <input
+        type="text"
+        placeholder="Título"
+        className="w-full flex-1 p-2 border rounded-md"
+      />
+    </div>
+    <div>
+      <label className="block font-medium pt-2 pl-1">Detalles</label>
+      <textarea
+        placeholder="Detalles"
+        className="w-full h-32 p-2 border rounded-md resize-none text-left align-top"
+      ></textarea>
+    </div>
+    <div>
+      <label className="block font-medium pt-2 pl-1">Seleccionar Archivos</label>
+      <input
+        type="file"
+        placeholder="archivo"
+        className="w-full flex-1 p-2 border rounded-md"
+      />
+    </div>
+     {/* Etiqueta del usuario (colocada por debajo del panel) */}
+     <div className="flex justify-end gap-4">
+     <button
+       onClick={cerrarModalNuevo}
+       className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+     >
+       Cancelar
+     </button>
+     <button
+       onClick={cerrarModalNuevo}
+       className="mt-4 bg-[#556B2F] text-white px-4 py-2 rounded hover:bg-[#4A5D29] transition-colors"
+     >
+       Crear
+     </button>
+     </div>
+   </Dialog.Panel>
+ </div>
+</Dialog>
+)}
 
 
 
