@@ -22,6 +22,7 @@ interface VisualizarRequerimientoProps {
   onCerrarCaso: (requerimiento: Requerimiento) => void; 
 }
 
+
 export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,onCerrarCaso,}: VisualizarRequerimientoProps) {
   const [nuevoComentario, setNuevoComentario] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
