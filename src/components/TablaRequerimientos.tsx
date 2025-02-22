@@ -6,6 +6,7 @@ import { Requerimiento } from '../types/requerimiento'
 import UserMenu from './ui/UserMenu';
 
 
+export const userName = 'g.jorge'; 
 
 export function TablaRequerimientos() {
   const [datos, setDatos] = useState<Requerimiento[]>([
@@ -185,8 +186,6 @@ export function TablaRequerimientos() {
     setSelectedRequerimiento(requerimiento)
     setIsViewDialogOpen(true)
   }
-
-  const userName = 'g.jorge'; 
 
   const customStyles = {
     control: (provided, state) => ({

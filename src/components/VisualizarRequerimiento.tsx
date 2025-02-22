@@ -3,6 +3,7 @@ import { Dialog, DialogPanel } from '@headlessui/react'
 import { User, FileText, Paperclip, Send, Download, X } from 'lucide-react'
 import { CrearRequerimiento } from './CrearRequerimiento'
 import { Requerimiento } from '../types/requerimiento'
+import { userName } from './TablaRequerimientos'
 
 interface Comentario {
   key:number
@@ -10,7 +11,7 @@ interface Comentario {
   hora: string
   usuario: string
   titulo: string
-  mensaje: string
+  detalle: string
   archivos: Array<{ nombre: string; tipo: string }>
 }
 
@@ -24,7 +25,16 @@ interface VisualizarRequerimientoProps {
 
 
 export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,onCerrarCaso,}: VisualizarRequerimientoProps) {
-  const [nuevoComentario, setNuevoComentario] = useState('')
+  const [nuevoComentario, setNuevoComentario] = useState<Comentario>({
+    key: Date.now(),
+    fecha: new Date().toISOString().split("T")[0], // Fecha actual
+    hora: new Date().toLocaleTimeString(), // Hora actual
+    usuario: userName,
+    titulo: "",
+    detalle: "",
+    archivos: [],
+  });
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
     {
@@ -33,7 +43,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       hora: '11:10',
       usuario: 'd.ramon',
       titulo: "que hacer?",
-      mensaje: 'archivo reh-1-ar1 mal ingresado',
+      detalle: 'archivo reh-1-ar1 mal ingresado',
       archivos: []
     },
     {
@@ -42,7 +52,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       hora: '11:41',
       usuario: 'g.jorge',
       titulo: "corregido",
-      mensaje: 'archivo reh-1-ar1 ya fue corregido.',
+      detalle: 'archivo reh-1-ar1 ya fue corregido.',
       archivos: []
     },
     {
@@ -51,7 +61,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       hora: '11:10',
       usuario: 'd.ramon',
       titulo: "gracias",
-      mensaje: 'perfecto, muchas gracias por todo',
+      detalle: 'perfecto, muchas gracias por todo',
       archivos: []
     }
   ])
@@ -60,8 +70,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
   const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
   const [fechaCierre, setFechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
-
-  const [modalFormularioVisible, setModalFormularioVisible] = useState<boolean>(false);
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
   const [modalDetalleVisible, setModalDetalleVisible] = useState<boolean>(false);
@@ -83,8 +91,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     document.body.removeChild(link)
   }
 
-  const cerrarModalFormulario = () => setModalFormularioVisible(false);
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files) {
@@ -104,23 +110,27 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
-  const agregarComentario = () => {
-    if (nuevoComentario.trim() === '') return
-
-    const nuevoComentarioObj: Comentario = {
-      fecha: new Date().toLocaleDateString('es-ES'),
-      hora: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-      usuario: 'g.jorge',
-      mensaje: nuevoComentario,
-      archivos: archivosNuevoComentario.map(file => ({ nombre: file.name, tipo: file.type }))
+  const agregarComentario = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (nuevoComentario.titulo.trim() && nuevoComentario.detalle.trim()) {
+      setComentarios([
+        ...comentarios,
+        { ...nuevoComentario, key: Date.now() },
+      ]);
+      setNuevoComentario({
+        key: Date.now(),
+        fecha: new Date().toISOString().split("T")[0],
+        hora: new Date().toLocaleTimeString(),
+        usuario: userName,
+        titulo: "",
+        detalle: "",
+        archivos: [],
+      });
+      cerrarModalNuevo();
     }
+  };
 
-    setComentarios([...comentarios, nuevoComentarioObj])
-    setNuevoComentario('')
-    setArchivosNuevoComentario([])
-  }
-
-  const comentarioNuevo = async (e: React.FormEvent<HTMLFormElement>) => {
+{/*  const comentarioNuevo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -133,7 +143,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       setNuevoComentario({ titulo: "", detalle: "", archivosAdjuntos: [] });
       setModalNuevoVisible(false);
       cargarComentarios();
-  };
+  };*/}
 
   const handleCerrarCaso = () => {
     setIsConfirmCloseOpen(true) // Mostrar el pop-up de confirmación
@@ -307,9 +317,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                             <span className="font-semibold">{comentario.titulo}</span>  
                           </div>
                           <p className="text-gray-700 mb-2">
-                            {comentario.mensaje.length > 20
-                            ? comentario.mensaje.substring(0, 20)
-                            : comentario.mensaje}
+                            {comentario.detalle.length > 20
+                            ? comentario.detalle.substring(0, 20)
+                            : comentario.detalle}
                           </p>
                           <button
                             onClick={() => mostrarDetalle(comentario)}
@@ -345,13 +355,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   <div className="border-t p-4">
                     <div className="flex items-center gap-2 mb-2">
                       
-                      <input
-                        type="text"
-                        value={nuevoComentario}
-                        onChange={(e) => setNuevoComentario(e.target.value)}
-                        placeholder="Escribir un comentario..."
-                        className="flex-1 p-2 border rounded-md"
-                      />
+
                       
                       
                       <button
@@ -416,7 +420,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         <h1 className="text-xl font-bold mt-0 pb-2 border-b">{comentarioSeleccionado.titulo}</h1>
         <p className="text-gray-500 pt-2 ">{comentarioSeleccionado.fecha}</p>
         <p className="text-gray-500 pb-2 border-b">{comentarioSeleccionado.hora}</p>
-        <p className="text-gray-700 mt-4">{comentarioSeleccionado.mensaje}</p>
+        <p className="text-gray-700 mt-4">{comentarioSeleccionado.detalle}</p>
         
         {comentarioSeleccionado.archivos.length > 0 && (
           <div className="mt-2">
@@ -457,14 +461,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 <button onClick={onClose} className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors">
                   Volver
                 </button>
-                {requerimiento.estado !== 'Cerrado' && (
-                <button
-                  onClick={handleCerrarCaso} // Llamamos a la función para mostrar el pop-up de confirmación
-                  className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  Cerrar Caso
-                </button>
-                )}
               </div>
             </div>
           </Dialog.Panel>
@@ -507,13 +503,20 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
    <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
    <Dialog.Title className="text-xl font-bold pb-2">Nuevo Comentario</Dialog.Title>
     
-    <form action=""></form>
+    <form onSubmit={agregarComentario}>
+    <div>
+      
+    </div>
     <div>
       <label className="block font-medium pl-1">Título</label>
       <input
         type="text"
         placeholder="Título"
         className="w-full flex-1 p-2 border rounded-md"
+        value={nuevoComentario.titulo}
+        onChange={(e) =>
+          setNuevoComentario({ ...nuevoComentario, titulo: e.target.value })
+        }
       />
     </div>
     <div>
@@ -521,6 +524,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       <textarea
         placeholder="Detalles"
         className="w-full h-32 p-2 border rounded-md resize-none text-left align-top"
+        onChange={(e) =>
+          setNuevoComentario({ ...nuevoComentario, detalle: e.target.value })
+        }
       ></textarea>
     </div>
     <div>
@@ -529,6 +535,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         type="file"
         placeholder="archivo"
         className="w-full flex-1 p-2 border rounded-md"
+        onChange={handleFileChange}  // Asegúrate de manejar el cambio de archivos
+        multiple
       />
     </div>
      {/* Etiqueta del usuario (colocada por debajo del panel) */}
@@ -540,12 +548,13 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
        Cancelar
      </button>
      <button
-       onClick={cerrarModalNuevo}
+       type="submit"
        className="mt-4 bg-[#556B2F] text-white px-4 py-2 rounded hover:bg-[#4A5D29] transition-colors"
      >
        Crear
      </button>
      </div>
+     </form>
    </Dialog.Panel>
  </div>
 </Dialog>
@@ -567,6 +576,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     </div>
   )
 }
+
 
 
 function LabeledField({ label, value, noTopLeftRounded }: { label: string; value: string; noTopLeftRounded?: boolean }) {
