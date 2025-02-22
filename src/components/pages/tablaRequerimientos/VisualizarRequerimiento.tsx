@@ -470,14 +470,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 <button onClick={onClose} className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors">
                   Volver
                 </button>
-                {requerimiento.estado !== 'Cerrado' && (
-                <button
-                  onClick={handleCerrarCaso} // Llamamos a la función para mostrar el pop-up de confirmación
-                  className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  Cerrar Caso
-                </button>
-                )}
               </div>
             </div>
           </Dialog.Panel>
