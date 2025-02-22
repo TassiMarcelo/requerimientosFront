@@ -267,17 +267,23 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     <p>No se encontraron coincidencias.</p>
   ) : (
     <>
-      {/* Mostrar tipos que tienen al menos una categoría que coincide con la búsqueda */}
+      {/* Mostrar solo los tipos que coinciden con la búsqueda */}
       {tipos
-        .filter((tipo) =>
-          categorias.some(
+        .filter((tipo) => {
+          // Coincidencia en el tipo (descripción o código)
+          const coincideTipo =
+            tipo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tipo.codigo.toLowerCase().includes(searchTerm.toLowerCase());
+
+          // Coincidencia en alguna categoría asociada al tipo
+          const coincideCategoria = categorias.some(
             (categoria) =>
               categoria.codigoTipoRequerimiento === tipo.codigo &&
-              (categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                tipo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                tipo.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
-          )
-        )
+              categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          return coincideTipo || coincideCategoria;
+        })
         .map((tipo) => {
           // Obtener todas las categorías asociadas a este tipo
           const categoriasDelTipo = categorias.filter(
@@ -290,21 +296,27 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                 {tipo.descripcion} ({tipo.codigo})
               </h2>
               <div className="mt-2">
-                <h3 className="font-semibold">Categorías:</h3>
-                <ul className="list-disc pl-5">
-                  {categoriasDelTipo.map((categoria) => (
-                    <li
-                      key={categoria.id}
-                      className={
-                        categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-                          ? "font-bold" // Resaltar en negrita si coincide con la búsqueda
-                          : ""
-                      }
-                    >
-                      {categoria.descripcion}
-                    </li>
-                  ))}
-                </ul>
+                {categoriasDelTipo.length > 0 ? (
+                  <>
+                    <h3 className="font-semibold">Categorías:</h3>
+                    <ul className="list-disc pl-5">
+                      {categoriasDelTipo.map((categoria) => (
+                        <li
+                          key={categoria.id}
+                          className={
+                            categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+                              ? "font-bold" // Resaltar en negrita si coincide con la búsqueda
+                              : ""
+                          }
+                        >
+                          {categoria.descripcion}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>No existen categorías asociadas.</p>
+                )}
               </div>
             </div>
           );
