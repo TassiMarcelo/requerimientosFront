@@ -48,20 +48,28 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
   const [tipoSeleccionado, setTipoSeleccionado] =
     useState<TipoRequerimiento | null>(null);
-   
     const filtrarRequerimientos = (searchTerm: string) => {
       const lowercasedSearchTerm = searchTerm.toLowerCase();
-      const filteredTipos = tipos.filter((tipo) =>
-        tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)
+    
+      const filteredTipos = tipos.filter(
+        (tipo) =>
+          (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)) ||
+          (tipo.codigo && tipo.codigo.toLowerCase().includes(lowercasedSearchTerm))
       );
-
-      const filteredCategorias = categorias.filter((categoria) =>
-        categoria.descripcion.toLowerCase().includes(lowercasedSearchTerm) &&
-        tipos.some((tipo) => tipo.codigo === categoria.codigoTipoRequerimiento)
+    
+      const filteredCategorias = categorias.filter(
+        (categoria) =>
+          (categoria.descripcion && categoria.descripcion.toLowerCase().includes(lowercasedSearchTerm)) || // Filtra por descripción de categoría
+          (categoria.codigoTipoRequerimiento && categoria.codigoTipoRequerimiento.toLowerCase().includes(lowercasedSearchTerm)) ||
+          tipos.some(
+            (tipo) =>
+              tipo.codigo === categoria.codigoTipoRequerimiento &&
+              (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm))
+          )
       );
-  
       return { filteredTipos, filteredCategorias };
     };
+    
 
     useEffect(() => {
       const fetchData = async () => {
@@ -255,32 +263,55 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           </div>
 
           <div>
-            {filteredTipos.length === 0 ? (
-              <p>No se encontraron coincidencias.</p>
-            ) : (
-              filteredTipos.map((tipo) => (
-                <div key={tipo.codigo} className="mb-4 p-4 border rounded-md">
-                  <h2 className="font-semibold">
-                    {tipo.descripcion} ({tipo.codigo})
-                  </h2>
-                  <div className="mt-2">
-                    <h3 className="font-semibold">Categorías:</h3>
-                    {filteredCategorias
-                      .filter(
-                        (categoria) =>
-                          categoria.codigoTipoRequerimiento === tipo.codigo
-                      )
-                      .map((categoria) => (
-                        <ul key={categoria.id} className="list-disc pl-5">
-                          <li className="font-semibold">{categoria.descripcion}</li>
-                          
-                      </ul>
-                 )   )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+  {filteredTipos.length === 0 && filteredCategorias.length === 0 ? (
+    <p>No se encontraron coincidencias.</p>
+  ) : (
+    <>
+      {/* Mostrar tipos que tienen al menos una categoría que coincide con la búsqueda */}
+      {tipos
+        .filter((tipo) =>
+          categorias.some(
+            (categoria) =>
+              categoria.codigoTipoRequerimiento === tipo.codigo &&
+              (categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                tipo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                tipo.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
+          )
+        )
+        .map((tipo) => {
+          // Obtener todas las categorías asociadas a este tipo
+          const categoriasDelTipo = categorias.filter(
+            (categoria) => categoria.codigoTipoRequerimiento === tipo.codigo
+          );
+
+          return (
+            <div key={tipo.codigo} className="mb-4 p-4 border rounded-md">
+              <h2 className="font-semibold">
+                {tipo.descripcion} ({tipo.codigo})
+              </h2>
+              <div className="mt-2">
+                <h3 className="font-semibold">Categorías:</h3>
+                <ul className="list-disc pl-5">
+                  {categoriasDelTipo.map((categoria) => (
+                    <li
+                      key={categoria.id}
+                      className={
+                        categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+                          ? "font-bold" // Resaltar en negrita si coincide con la búsqueda
+                          : ""
+                      }
+                    >
+                      {categoria.descripcion}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          );
+        })}
+    </>
+  )}
+</div>
           <div className="flex justify-between mt-4">
             <div className="flex space-x-2">
               <Button onClick={() => setShowTipoForm(true)}>+ Tipo</Button>
