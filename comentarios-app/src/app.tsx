@@ -287,3 +287,72 @@ return (
   )};
   
   export default App;
+
+  <Dialog open={modalNuevoVisible} onClose={cancelarNuevoComentarios} className="relative z-50">
+  {/* Fondo oscuro */}
+  <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+  
+  {/* Contenedor del modal */}
+  <div className="fixed inset-0 flex items-center justify-center p-4">
+    <Dialog.Panel className="w-full max-w-md bg-white rounded-lg shadow-lg p-4">
+      <Dialog.Title className="text-xl font-bold">Agregar Nuevo Comentario</Dialog.Title>
+
+      <form onSubmit={agregarComentario}>
+        <div className="mt-4">
+          <label className="block font-medium">Título</label>
+          <input
+            type="text"
+            className="w-full border rounded p-2"
+            value={nuevoComentario.titulo}
+            onChange={(e) =>
+              setNuevoComentario({
+                ...nuevoComentario,
+                titulo: e.target.value,
+              })
+            }
+            required
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block font-medium">Detalle</label>
+          <textarea
+            className="w-full border rounded p-2"
+            value={nuevoComentario.detalle}
+            onChange={(e) =>
+              setNuevoComentario({
+                ...nuevoComentario,
+                detalle: e.target.value,
+              })
+            }
+            required
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block font-medium">Seleccionar Archivos</label>
+          <input
+            type="file"
+            className="w-full border rounded p-2"
+            multiple
+            onChange={manejarArchivos}
+          />
+          <small className="text-gray-500">Máximo 5 MB por archivo</small>
+        </div>
+
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+            onClick={cerrarModalFormulario}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Agregar
+          </button>
+        </div>
+      </form>
+    </Dialog.Panel>
+  </div>
+</Dialog>

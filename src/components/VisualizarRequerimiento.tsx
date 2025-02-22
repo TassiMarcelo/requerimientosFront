@@ -171,6 +171,11 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setComentarioSeleccionado(null);
   };
 
+  const cerrarModalNuevo = () => {
+    setModalNuevoVisible(false);
+  };
+
+
   return (
     <div>
     <>
@@ -492,74 +497,57 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       )}
 
 {modalNuevoVisible && (
-  <Dialog open={modalNuevoVisible} onClose={cancelarNuevoComentarios} className="relative z-50">
-    {/* Fondo oscuro */}
-    <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+ <Dialog open={modalNuevoVisible} onClose={cerrarModalNuevo} className="relative z-50">
+ {/* Fondo oscuro */}
+ <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
+ <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
+   
+   {/* Panel principal del modal */}
+   <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
+   <Dialog.Title className="text-xl font-bold pb-2">Nuevo Comentario</Dialog.Title>
     
-    {/* Contenedor del modal */}
-    <div className="fixed inset-0 flex items-center justify-center p-4">
-      <Dialog.Panel className="w-full max-w-md bg-white rounded-lg shadow-lg p-4">
-        <Dialog.Title className="text-xl font-bold">Agregar Nuevo Comentario</Dialog.Title>
-
-        <form onSubmit={agregarComentario}>
-          <div className="mt-4">
-            <label className="block font-medium">Título</label>
-            <input
-              type="text"
-              className="w-full border rounded p-2"
-              value={nuevoComentario.titulo}
-              onChange={(e) =>
-                setNuevoComentario({
-                  ...nuevoComentario,
-                  titulo: e.target.value,
-                })
-              }
-              required
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="block font-medium">Detalle</label>
-            <textarea
-              className="w-full border rounded p-2"
-              value={nuevoComentario.detalle}
-              onChange={(e) =>
-                setNuevoComentario({
-                  ...nuevoComentario,
-                  detalle: e.target.value,
-                })
-              }
-              required
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="block font-medium">Seleccionar Archivos</label>
-            <input
-              type="file"
-              className="w-full border rounded p-2"
-              multiple
-              onChange={manejarArchivos}
-            />
-            <small className="text-gray-500">Máximo 5 MB por archivo</small>
-          </div>
-
-          <div className="mt-4 flex justify-end gap-2">
-            <button
-              type="button"
-              className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-              onClick={cerrarModalFormulario}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-              Agregar
-            </button>
-          </div>
-        </form>
-      </Dialog.Panel>
+    <form action=""></form>
+    <div>
+      <label className="block font-medium pl-1">Título</label>
+      <input
+        type="text"
+        placeholder="Título"
+        className="w-full flex-1 p-2 border rounded-md"
+      />
     </div>
-  </Dialog>
+    <div>
+      <label className="block font-medium pt-2 pl-1">Detalles</label>
+      <textarea
+        placeholder="Detalles"
+        className="w-full h-32 p-2 border rounded-md resize-none text-left align-top"
+      ></textarea>
+    </div>
+    <div>
+      <label className="block font-medium pt-2 pl-1">Seleccionar Archivos</label>
+      <input
+        type="file"
+        placeholder="archivo"
+        className="w-full flex-1 p-2 border rounded-md"
+      />
+    </div>
+     {/* Etiqueta del usuario (colocada por debajo del panel) */}
+     <div className="flex justify-end gap-4">
+     <button
+       onClick={cerrarModalNuevo}
+       className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+     >
+       Cancelar
+     </button>
+     <button
+       onClick={cerrarModalNuevo}
+       className="mt-4 bg-[#556B2F] text-white px-4 py-2 rounded hover:bg-[#4A5D29] transition-colors"
+     >
+       Crear
+     </button>
+     </div>
+   </Dialog.Panel>
+ </div>
+</Dialog>
 )}
 
 
