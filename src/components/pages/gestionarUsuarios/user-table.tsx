@@ -123,7 +123,10 @@ export function UserTable() {
           },
         });
         const response = await fetch(`http://localhost:8080/usuarios/${id}/eliminar`, {
-          method: 'DELETE',
+          method: 'PATCH',
+          headers: {
+              'Content-Type': 'application/json'
+          },
         });
   
         if (response.ok) {
@@ -185,7 +188,7 @@ export function UserTable() {
       <div className="relative w-72">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-800" />
           <Input
-            placeholder="Buscar usuarios..."
+            placeholder="Buscar usuarios por cuil"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8 placeholder:text-gray-800"
