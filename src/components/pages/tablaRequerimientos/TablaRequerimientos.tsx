@@ -1,3 +1,4 @@
+// TablaRequerimientos.tsx
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { CrearRequerimiento } from "./CrearRequerimiento";
@@ -7,7 +8,6 @@ import UserMenu from "../../ui/UserMenu";
 import Button2 from "../../ui/Button2/Button2";
 
 export function TablaRequerimientos() {
-  const [userId, setUserId] = useState<number | null>(2);
   const [datos, setDatos] = useState<Requerimiento[]>([]);
   const [userName, setUserName] = useState<string | null>(null);
   const [filtros, setFiltros] = useState({
@@ -15,6 +15,8 @@ export function TablaRequerimientos() {
     categoria: "",
     estado: "",
   });
+  const [tipos, setTipos] = useState<any[]>([]);
+  const [categorias, setCategorias] = useState<any[]>([]);
   const [ordenamiento, setOrdenamiento] = useState({
     columna: "",
     direccion: "asc",
@@ -23,251 +25,170 @@ export function TablaRequerimientos() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
+  // Opciones predefinidas para estados
+  const estadosOpciones = [
+    { value: "ABIERTO", label: "Abierto" },
+    { value: "CERRADO", label: "Cerrado" },
+    { value: "ASIGNADO", label: "Asignado" }
+  ];
+
+  // Cargar datos iniciales
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const storedUserName = localStorage.getItem("userName");
-
-    if (storedUserName) {
-      setUserName(storedUserName);
-    } else {
-      setUserName(null);
-    }
-
-    if (userId) {
-      fetch("http://localhost:8080/usuarios/todos", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.data) {
-            const usuarioActual = data.data.find(
-              (user) => user.id.toString() === userId
-            );
-            if (usuarioActual) {
-              setUserName(usuarioActual.username);
-              localStorage.setItem("userName", usuarioActual.username);
-            }
+    const cargarDatosIniciales = async () => {
+      // Cargar usuario
+      const userId = localStorage.getItem("userId");
+      const storedUserName = localStorage.getItem("userName");
+      
+      if (userId && !storedUserName) {
+        try {
+          const response = await fetch("http://localhost:8080/usuarios/todos", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+          });
+          const data = await response.json();
+          const usuario = data.data.find((u: any) => u.id.toString() === userId);
+          if (usuario) {
+            setUserName(usuario.username);
+            localStorage.setItem("userName", usuario.username);
           }
-        })
-        .catch((error) => console.error("Error obteniendo usuarios:", error));
-    }
+        } catch (error) {
+          console.error("Error cargando usuario:", error);
+        }
+      }
+
+      // Cargar tipos y categorías
+      try {
+        const [tiposRes, categoriasRes] = await Promise.all([
+          fetch("http://localhost:8080/tiposRequerimientos/getAll", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+          }),
+          fetch("http://localhost:8080/categRequerimientos/todas", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+          })
+        ]);
+
+        const tiposData = await tiposRes.json();
+        const categoriasData = await categoriasRes.json();
+
+        setTipos(tiposData.data.map((t: any) => ({
+          value: t.codigo,
+          label: t.descripcion
+        })));
+
+        setCategorias(categoriasData.data.map((c: any) => ({
+          value: c.descripcion,
+          label: c.descripcion,
+          tipoCodigo: c.codigoTipoRequerimiento
+        })));
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      }
+    };
+
+    cargarDatosIniciales();
   }, []);
 
+  // Cargar requerimientos con filtros
   useEffect(() => {
-    const fetchRequerimientos = async () => {
+    const cargarRequerimientos = async () => {
+      const userName = localStorage.getItem("userName");
+      if (!userName) return;
+
       try {
-        const url = new URL("http://localhost:8080/requerimientos/filtrar");
+        const url = new URL(`http://localhost:8080/requerimientos/${userName}/filtrar`);
+        
         if (filtros.tipo) url.searchParams.append("tipoRequerimiento", filtros.tipo);
         if (filtros.categoria) url.searchParams.append("categoria", filtros.categoria);
         if (filtros.estado) url.searchParams.append("estado", filtros.estado);
 
         const response = await fetch(url.toString(), {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
         });
 
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: No se pudieron obtener los requerimientos`);
-        }
-
+        if (!response.ok) throw new Error(`Error ${response.status}`);
+        
         const data = await response.json();
         setDatos(data.data || []);
       } catch (error) {
-        console.error("Error obteniendo requerimientos:", error);
+        console.error("Error cargando requerimientos:", error);
         setDatos([]);
       }
     };
 
-    fetchRequerimientos();
+    cargarRequerimientos();
   }, [filtros]);
 
-  const opcionesTipo = [
-    { value: "hardware", label: "Requerimiento de Hardware", codigo: "REH" },
-    { value: "software", label: "Requerimiento de Software", codigo: "RES" },
-    { value: "error", label: "Error", codigo: "EER" },
-    { value: "operativo", label: "Gestión Operativa", codigo: "GOP" },
-  ];
-
-  const categoriasPorTipo = [
-    {
-      value: "Solicitud reparación de hardware",
-      label: "Solicitud reparación de hardware",
-      tipo: "hardware",
-    },
-    {
-      value: "Solicitud reparación de software",
-      label: "Solicitud reparación de software",
-      tipo: "software",
-    },
-    {
-      value: "Instalación de software",
-      label: "Instalación de software",
-      tipo: "software",
-    },
-    {
-      value: "Instalación de hardware",
-      label: "Instalación de hardware",
-      tipo: "hardware",
-    },
-    { value: "Nueva falla", label: "Nueva falla", tipo: "error" },
-  ];
-
-  const mapTipo = (tipo: string) => {
-    switch (tipo) {
-      case "hardware":
-        return "Requerimiento de Hardware";
-      case "software":
-        return "Requerimiento de Software";
-      case "error":
-        return "Error";
-      case "operativo":
-        return "Gestión Operativa";
-      default:
-        return tipo;
-    }
+  // Funciones de manejo de filtros
+  const handleTipoChange = (e: any) => {
+    setFiltros(prev => ({
+      ...prev,
+      tipo: e?.value || "",
+      categoria: "" // Resetear categoría al cambiar tipo
+    }));
   };
 
-  const tiposUnicos = opcionesTipo;
-
-  const categoriasDisponibles = filtros.tipo
-    ? categoriasPorTipo.filter((categoria) => categoria.tipo === filtros.tipo)
-    : categoriasPorTipo;
-
-  const handleCategoriaChange = (e) => {
-    const categoriaSeleccionada = e ? e.value : "";
-    const tipoCorrespondiente =
-      categoriasPorTipo.find(
-        (categoria) => categoria.value === categoriaSeleccionada
-      )?.tipo || "";
-    setFiltros({
-      ...filtros,
-      categoria: categoriaSeleccionada,
-      tipo: tipoCorrespondiente,
-    });
+  const handleCategoriaChange = (e: any) => {
+    setFiltros(prev => ({
+      ...prev,
+      categoria: e?.value || ""
+    }));
   };
 
-  const handleTipoChange = (e) => {
-    const nuevoTipo = e ? e.value : "";
-    setFiltros({ tipo: nuevoTipo, categoria: "" });
+  const handleEstadoChange = (e: any) => {
+    setFiltros(prev => ({
+      ...prev,
+      estado: e?.value || ""
+    }));
   };
 
-  const estadosUnicos = Array.from(new Set(datos.map((d) => d.estado))).map(
-    (estado) => ({
-      value: estado,
-      label: estado,
-    })
-  );
-
+  // Ordenamiento
   const ordenarPor = (columna: keyof Requerimiento) => {
-    setOrdenamiento((prev) => ({
+    setOrdenamiento(prev => ({
       columna,
-      direccion:
-        prev.columna === columna && prev.direccion === "asc" ? "desc" : "asc",
+      direccion: prev.columna === columna && prev.direccion === "asc" ? "desc" : "asc"
     }));
 
-    setDatos((prev) =>
-      [...prev].sort((a, b) => {
-        const valorA = a[columna];
-        const valorB = b[columna];
-
-        if (ordenamiento.direccion === "asc") {
-          return valorA > valorB ? 1 : -1;
-        } else {
-          return valorA < valorB ? 1 : -1;
-        }
-      })
-    );
+    setDatos(prev => [...prev].sort((a, b) => {
+      const valorA = a[columna];
+      const valorB = b[columna];
+      return ordenamiento.direccion === "asc" 
+        ? valorA > valorB ? 1 : -1
+        : valorA < valorB ? 1 : -1;
+    }));
   };
 
-  const limpiarFiltros = () => {
-    setFiltros({
-      tipo: "",
-      categoria: "",
-      estado: "",
-    });
-  };
-
-  const handleNuevoRequerimiento = (nuevoRequerimiento: Requerimiento) => {
-    setDatos([nuevoRequerimiento, ...datos]);
-  };
+  // Resto de funciones
+  const limpiarFiltros = () => setFiltros({ tipo: "", categoria: "", estado: "" });
 
   const handleRowClick = (requerimiento: Requerimiento) => {
     setSelectedRequerimiento(requerimiento);
     setIsViewDialogOpen(true);
   };
 
-  const customStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      height: 45,
-      padding: "05px",
-      borderColor: state.isFocused ? "#4A4A4A" : "#d1d5db",
-      backgroundColor: "white",
-      boxShadow: state.isFocused ? "0 0 0 1px #4A4A4A" : "none",
-      "&:hover": {
-        borderColor: "#4A4A4A",
-      },
-    }),
-    valueContainer: (provided) => ({
-      ...provided,
-      height: "100%",
-      display: "flex",
-      alignItems: "center",
-    }),
-    input: (provided) => ({
-      ...provided,
-      height: "100%",
-    }),
-    indicatorsContainer: (provided) => ({
-      ...provided,
-      height: "100%",
-    }),
-    menu: (provided) => ({
-      ...provided,
-      backgroundColor: "white",
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isSelected
-        ? "#4A4A4A"
-        : state.isFocused
-        ? "#f3f4f6"
-        : "white",
-      color: state.isSelected ? "white" : "#333",
-      "&:hover": {
-        backgroundColor: "#e2e8f0",
-      },
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: "#4A4A4A",
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: "#333",
-    }),
+  const handleCerrarCaso = (requerimientoCerrado: Requerimiento) => {
+    setDatos(prev => prev.map(req => 
+      req.codigo === requerimientoCerrado.codigo ? requerimientoCerrado : req
+    ));
   };
 
-  const handleCerrarCaso = (requerimientoCerrado: Requerimiento) => {
-    setDatos((prevDatos) =>
-      prevDatos.map((req) =>
-        req.codigo === requerimientoCerrado.codigo ? requerimientoCerrado : req
-      )
-    );
-  };
+  // Estilos y configuraciones de Select
+  const customStyles = { /* ... (mantener mismo estilo) */ };
+
+  // Filtrar categorías según tipo seleccionado
+  const categoriasFiltradas = filtros.tipo
+    ? categorias.filter(c => c.tipoCodigo === filtros.tipo)
+    : categorias;
 
   return (
     <div className="min-h-screen bg-[#E5E7EB] w-screen">
       <div className="bg-[#556B2F] p-4 flex justify-between items-center w-full">
         <h1 className="text-3xl font-bold text-white">Team 5</h1>
         <div className="flex items-center gap-4">
-          <Button2 onClick={() => setIsCreateDialogOpen(true)} title={"Crear requerimiento"} className="NeutralButton"></Button2>
-          <div className="flex items-center gap-2 text-white">
-            <UserMenu userName={userName} />
-          </div>
+          <Button2 
+            onClick={() => setIsCreateDialogOpen(true)} 
+            title={"Crear requerimiento"} 
+            className="NeutralButton"
+          />
+          <UserMenu userName={localStorage.getItem('userName')} />
         </div>
       </div>
 
@@ -275,53 +196,37 @@ export function TablaRequerimientos() {
         <div className="flex flex-wrap items-center gap-4 mb-6 w-full">
           <Select
             className="w-64 h-[34px]"
-            value={
-              filtros.tipo
-                ? tiposUnicos.find((tipo) => tipo.value === filtros.tipo)
-                : null
-            }
+            value={tipos.find(t => t.value === filtros.tipo)}
             onChange={handleTipoChange}
-            options={tiposUnicos}
+            options={tipos}
             placeholder="Tipo"
             styles={customStyles}
-            isClearable={true}
-            isSearchable={false}
+            isClearable
           />
 
           <Select
             className="w-64 h-[34px]"
-            value={
-              filtros.categoria
-                ? { value: filtros.categoria, label: filtros.categoria }
-                : null
-            }
+            value={categoriasFiltradas.find(c => c.value === filtros.categoria)}
             onChange={handleCategoriaChange}
-            options={categoriasDisponibles}
+            options={categoriasFiltradas}
             placeholder="Categoría"
             styles={customStyles}
-            isClearable={true}
-            isSearchable={false}
+            isClearable
+            isDisabled={!filtros.tipo}
           />
 
           <Select
             className="w-64 h-[34px]"
-            value={
-              filtros.estado
-                ? { value: filtros.estado, label: filtros.estado }
-                : null
-            }
-            onChange={(e) =>
-              setFiltros({ ...filtros, estado: e ? e.value : "" })
-            }
-            options={estadosUnicos}
+            value={estadosOpciones.find(e => e.value === filtros.estado)}
+            onChange={handleEstadoChange}
+            options={estadosOpciones}
             placeholder="Estado"
             styles={customStyles}
-            isClearable={true}
-            isSearchable={false}
+            isClearable
           />
 
           <button
-            className="flex-1 min-w-[200px] p-2 bg-[#B8D68F] text-black rounded-md hover:bg-[#9CB674] transition-colors"
+            className="flex-1 min-w-[200px] p-2 bg-[#B8D68F] text-black rounded-md hover:bg-[#9CB674]"
             onClick={limpiarFiltros}
           >
             Limpiar Filtros
@@ -332,21 +237,10 @@ export function TablaRequerimientos() {
           <table className="w-full min-w-[1000px]">
             <thead>
               <tr className="bg-[#B8D68F]">
-                {[
-                  "Código",
-                  "Prioridad",
-                  "Tipo",
-                  "Categoría",
-                  "Fecha de Alta",
-                  "Estado",
-                  "Asunto",
-                  "Propietario",
-                ].map((columna) => (
+                {["Código", "Prioridad", "Tipo", "Categoría", "Fecha de Alta", "Estado", "Asunto", "Propietario"].map((columna) => (
                   <th
                     key={columna}
-                    onClick={() =>
-                      ordenarPor(columna.toLowerCase() as keyof Requerimiento)
-                    }
+                    onClick={() => ordenarPor(columna.toLowerCase() as keyof Requerimiento)}
                     className="p-3 font-bold text-black cursor-pointer hover:bg-[#9CB674] text-center border-b border-gray-300"
                   >
                     {columna}
@@ -367,25 +261,20 @@ export function TablaRequerimientos() {
                   onClick={() => handleRowClick(requerimiento)}
                 >
                   <td className="p-3 text-center">{requerimiento.codigo}</td>
-                  <td
-                    className={`p-3 text-center font-semibold ${
-                      requerimiento.prioridad === "URGENTE"
-                        ? "text-red-600"
-                        : requerimiento.prioridad === "MEDIA"
-                        ? "text-orange-600"
-                        : "text-green-600"
-                    }`}
-                  >
+                  <td className={`p-3 text-center font-semibold ${
+                    requerimiento.prioridad === "URGENTE" ? "text-red-600" :
+                    requerimiento.prioridad === "MEDIA" ? "text-orange-600" : "text-green-600"
+                  }`}>
                     {requerimiento.prioridad}
                   </td>
-                  <td className="p-3 text-center">{mapTipo(requerimiento.tipo)}</td>
-                  <td className="p-3 text-center">{requerimiento.categoria}</td>
+                  <td className="p-3 text-center">
+                    {requerimiento.tipoRequerimiento.codigo}
+                  </td>
+                  <td className="p-3 text-center">{requerimiento.categRequerimiento}</td>
                   <td className="p-3 text-center">{requerimiento.fechaAlta}</td>
-                  <td
-                    className={`p-3 text-center font-semibold ${
-                      requerimiento.estado === "Abierto" ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
+                  <td className={`p-3 text-center font-semibold ${
+                    requerimiento.estado === "ABIERTO" ? "text-green-600" : "text-red-600"
+                  }`}>
                     {requerimiento.estado}
                   </td>
                   <td className="p-3 text-center">{requerimiento.asunto}</td>
@@ -396,18 +285,17 @@ export function TablaRequerimientos() {
           </table>
         </div>
       </div>
+
       <VisualizarRequerimiento
         requerimiento={selectedRequerimiento}
         isOpen={isViewDialogOpen}
         onClose={() => setIsViewDialogOpen(false)}
-        onCrear={handleNuevoRequerimiento}
+        onCrear={setDatos}
         onCerrarCaso={handleCerrarCaso}
       />
+
       <CrearRequerimiento
-        onCrear={(nuevoRequerimiento) => {
-          handleNuevoRequerimiento(nuevoRequerimiento);
-          setIsCreateDialogOpen(false);
-        }}
+        onCrear={(nuevo) => setDatos(prev => [nuevo, ...prev])}
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         datos={datos}

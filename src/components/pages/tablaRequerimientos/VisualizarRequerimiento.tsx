@@ -175,6 +175,18 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setModalNuevoVisible(false);
   };
 
+  const formatHora = (hora: string) => {
+    const regex = /^(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/;
+    const match = hora.match(regex);
+    if (!match) {
+      console.error("Hora inválida:", hora);
+      return "Hora no válida"; 
+    }
+    const hours = match[1]; 
+    const minutes = match[2]; 
+    return `${hours}:${minutes}`;
+  };
+  
 
   return (
     <div>
@@ -199,8 +211,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 <div className="space-y-4">
                   <div className="grid gap-4">
                   <LabeledField label="Código" value={requerimiento.codigo} noTopLeftRounded />
-                  <LabeledField label="Tipo" value={opcionesTipo.find(option => option.value === requerimiento.tipo)?.label || 'Tipo desconocido'} noTopLeftRounded />
-                    <LabeledField label="Categoría" value={requerimiento.categoria} noTopLeftRounded />
+                  <LabeledField label="Tipo" value={requerimiento.tipoRequerimiento.codigo || 'Tipo desconocido'} noTopLeftRounded />
+                    <LabeledField label="Categoría" value={requerimiento.categRequerimiento} noTopLeftRounded />
                     <LabeledField label="Estado" value={requerimiento.estado} noTopLeftRounded />
                     <LabeledField label="Prioridad" value={requerimiento.prioridad} noTopLeftRounded />
                   </div>
@@ -217,11 +229,13 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
                 {/* Columna derecha */}
                 <div className="space-y-4">
-                  <LabeledField label="Propietario" value={requerimiento.propietario} noTopLeftRounded />
+                  <LabeledField label="Propietario" value={requerimiento.propietario?  
+                    `${requerimiento.propietario?.nombre} ${requerimiento.propietario?.apellido}` : <span className="text-gray-500">Ningún propietario asociado</span>} 
+                    noTopLeftRounded />
                   <LabeledField label="Asunto" value={requerimiento.asunto} noTopLeftRounded />
-                  <LabeledField label="Usuario emisor" value={requerimiento.usuarioEmisor || 'Díaz Ramón'} noTopLeftRounded/>
+                  <LabeledField label="Usuario emisor" value={`${requerimiento.emisor?.nombre} ${requerimiento.emisor?.apellido}`} noTopLeftRounded/>
                   <LabeledField label="Fecha alta" value={requerimiento.fechaAlta} noTopLeftRounded />
-                  <LabeledField label="Hora alta" value={requerimiento.horaAlta || '09:17 am'} noTopLeftRounded />
+                  <LabeledField label="Hora alta" value={formatHora(requerimiento.horaAlta ?? '09:17:00') } noTopLeftRounded />
 
                   <div>
                     <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">

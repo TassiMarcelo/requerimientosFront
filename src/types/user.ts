@@ -1,15 +1,27 @@
 export interface Requerimiento {
-    id: string
-    cuil: string
-    email: string
-    nombre: string
-    apellido: string
-    empresa: string
-    descripcion: string
-    preferencia: boolean
-    username: string
-    password: string
-    activado: any
-    role: any
+  id: number;
+  codigo: string;
+  asunto: string;
+  descripcion: string;
+  categRequerimiento: string; // Cambiado de 'categoria'
+  estado: string;
+  fechaAlta: string;
+  horaAlta?: string;
+  prioridad: string;
+  tipoRequerimiento: {    // Cambiado de 'tipo'
+    codigo: string;
+    descripcion: string;
+  };
+  propietario: {
+    nombre: string;
+    apellido: string;
+  };
+  emisor:{
+    nombre: string;
+    apellido: string;
   }
-  
+  archivos: Array<{
+    nombre: string;
+    tipo: string;
+  }>;
+}
