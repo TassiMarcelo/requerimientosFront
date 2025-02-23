@@ -3,6 +3,7 @@ import { Dialog, DialogPanel } from '@headlessui/react'
 import { User, FileText, Paperclip, Send, Download, X } from 'lucide-react'
 import { CrearRequerimiento } from './CrearRequerimiento'
 import { Requerimiento } from '../../../types/user'
+import Button2 from '../../ui/Button2/Button2'
 
 interface Comentario {
   key:number
@@ -23,6 +24,7 @@ interface VisualizarRequerimientoProps {
 }
 
 export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,onCerrarCaso,}: VisualizarRequerimientoProps) {
+  console.log("Requerimiento:", requerimiento);
   const [nuevoComentario, setNuevoComentario] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
@@ -73,14 +75,36 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   ]
   if (!requerimiento) return null
   
-  const handleFileAction = (archivo: { nombre: string; tipo: string }) => {
-    const link = document.createElement('a')
-    link.href = `/api/files/${archivo.nombre}`
-    link.download = archivo.nombre
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleFileAction = async (archivo: { id: number; nombre: string; tipo: string }) => {
+    try {
+      const response = await fetch(`http://localhost:8080/archivos/archivo/descargar/${archivo.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Si necesitas pasar un token de autenticación
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al descargar el archivo');
+      }
+  
+      const blob = await response.blob(); // Obtener el archivo como Blob
+      const link = document.createElement('a'); // Crear el enlace para descarga
+      const url = window.URL.createObjectURL(blob); // Crear un URL del Blob
+      link.href = url;
+      link.download = archivo.nombre; // Establecer el nombre del archivo
+      document.body.appendChild(link);
+      link.click(); // Hacer clic para iniciar la descarga
+      document.body.removeChild(link); // Limpiar el DOM
+  
+      // Liberar el objeto URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al intentar descargar el archivo:", error);
+    }
   }
+  
+  
 
   const cerrarModalFormulario = () => setModalFormularioVisible(false);
 
@@ -324,12 +348,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                             ? comentario.mensaje.substring(0, 20)
                             : comentario.mensaje}
                           </p>
-                          <button
-                            onClick={() => mostrarDetalle(comentario)}
-                            className="bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
-                          >
-                            Ver Detalles
-                          </button>
+
+                          <Button2 onClick={() => mostrarDetalle(comentario)} className='AcceptButton' title={"Ver Detalles"}></Button2>
                           
                         </div>
                         
@@ -366,14 +386,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                         className="flex-1 p-2 border rounded-md"
                       />
                       
+                      <Button2 onClick={() => setModalNuevoVisible(true)} className='AcceptButton' title={"Crear comentario nuevo"}></Button2>
                       
-                      <button
-                        onClick={() => setModalNuevoVisible(true)}
-                        className="flex bg-[#556B2F] text-white p-2 rounded-md hover:bg-[#4A5D29] transition-colors"
-                      >
-                        Crear comentario nuevo
-                        <Send className="ml-3 h-5 w-5 m-1 justify-center" />
-                      </button>
                     </div>
                     <div>
                       <input
@@ -448,13 +462,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             </div>
           </div>
         )}
-
-        <button
-          onClick={cerrarModalDetalle}
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-        >
-          Cerrar
-        </button>
+        <Button2 onClick={cerrarModalDetalle} className='NeutralButton' title={"Cerrar"}></Button2>
       </Dialog.Panel>
     </div>
   </Dialog>
@@ -467,9 +475,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             {/* Botones de acción */}
             <div className="bg-custom-grey p-4 rounded-b-lg">
               <div className="flex justify-end gap-4">
-                <button onClick={onClose} className="bg-gray-800 text-white px-8 py-2 rounded-md hover:bg-gray-700 transition-colors">
-                  Volver
-                </button>
+              <Button2 onClick={onClose} className='NeutralButton' title={"Cerrar"}></Button2>
               </div>
             </div>
           </Dialog.Panel>
@@ -538,18 +544,10 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     </div>
      {/* Etiqueta del usuario (colocada por debajo del panel) */}
      <div className="flex justify-end gap-4">
-     <button
-       onClick={cerrarModalNuevo}
-       className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-     >
-       Cancelar
-     </button>
-     <button
-       onClick={cerrarModalNuevo}
-       className="mt-4 bg-[#556B2F] text-white px-4 py-2 rounded hover:bg-[#4A5D29] transition-colors"
-     >
-       Crear
-     </button>
+
+     <Button2 onClick={cerrarModalNuevo} className='CancelButton' title={"Cancelar"}></Button2>
+     <Button2 onClick={cerrarModalNuevo} className='AcceptButton' title={"Crear"}></Button2>
+
      </div>
    </Dialog.Panel>
  </div>

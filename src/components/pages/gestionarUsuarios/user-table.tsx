@@ -84,6 +84,10 @@ export function UserTable() {
       showCancelButton: true,
       confirmButtonText: 'Sí, continuar',
       cancelButtonText: 'Cancelar',
+      customClass: {
+        confirmButton: 'CancelButton', // Clase personalizada para el botón de confirmación
+        cancelButton: 'NeutralButton' // Clase personalizada para el botón de cancelar
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.close();

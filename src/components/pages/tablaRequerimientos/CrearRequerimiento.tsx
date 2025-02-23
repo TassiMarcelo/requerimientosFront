@@ -6,6 +6,8 @@ import { Requerimiento } from '../types/requerimiento'
 import Swal from 'sweetalert2'
 import Button2 from '../../ui/Button2/Button2'
 import CloseButton from "../../ui/CloseButton";
+import { ClassNames } from '@emotion/react'
+import { log } from 'console'
 
 
 interface CrearRequerimientoProps {
@@ -47,38 +49,24 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
   // Cargar tipos y categorías
   useEffect(() => {
-    const cargarDatosIniciales = async () => {
-      // Cargar tipos y categorías
+    const cargarTipos = async () => {
       try {
-        const [tiposRes, categoriasRes] = await Promise.all([
-          fetch("http://localhost:8080/tiposRequerimientos/getAll", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          }),
-          fetch("http://localhost:8080/categRequerimientos/todas", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          })
-        ]);
-
-        const tiposData = await tiposRes.json();
-        const categoriasData = await categoriasRes.json();
-        
-        console.log(tiposData.data);
-
-        setTipos(tiposData.data.map((t: any) => ({ // Se nombran value y label para poder ser leido por el select
-          value: t.codigo,
-          label: t.codigo
-        })));
-
-        setCategorias(categoriasData.data.map((c: any) => ({  // Se nombran value y label para poder ser leido por el select
-          value: c.descripcion,
-          label: c.codigoTipoRequerimiento
-        })));
+        const response = await fetch('http://localhost:8080/tiposRequerimientos/getAll', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        const tiposData = await response.json();
+        setTipos(
+          tiposData.data.map((t: any) => ({
+            value: t.codigo,
+            label: t.codigo,
+          }))
+        );
       } catch (error) {
-        console.error("Error cargando datos:", error);
+        console.error('Error cargando tipos:', error);
       }
     };
 
-    cargarDatosIniciales();
+    cargarTipos();
   }, []);
 
   const sendJsonFile = async () => {
@@ -114,12 +102,10 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     for(const arch of archivos){
       formData.append("archivos", arch);
     }
-    const file1 = new File([], "archivo_vacio.txt", { type: "text/plain" });
   
     // Crear FormData para enviarlo
     
     formData.append("requerimientoDTO", jsonFile); // El backend debe esperar una clave "file"
-    formData.append("archivos", file1); // El backend debe esperar una clave "file"
   
     try {
       const response = await fetch("http://localhost:8080/requerimientos/agregar", {
@@ -132,87 +118,83 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       const result = await response.json();
       console.log("Archivo subido con éxito:", result);
       Swal.close()
-      Swal.fire("Exito","Requerimiento creado con exito");
+      Swal.fire({
+        title: "Éxito",
+        text: "Requerimiento creado con éxito",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+        customClass: {
+          confirmButton: "AcceptButton"
+        }
+      });
+      onClose();
+      // cerrar req
     } catch (error) {
       console.error("Error:", error);
       Swal.close();
-      Swal.fire("Error",error.toString());
+      Swal.fire({
+        title: "Error",
+        text: "Error al subir el requerimiento",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+        customClass: {
+          confirmButton: "AcceptButton"
+        }
+      });
     }
   };
 
-
-
-  const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
+  const handleTipoChange = async (selected: any) => {
+    const tipoSeleccionado = selected?.value || "";
+  
+    setNuevoRequerimiento((prevState: any) => ({
+      ...prevState,
+      codigoTipoRequerimiento: tipoSeleccionado,
+      categoria: "", // Resetear categoría al cambiar el tipo
+    }));
+  
     if (!tipoSeleccionado) {
-      return categorias;
+      setCategorias([]); // Limpiar categorías si no hay tipo seleccionado
+      return;
     }
-    return categorias.filter(cat => cat.tipoCodigo === tipoSeleccionado);
+  
+    try {
+      const response = await fetch(
+        `http://localhost:8080/categRequerimientos/${tipoSeleccionado}/todas`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: No se pudo obtener las categorías`);
+      }
+  
+      const categoriaData = await response.json();
+      setCategorias(
+        categoriaData.data.map((c: any) => ({
+          value: c.descripcion,
+          label: c.descripcion
+        }))
+      );
+
+    } catch (error) {
+      console.error("Error cargando categorías:", error);
+      setCategorias([]); // En caso de error, limpiar categorías
+    }
   };
   
 
-const obtenerTipoPorCategoria = (categoria: string, tipoActual: string) => {
-  switch (categoria) {
-    case 'Solicitud reparación de hardware':
-    case 'Instalación de hardware':
-      return 'hardware';
-    case 'Solicitud reparación de software':
-    case 'Instalación de software':
-      return 'software';
-    case 'Nueva falla':
-      return 'error';
-    default:
-      return tipoActual; // Mantiene el tipo actual si no hay coincidencia
-  }
-};
+  const handleCategoriaChange = (selected: any) => {
+    const nuevaCategoria = selected?.value || '';
+    setNuevoRequerimiento((prevState: any) => ({
+      ...prevState,
+      categoria: nuevaCategoria,
+    }));
+  };
 
-const handleTipoChange = (selected: any) => {
-  const tipoSeleccionado = selected?.value || '';
-  setNuevoRequerimiento({ 
-    ...nuevoRequerimiento, 
-    codigoTipoRequerimiento: tipoSeleccionado,  // codigo del tipo
-    categoria: "" // Restablecer categoría al cambiar tipo
-  });
-};
-
-
-const handleCategoriaChange = (selected: any) => {
-  const nuevaCategoria = selected?.value || '';
-  const nuevoTipo = obtenerTipoPorCategoria(nuevaCategoria, nuevoRequerimiento.tipo); // Obtén el tipo relacionado con la categoría
-  setNuevoRequerimiento(prevState => ({
-    ...prevState,
-    categoria: nuevaCategoria,
-    tipo: nuevoTipo,  // Actualizar el tipo automáticamente
-  }));
-};
-
-
-  const crearRequerimiento = () => {
-    const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(9, '0')}`
-    const fechaActual = new Date().toLocaleDateString('es-ES')
-    const nuevoReq = {
-      ...nuevoRequerimiento,
-      codigo: nuevoId,
-      fechaAlta: fechaActual,
-      archivos: archivos.map(file => ({ nombre: file.name, tipo: file.type })),
-      requerimientosRelacionados: selectedOption?.map(option => option.value) || [],
-    }
-    onCrear(nuevoReq)
-    onClose()
-    setNuevoRequerimiento({
-      codigo: "",
-      prioridad: "MEDIA",
-      tipo: "",
-      categoria: "",
-      fechaAlta: "",
-      estado: "Abierto",
-      asunto: "",
-      propietario: "g.jorge",
-      descripcion: "",
-      archivos: [],
-    })
-    setArchivos([])
-    setSelectedOption(null);
-  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -249,6 +231,10 @@ const handleCategoriaChange = (selected: any) => {
       showCancelButton: true, // Mostrar botón de cancelar
       confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
       cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+      customClass: {
+        confirmButton: 'CancelButton', // Clase personalizada para el botón de confirmación
+        cancelButton: 'AcceptButton' // Clase personalizada para el botón de cancelar
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         // Restablecer el formulario y cerrar el modal principal
@@ -276,7 +262,7 @@ const handleCategoriaChange = (selected: any) => {
     //setShowCancelConfirmation(true); 
   };
 
-  const handleChange = (selected: any) => {
+  const handleRequerimientoRelacionadoChange = (selected: any) => {
     setSelectedOption(selected ? selected : null);  // Asegúrate de manejar null correctamente
   };
 
@@ -285,15 +271,6 @@ const handleCategoriaChange = (selected: any) => {
     { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
     { value: 'error', label: 'Error', codigo: 'EER' },
     { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
-  ]
-  const tipoLabel = opcionesTipo.find(option => option.value === nuevoRequerimiento.tipo)?.label || 'Sin tipo';
- 
-  const opcionesCategoria = [
-    { value: 'Solicitud reparación de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
-    { value: 'Solicitud reparación de software', label: 'Solicitud reparación de software',tipo:'software'},
-    { value: 'Instalación de software', label: 'Instalación de software',tipo: 'software'},
-    { value: 'Instalación de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
-    { value: 'Nueva falla', label: 'Nueva falla',tipo:'error'}
   ]
   
   const opcionesPrioridad = [
@@ -368,7 +345,7 @@ const handleCategoriaChange = (selected: any) => {
   />
 </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
   <div>
     <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
       Tipo
@@ -387,12 +364,13 @@ const handleCategoriaChange = (selected: any) => {
       Categoría
     </label>
     <Select
-      value={categorias.find(option => option.value === nuevoRequerimiento.categoria) || null}
+      value={categorias.find((option) => option.value === nuevoRequerimiento.categoria) || null}
       onChange={handleCategoriaChange}
-      options={obtenerOpcionesCategoria(nuevoRequerimiento.tipo)}  
+      options={categorias}
       placeholder="Seleccionar categoría"
-      styles={customStyles} 
+      styles={customStyles}
       isClearable={true}
+      isDisabled={!nuevoRequerimiento.codigoTipoRequerimiento}
     />
   </div>
 
@@ -477,7 +455,7 @@ const handleCategoriaChange = (selected: any) => {
                 <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ height: '150px' }}>
                   <Select
                     value={selectedOption}
-                    onChange={handleChange}
+                    onChange={handleRequerimientoRelacionadoChange}
                     options={opciones}
                     isMulti
                     isSearchable={true}

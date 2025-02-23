@@ -1,4 +1,3 @@
-// TablaRequerimientos.tsx
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { CrearRequerimiento } from "./CrearRequerimiento";
@@ -7,53 +6,47 @@ import { Requerimiento } from "../types/requerimiento";
 import UserMenu from "../../ui/UserMenu";
 import Button2 from "../../ui/Button2/Button2";
 
+// Función para formatear fechas
+const formatDate = (dateString: string) => {
+  const [year, month, day] = dateString.split('-');
+  return `${day}/${month}/${year}`;
+};
+
 export function TablaRequerimientos() {
   const [datos, setDatos] = useState<Requerimiento[]>([]);
-  const [userName, setUserName] = useState<string | null>(null);
   const [filtros, setFiltros] = useState({
     tipo: "",
     categoria: "",
     estado: "",
+    prioridad: "", // Nuevo filtro por prioridad
   });
   const [tipos, setTipos] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [ordenamiento, setOrdenamiento] = useState({
-    columna: "",
-    direccion: "asc",
+    columna: "fechaAlta",
+    direccion: "desc",
   });
   const [selectedRequerimiento, setSelectedRequerimiento] = useState<Requerimiento | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  // Opciones predefinidas para estados
   const estadosOpciones = [
     { value: "ABIERTO", label: "Abierto" },
     { value: "CERRADO", label: "Cerrado" },
     { value: "ASIGNADO", label: "Asignado" }
   ];
 
-  // Cargar datos iniciales
+  const prioridadesOpciones = [
+    { value: "BAJA", label: "Baja" },
+    { value: "MEDIA", label: "Media" },
+    { value: "URGENTE", label: "Urgente" }
+  ];
+
   useEffect(() => {
     const cargarDatosIniciales = async () => {
-      // Cargar usuario
       const userId = localStorage.getItem("userId");
       const storedUserName = localStorage.getItem("userName");
-      
-      if (userId && !storedUserName) {
-        try {
-          const response = await fetch("http://localhost:8080/usuarios/todos", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          });
-          const data = await response.json();
-          const usuario = data.data.find((u: any) => u.id.toString() === userId);
-          if (usuario) {
-            setUserName(usuario.username);
-            localStorage.setItem("userName", usuario.username);
-          }
-        } catch (error) {
-          console.error("Error cargando usuario:", error);
-        }
-      }
+      console.log("uid " + userId + " username " + storedUserName);
 
       // Cargar tipos y categorías
       try {
@@ -87,7 +80,6 @@ export function TablaRequerimientos() {
     cargarDatosIniciales();
   }, []);
 
-  // Cargar requerimientos con filtros
   useEffect(() => {
     const cargarRequerimientos = async () => {
       const userName = localStorage.getItem("userName");
@@ -95,19 +87,32 @@ export function TablaRequerimientos() {
 
       try {
         const url = new URL(`http://localhost:8080/requerimientos/${userName}/filtrar`);
-        
+
         if (filtros.tipo) url.searchParams.append("tipoRequerimiento", filtros.tipo);
         if (filtros.categoria) url.searchParams.append("categoria", filtros.categoria);
         if (filtros.estado) url.searchParams.append("estado", filtros.estado);
+        if (filtros.prioridad) url.searchParams.append("prioridad", filtros.prioridad); // Nuevo filtro
 
         const response = await fetch(url.toString(), {
           headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
         });
 
         if (!response.ok) throw new Error(`Error ${response.status}`);
-        
+
         const data = await response.json();
-        setDatos(data.data || []);
+        let requerimientos = data.data || [];
+
+        // Ordenar por fechaAlta
+        requerimientos = requerimientos.sort((a, b) => {
+          const dateA = new Date(a.fechaAlta.split('-').join('/'));
+          const dateB = new Date(b.fechaAlta.split('-').join('/'));
+
+          return ordenamiento.direccion === "asc"
+            ? dateA.getTime() - dateB.getTime()  // De la fecha más vieja a la más nueva
+            : dateB.getTime() - dateA.getTime(); // De la más nueva a la más vieja
+        });
+
+        setDatos(requerimientos);
       } catch (error) {
         console.error("Error cargando requerimientos:", error);
         setDatos([]);
@@ -115,14 +120,13 @@ export function TablaRequerimientos() {
     };
 
     cargarRequerimientos();
-  }, [filtros]);
+  }, [filtros, ordenamiento.direccion]);
 
-  // Funciones de manejo de filtros
   const handleTipoChange = (e: any) => {
     setFiltros(prev => ({
       ...prev,
       tipo: e?.value || "",
-      categoria: "" // Resetear categoría al cambiar tipo
+      categoria: ""
     }));
   };
 
@@ -140,35 +144,65 @@ export function TablaRequerimientos() {
     }));
   };
 
-  // Ordenamiento
-  const ordenarPor = (columna: keyof Requerimiento) => {
-    setOrdenamiento(prev => ({
-      columna,
-      direccion: prev.columna === columna && prev.direccion === "asc" ? "desc" : "asc"
-    }));
-
-    setDatos(prev => [...prev].sort((a, b) => {
-      const valorA = a[columna];
-      const valorB = b[columna];
-      return ordenamiento.direccion === "asc" 
-        ? valorA > valorB ? 1 : -1
-        : valorA < valorB ? 1 : -1;
+  const handlePrioridadChange = (e: any) => {
+    setFiltros(prev => ({
+      ...prev,
+      prioridad: e?.value || ""
     }));
   };
 
-  // Resto de funciones
-  const limpiarFiltros = () => setFiltros({ tipo: "", categoria: "", estado: "" });
+  const ordenarPor = (columna: keyof Requerimiento) => {
+    if (columna !== "fechaAlta") return;
+
+    const nuevaDireccion = ordenamiento.direccion === "asc" ? "desc" : "asc";
+    setOrdenamiento({
+      columna: "fechaAlta",
+      direccion: nuevaDireccion
+    });
+  };
+
+  const limpiarFiltros = () => setFiltros({ tipo: "", categoria: "", estado: "", prioridad: "" });
 
   const handleRowClick = (requerimiento: Requerimiento) => {
     setSelectedRequerimiento(requerimiento);
     setIsViewDialogOpen(true);
   };
 
+  const handleCrearRequerimiento = (nuevoRequerimiento: Requerimiento) => {
+    setDatos(prev => [nuevoRequerimiento, ...prev]); // Agrega el nuevo requerimiento al principio de la lista
+  };
 
-  // Estilos y configuraciones de Select
-  const customStyles = { /* ... (mantener mismo estilo) */ };
+  const customStyles = {
+    control: (provided: any) => ({
+      ...provided,
+      minHeight: "34px",
+      height: "34px",
+      borderRadius: "6px",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#9CA3AF"
+      }
+    }),
+    valueContainer: (provided: any) => ({
+      ...provided,
+      height: "34px",
+      padding: "0 8px"
+    }),
+    input: (provided: any) => ({
+      ...provided,
+      margin: "0px",
+      paddingBottom: "0px"
+    }),
+    indicatorsContainer: (provided: any) => ({
+      ...provided,
+      height: "34px"
+    }),
+    option: (provided: any) => ({
+      ...provided,
+      fontSize: "14px"
+    })
+  };
 
-  // Filtrar categorías según tipo seleccionado
   const categoriasFiltradas = filtros.tipo
     ? categorias.filter(c => c.tipoCodigo === filtros.tipo)
     : categorias;
@@ -176,11 +210,11 @@ export function TablaRequerimientos() {
   return (
     <div className="min-h-screen bg-[#E5E7EB] w-screen">
       <div className="bg-[#556B2F] p-4 flex justify-between items-center w-full">
-        <h1 className="text-3xl font-bold text-white">Team 5</h1>
+        <h1 className="text-3xl font-bold text-white">Lista de requerimientos para el usuario {localStorage.getItem("userName")}</h1>
         <div className="flex items-center gap-4">
-          <Button2 
-            onClick={() => setIsCreateDialogOpen(true)} 
-            title={"Crear requerimiento"} 
+          <Button2
+            onClick={() => setIsCreateDialogOpen(true)}
+            title={"Crear requerimiento"}
             className="NeutralButton"
           />
           <UserMenu userName={localStorage.getItem('userName')} />
@@ -220,8 +254,18 @@ export function TablaRequerimientos() {
             isClearable
           />
 
+          <Select
+            className="w-64 h-[34px]"
+            value={prioridadesOpciones.find(p => p.value === filtros.prioridad)}
+            onChange={handlePrioridadChange}
+            options={prioridadesOpciones}
+            placeholder="Prioridad"
+            styles={customStyles}
+            isClearable
+          />
+
           <button
-            className="flex-1 min-w-[200px] p-2 bg-[#B8D68F] text-black rounded-md hover:bg-[#9CB674]"
+            className="min-w-[120px] p-2 bg-[#B8D68F] text-black rounded-md hover:bg-[#9CB674] text-sm"
             onClick={limpiarFiltros}
           >
             Limpiar Filtros
@@ -235,11 +279,13 @@ export function TablaRequerimientos() {
                 {["Código", "Prioridad", "Tipo", "Categoría", "Fecha de Alta", "Estado", "Asunto", "Propietario"].map((columna) => (
                   <th
                     key={columna}
-                    onClick={() => ordenarPor(columna.toLowerCase() as keyof Requerimiento)}
-                    className="p-3 font-bold text-black cursor-pointer hover:bg-[#9CB674] text-center border-b border-gray-300"
+                    onClick={() => columna === "Fecha de Alta" && ordenarPor("fechaAlta")}
+                    className={`p-3 font-bold text-black text-center border-b border-gray-300 ${
+                      columna === "Fecha de Alta" ? "cursor-pointer hover:bg-[#9CB674]" : ""
+                    }`}
                   >
                     {columna}
-                    {ordenamiento.columna === columna.toLowerCase() && (
+                    {columna === "Fecha de Alta" && (
                       <span className="ml-1">
                         {ordenamiento.direccion === "asc" ? "↑" : "↓"}
                       </span>
@@ -266,7 +312,7 @@ export function TablaRequerimientos() {
                     {requerimiento.tipoRequerimiento.codigo}
                   </td>
                   <td className="p-3 text-center">{requerimiento.categRequerimiento}</td>
-                  <td className="p-3 text-center">{requerimiento.fechaAlta}</td>
+                  <td className="p-3 text-center">{formatDate(requerimiento.fechaAlta)}</td>
                   <td className={`p-3 text-center font-semibold ${
                     requerimiento.estado === "ABIERTO" ? "text-green-600" : "text-red-600"
                   }`}>
@@ -289,7 +335,7 @@ export function TablaRequerimientos() {
       />
 
       <CrearRequerimiento
-        onCrear={(nuevo) => setDatos(prev => [nuevo, ...prev])}
+        onCrear={handleCrearRequerimiento}
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         datos={datos}
