@@ -6,6 +6,7 @@ import { Requerimiento } from '../types/requerimiento'
 import Swal from 'sweetalert2'
 import Button2 from '../../ui/Button2/Button2'
 import CloseButton from "../../ui/CloseButton";
+import { ClassNames } from '@emotion/react'
 
 
 interface CrearRequerimientoProps {
@@ -134,11 +135,28 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       const result = await response.json();
       console.log("Archivo subido con éxito:", result);
       Swal.close()
-      Swal.fire("Exito","Requerimiento creado con exito");
+      Swal.fire({
+        title: "Éxito",
+        text: "Requerimiento creado con éxito",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+        customClass: {
+          confirmButton: "AcceptButton"
+        }
+      });
+      // cerrar req
     } catch (error) {
       console.error("Error:", error);
       Swal.close();
-      Swal.fire("Error",error.toString());
+      Swal.fire({
+        title: "Error",
+        text: "Error al subir el requerimiento",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+        customClass: {
+          confirmButton: "AcceptButton"
+        }
+      });
     }
   };
 
