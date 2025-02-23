@@ -49,10 +49,12 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
             headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
           })
         ]);
-
+        
         const tiposData = await tiposRes.json();
         const categoriasData = await categoriasRes.json();
         
+        console.log("Tipos:",tiposData);
+        console.log("Categ:",categoriasData);
         console.log(tiposData.data);
 
         setTipos(tiposData.data.map((t: any) => ({ // Se nombran value y label para poder ser leido por el select
@@ -360,7 +362,7 @@ const handleCategoriaChange = (selected: any) => {
   />
 </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
   <div>
     <label className="bg-[#B8D68F] text-black px-4 py-2 block rounded-t-lg text-center">
       Tipo
@@ -381,7 +383,7 @@ const handleCategoriaChange = (selected: any) => {
     <Select
       value={categorias.find(option => option.value === nuevoRequerimiento.categoria) || null}
       onChange={handleCategoriaChange}
-      options={obtenerOpcionesCategoria(nuevoRequerimiento.tipo)}  
+      options={obtenerOpcionesCategoria(nuevoRequerimiento.categoria)}  
       placeholder="Seleccionar categoría"
       styles={customStyles} 
       isClearable={true}
