@@ -32,124 +32,89 @@ export function UserTable() {
   const [showCategoriasForm, setShowCategoriasForm] = useState(false) 
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
-  
+    const fetchUsers = async () => {
+      try {
+        let url = 'http://localhost:8080/usuarios/todos';
+        
+        if (search.trim() !== '') {
+          url = `http://localhost:8080/usuarios/usuario/${search}`;
+        }
 
-  // Filtrado de usuarios
-  const filteredUsers = users.filter(user => {
-    if (search.trim() === '') return true; // Si no hay búsqueda, mostrar todos los usuarios
-    
-    const searchTerm = search.toLowerCase();
-    if (searchTerm === 'true') {
-      return user.preferencia === true;
-    } else if (searchTerm === 'false') {
-      return user.preferencia === false;
-    }
-    const fullName = `${user.nombre ?? ''} ${user.apellido ?? ''}`.toLowerCase();
-    const email = user.email?.toLowerCase() ?? '';
-    const cuil = (user.cuil ? String(user.cuil) : '').toLowerCase();
-    const empresa = user.empresa?.toLowerCase() ?? '';
-    const descripcion = user.descripcion?.toLowerCase() ?? '';
-   
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (search.trim() === '') {
+          const usuariosActivos = data.data.filter((user: User) => user.activado);
+          setUsers(usuariosActivos);
+        } else if (url.includes('usuario')) {
+          if (data.data) {
+            setUsers([data.data]);
+          } else {
+            setUsers([]);
+          }
+        } else {
+          setUsers(data.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setUsers([]);
+      }
+    };
 
-    return (
-      fullName.includes(searchTerm) || 
-      email.includes(searchTerm) ||
-      cuil.includes(searchTerm) ||
-      empresa.includes(searchTerm) ||
-      descripcion.includes(searchTerm)
-    );
-  });
+    const debounceTimer = setTimeout(() => {
+      fetchUsers();
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [search]);
 
   const handleShowCategoriasForm = () => {
     setShowCategoriasForm(true);
-    };
-  
-    const handleCloseCategoriasForm = () => {
-      setShowCategoriasForm(false);
-    };
+  };
 
-    const handleSaveCategoria = (categoria: any) => {
-      console.log("Categoría guardada:", categoria);
-      // Aquí se actualizaría la lista de categorías, como ejemplo lo estamos simplemente mostrando en consola
-      setShowCategoriasForm(false);
-    };
+  const handleCloseCategoriasForm = () => {
+    setShowCategoriasForm(false);
+  };
 
   const handleDelete = (user) => {
-    //setIsModalOpen(true);
     Swal.fire({
-      title: '¿Estás seguro?', // Título de la alerta
-      text: "¡No podrás revertir esta acción!", // Texto adicional (opcional)
-      icon: 'warning', // Icono (warning, error, success, info, question)
-      showCancelButton: true, // Mostrar botón de cancelar
-      confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
-      cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esta acción!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.close();
         confirmDelete(user.id);
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        Swal.close();
-        console.log("cancelado");
       }
     });
   }
 
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/usuarios/todos');
-      const data = await response.json();
-      if (data.message === "Usuarios") {
-        const usuariosActivos = data.data.filter((user: User) => user.activado); // Filtrar solo activados
-        setUsers(usuariosActivos);
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
-  
-  
   const confirmDelete = async (id) => {
-    console.log("user to delete: " + userToDelete);
     if (id) {
       try {
-        Swal.fire({
-          title: 'Cargando...',
-          text: 'Por favor, espera un momento.',
-          allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
-          didOpen: () => {
-            Swal.showLoading(); // Muestra el spinner de carga
-          },
-        });
+        Swal.showLoading();
         const response = await fetch(`http://localhost:8080/usuarios/${id}/eliminar`, {
           method: 'PATCH',
-          headers: {
-              'Content-Type': 'application/json'
-          },
+          headers: {'Content-Type': 'application/json'}
         });
-  
+
         if (response.ok) {
-          Swal.close();
-          Swal.fire("Usuario eliminado con exito");
-          await fetchUsers();
+          setUsers(prev => prev.filter(user => user.id !== id));
+          Swal.fire("Éxito", "Usuario eliminado con éxito", "success");
         } else {
-          Swal.close();
-          Swal.fire("Error al eliminar usuario", await response.json());
-          console.error("Error eliminando usuario:", await response.json());
+          Swal.fire("Error", await response.text(), "error");
         }
       } catch (error) {
-        Swal.close();
-        console.error("Error en la solicitud de eliminación:", error);
-        Swal.fire("Error al eliminar usuario", error);
+        Swal.fire("Error", "Error de conexión", "error");
       } finally {
         setUserToDelete(null);
         setIsModalOpen(false);
       }
     }
   };
-  
-  
 
   const handleEdit = (user: User) => {
     setSelectedUser(user)
@@ -162,55 +127,39 @@ export function UserTable() {
   }
 
   const handleSave = (user: User) => {
-    console.log("Usuario recibido en handleSave:", user); // Depuración
-  
-    if (!user || !user.id) {
-      console.error("Usuario no válido:", user);
-      return;
-    }
-  
     if (selectedUser) {
-      // Actualizar usuario existente
       setUsers(users.map(u => u.id === user.id ? user : u));
     } else {
-      // Crear nuevo usuario
-      setUsers([user, ...users]); // Usar el usuario devuelto por el backend
+      setUsers([user, ...users]);
     }
-  
     setShowForm(false);
     setSelectedUser(null);
   };
 
-
   return (
     <div className="space-y-4 relative">
       <div className="flex justify-between items-center z-20 relative">
-      <div className="relative w-72">
+        <div className="relative w-72">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-800" />
           <Input
-            placeholder="Buscar usuarios por cuil"
+            placeholder="Buscar por nombre de usuario"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8 placeholder:text-gray-800"
           />
         </div>
-        
 
- <div className="flex gap-2">
- <Button2 
-  onClick={handleShowCategoriasForm} 
-  title={"+ Categorías y tipos"} 
-  className="NeutralButton" 
-  color="black"  
-  type="button"  
-/>
-<Button2 
-  title={"+ Crear usuario"} 
-  onClick={() => setShowForm(true)} 
-  className="NeutralButton" 
-  color="black" 
-  type="button"  
-></Button2>
+        <div className="flex gap-2">
+          <Button2 
+            onClick={handleShowCategoriasForm} 
+            title={"+ Categorías y tipos"} 
+            className="NeutralButton" 
+          />
+          <Button2 
+            title={"+ Crear usuario"} 
+            onClick={() => setShowForm(true)} 
+            className="NeutralButton" 
+          />
         </div>
       </div>
 
@@ -220,7 +169,8 @@ export function UserTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center border border-black text-black">Nombre</TableHead>
+              <TableHead className="text-center border border-black text-black">Nombre Completo</TableHead>
+              <TableHead className="text-center border border-black text-black">Nombre de Usuario</TableHead>
               <TableHead className="text-center border border-black text-black">Cuil</TableHead>
               <TableHead className="text-center border border-black text-black">Email</TableHead>
               <TableHead className="text-center border border-black text-black">Empresa</TableHead>
@@ -230,36 +180,37 @@ export function UserTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
+            {users.length > 0 ? (
+              users.map((user) => (
                 <TableRow key={user.id} className="h-[56px]">
-                  <TableCell className="text-center border border-black"> {`${user.nombre} ${user.apellido}`}</TableCell>
+                  <TableCell className="text-center border border-black">{`${user.nombre} ${user.apellido}`}</TableCell>
+                  <TableCell className="text-center border border-black">{user.username}</TableCell>
                   <TableCell className="text-center border border-black">{user.cuil}</TableCell>
                   <TableCell className="text-center border border-black">{user.email}</TableCell>
                   <TableCell className="text-center border border-black">{user.empresa}</TableCell>
                   <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
-                  <TableCell className="text-center border border-black align-middle min-h-[56px]">
-                  <div className="flex items-center justify-center relative top-[-4px]">
-                    <Checkbox 
-                    checked={user.preferencia} 
-                    disabled
-                    className="text-green-800 bg-green-900"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-center border border-black align-middle min-h-[56px]">
-                  <div className="flex items-center justify-center space-x-2 h-full relative top-[-4px]">
-                    <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(user)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+                  <TableCell className="text-center border border-black">
+                    <div className="flex justify-center">
+                      <Checkbox 
+                        checked={user.preferencia} 
+                        disabled
+                        className="text-green-800 bg-green-900"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center border border-black">
+                    <div className="flex justify-center space-x-2">
+                      <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
@@ -303,7 +254,6 @@ export function UserTable() {
           </Button>
         </div>
       </Modal>
-
     </div>
   )
 }
