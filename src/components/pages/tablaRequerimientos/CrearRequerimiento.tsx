@@ -7,6 +7,7 @@ import Swal from 'sweetalert2'
 import Button2 from '../../ui/Button2/Button2'
 import CloseButton from "../../ui/CloseButton";
 import { ClassNames } from '@emotion/react'
+import { log } from 'console'
 
 
 interface CrearRequerimientoProps {
@@ -48,40 +49,24 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
   // Cargar tipos y categorías
   useEffect(() => {
-    const cargarDatosIniciales = async () => {
-      // Cargar tipos y categorías
+    const cargarTipos = async () => {
       try {
-        const [tiposRes, categoriasRes] = await Promise.all([
-          fetch("http://localhost:8080/tiposRequerimientos/getAll", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          }),
-          fetch("http://localhost:8080/categRequerimientos/todas", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          })
-        ]);
-        
-        const tiposData = await tiposRes.json();
-        const categoriasData = await categoriasRes.json();
-        
-        console.log("Tipos:",tiposData);
-        console.log("Categ:",categoriasData);
-        console.log(tiposData.data);
-
-        setTipos(tiposData.data.map((t: any) => ({ // Se nombran value y label para poder ser leido por el select
-          value: t.codigo,
-          label: t.codigo
-        })));
-
-        setCategorias(categoriasData.data.map((c: any) => ({  // Se nombran value y label para poder ser leido por el select
-          value: c.descripcion,
-          label: c.descripcion
-        })));
+        const response = await fetch('http://localhost:8080/tiposRequerimientos/getAll', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        const tiposData = await response.json();
+        setTipos(
+          tiposData.data.map((t: any) => ({
+            value: t.codigo,
+            label: t.codigo,
+          }))
+        );
       } catch (error) {
-        console.error("Error cargando datos:", error);
+        console.error('Error cargando tipos:', error);
       }
     };
 
-    cargarDatosIniciales();
+    cargarTipos();
   }, []);
 
   const sendJsonFile = async () => {
@@ -159,36 +144,56 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     }
   };
 
-
-
-  const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
+  const handleTipoChange = async (selected: any) => {
+    const tipoSeleccionado = selected?.value || "";
+  
+    setNuevoRequerimiento((prevState: any) => ({
+      ...prevState,
+      codigoTipoRequerimiento: tipoSeleccionado,
+      categoria: "", // Resetear categoría al cambiar el tipo
+    }));
+  
     if (!tipoSeleccionado) {
-      return categorias;
+      setCategorias([]); // Limpiar categorías si no hay tipo seleccionado
+      return;
     }
-    return categorias.filter(cat => cat.tipoCodigo === tipoSeleccionado);
+  
+    try {
+      const response = await fetch(
+        `http://localhost:8080/categRequerimientos/${tipoSeleccionado}/todas`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: No se pudo obtener las categorías`);
+      }
+  
+      const categoriaData = await response.json();
+      setCategorias(
+        categoriaData.data.map((c: any) => ({
+          value: c.descripcion,
+          label: c.descripcion
+        }))
+      );
+
+    } catch (error) {
+      console.error("Error cargando categorías:", error);
+      setCategorias([]); // En caso de error, limpiar categorías
+    }
   };
   
 
-const handleTipoChange = (selected: any) => {
-  const tipoSeleccionado = selected?.value || '';
-  setNuevoRequerimiento({ 
-    ...nuevoRequerimiento, 
-    codigoTipoRequerimiento: tipoSeleccionado,  // codigo del tipo
-    categoria: "" // Restablecer categoría al cambiar tipo
-  });
-};
-
-
-const handleCategoriaChange = (selected: any) => {
-  const nuevaCategoria = selected?.value || '';
-  setNuevoRequerimiento(prevState => ({
-    ...prevState,
-    categoria: nuevaCategoria,
-    tipo: nuevoRequerimiento.tipo,  // Actualizar el tipo automáticamente
-  }));
-};
-
-
+  const handleCategoriaChange = (selected: any) => {
+    const nuevaCategoria = selected?.value || '';
+    setNuevoRequerimiento((prevState: any) => ({
+      ...prevState,
+      categoria: nuevaCategoria,
+    }));
+  };
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,15 +271,6 @@ const handleCategoriaChange = (selected: any) => {
     { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
     { value: 'error', label: 'Error', codigo: 'EER' },
     { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
-  ]
-  const tipoLabel = opcionesTipo.find(option => option.value === nuevoRequerimiento.tipo)?.label || 'Sin tipo';
- 
-  const opcionesCategoria = [
-    { value: 'Solicitud reparación de hardware', label: 'Solicitud reparación de hardware',tipo:'hardware'},
-    { value: 'Solicitud reparación de software', label: 'Solicitud reparación de software',tipo:'software'},
-    { value: 'Instalación de software', label: 'Instalación de software',tipo: 'software'},
-    { value: 'Instalación de hardware', label: 'Instalación de hardware',tipo: 'hardware'},
-    { value: 'Nueva falla', label: 'Nueva falla',tipo:'error'}
   ]
   
   const opcionesPrioridad = [
@@ -368,12 +364,13 @@ const handleCategoriaChange = (selected: any) => {
       Categoría
     </label>
     <Select
-      value={categorias.find(option => option.value === nuevoRequerimiento.categoria) || null}
+      value={categorias.find((option) => option.value === nuevoRequerimiento.categoria) || null}
       onChange={handleCategoriaChange}
-      options={obtenerOpcionesCategoria(nuevoRequerimiento.categoria)}  
+      options={categorias}
       placeholder="Seleccionar categoría"
-      styles={customStyles} 
+      styles={customStyles}
       isClearable={true}
+      isDisabled={!nuevoRequerimiento.codigoTipoRequerimiento}
     />
   </div>
 
