@@ -439,7 +439,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             </div>
           </div>
         )}
-        <Button2 onClick={cerrarModalDetalle} className='CancelButton' title={"Cerrar"}></Button2>
+        <Button2 onClick={cerrarModalDetalle} className='NeutralButton' title={"Cerrar"}></Button2>
       </Dialog.Panel>
     </div>
   </Dialog>

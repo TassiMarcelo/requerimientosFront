@@ -117,7 +117,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     for(const arch of archivos){
       formData.append("archivos", arch);
     }
-    const file1 = new File([], "archivo_vacio.txt", { type: "text/plain" });
+    const file1 = new File([], ".pdf", { type: "text/plain" });
   
     // Crear FormData para enviarlo
     
