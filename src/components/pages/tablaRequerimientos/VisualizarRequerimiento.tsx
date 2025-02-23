@@ -74,14 +74,36 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   ]
   if (!requerimiento) return null
   
-  const handleFileAction = (archivo: { nombre: string; tipo: string }) => {
-    const link = document.createElement('a')
-    link.href = `/api/files/${archivo.nombre}`
-    link.download = archivo.nombre
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleFileAction = async (archivo: { id: number; nombre: string; tipo: string }) => {
+    try {
+      const response = await fetch(`http://localhost:8080/archivos/archivo/descargar/${archivo.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Si necesitas pasar un token de autenticación
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al descargar el archivo');
+      }
+  
+      const blob = await response.blob(); // Obtener el archivo como Blob
+      const link = document.createElement('a'); // Crear el enlace para descarga
+      const url = window.URL.createObjectURL(blob); // Crear un URL del Blob
+      link.href = url;
+      link.download = archivo.nombre; // Establecer el nombre del archivo
+      document.body.appendChild(link);
+      link.click(); // Hacer clic para iniciar la descarga
+      document.body.removeChild(link); // Limpiar el DOM
+  
+      // Liberar el objeto URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al intentar descargar el archivo:", error);
+    }
   }
+  
+  
 
   const cerrarModalFormulario = () => setModalFormularioVisible(false);
 
