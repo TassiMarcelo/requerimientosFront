@@ -33,6 +33,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +61,29 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         role: formData.role,
         activado: formData.activado,
       };
-
+      if (newPassword) {
+        console.log("Actualizando la contraseña con los siguientes datos:", {
+          password: newPassword,
+        });
+        const passwordResponse = await fetch(
+          `http://localhost:8080/usuarios/${formData.username}/updatePassword`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              password: newPassword,
+              nuevaCuenta: true,
+            }),
+          }
+        );
+        const passwordData = await passwordResponse.json();
+        if (!passwordResponse.ok) {
+          throw new Error(passwordData.message || "Error al actualizar la contraseña");
+        }
+        alert(passwordData.message || "Contraseña actualizada");
+      }
       if (!user) {
         requestBody.password = formData.password;
       }
@@ -90,10 +113,8 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       console.log("Respuesta completa del servidor:", data);
 
       if (!data || data.data === null) {
-        // Si el servidor no devuelve el usuario actualizado, usa el formulario actual
         onSave({ ...formData, id: user?.id } as User);
       } else {
-        // Si el servidor devuelve el usuario actualizado, úsalo
         onSave(data.data);
       }
     } catch (error) {
@@ -131,8 +152,8 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const password = e.target.value;
-    setFormData({ ...formData, password });
-
+    setNewPassword(password);
+  };
     /*
     if (password.length < 8) {
       setErrorMessage('La contraseña debe tener al menos 8 caracteres.');
@@ -146,7 +167,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       setErrorMessage('');
     }
     */
-  };
+
 
   return (
     <>
@@ -269,10 +290,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   {user ? (
                     <Input
                       id="password"
-                      type="text"
-                      value="*********"
-                      disabled
-                      className="bg-gray-400 cursor-not-allowed"
+                      type="password"
+                      value={newPassword}
+                      onChange={handlePasswordChange}
                     />
                   ) : (
                     <Input
@@ -281,10 +301,6 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                       value={formData.password}
                       onChange={handlePasswordChange}
                       required
-                      minLength={8}
-                      maxLength={20}
-                      pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.,:\-])[A-Za-z0-9!@#$%^&*.,:\-]{8,20}$"
-                      title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
                     />
                   )}
                   {errorMessage && (
