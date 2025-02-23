@@ -34,14 +34,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [newPassword, setNewPassword] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (errorMessage) {
-      return;
-    }
 
     try {
       const url = user
@@ -61,36 +56,11 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         role: formData.role,
         activado: formData.activado,
       };
-      if (newPassword) {
-        console.log("Actualizando la contraseña con los siguientes datos:", {
-          password: newPassword,
-        });
-        const passwordResponse = await fetch(
-          `http://localhost:8080/usuarios/${formData.username}/updatePassword`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              password: newPassword,
-              nuevaCuenta: true,
-            }),
-          }
-        );
-        const passwordData = await passwordResponse.json();
-        if (!passwordResponse.ok) {
-          throw new Error(passwordData.message || "Error al actualizar la contraseña");
-        }
-        alert(passwordData.message || "Contraseña actualizada");
-      }
-      if (!user) {
+
+      if (newPassword && !user) {
+        // Si es un nuevo usuario, añadimos la contraseña
         requestBody.password = formData.password;
       }
-
-      console.log("URL:", url);
-      console.log("Método:", method);
-      console.log("Cuerpo de la solicitud:", requestBody);
 
       const response = await fetch(url, {
         method: method,
@@ -100,23 +70,13 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         body: JSON.stringify(requestBody),
       });
 
-      console.log("Respuesta del servidor:", response);
-
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage =
-          errorData.message || errorData.error || "Error desconocido";
-        throw new Error(errorMessage);
+        throw new Error(errorData.message || "Error desconocido");
       }
 
       const data = await response.json();
-      console.log("Respuesta completa del servidor:", data);
-
-      if (!data || data.data === null) {
-        onSave({ ...formData, id: user?.id } as User);
-      } else {
-        onSave(data.data);
-      }
+      onSave(data.data || formData);
     } catch (error) {
       console.error("Error en la solicitud:", error);
       alert(error.message || "Hubo un problema con la conexión");
@@ -126,63 +86,33 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   const handleCancel = () => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "¡No podrás revertir esta acción!", 
-      icon: "warning", 
-      showCancelButton: true, 
-      confirmButtonText: "Sí, continuar", 
-      cancelButtonText: "Cancelar", 
+      text: "¡No podrás revertir esta acción!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, continuar",
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        confirmCancel();
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        console.log("cancelado");
-        setIsCancelModalOpen(false);
+        onCancel();
       }
     });
-  };
-
-  const confirmCancel = () => {
-    setIsCancelModalOpen(false);
-    onCancel();
-  };
-
-  const cancelCancel = () => {
-    setIsCancelModalOpen(false);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const password = e.target.value;
     setNewPassword(password);
   };
-    /*
-    if (password.length < 8) {
-      setErrorMessage('La contraseña debe tener al menos 8 caracteres.');
-    } else if (!/[A-Z]/.test(password)) {
-      setErrorMessage('La contraseña debe contener al menos una letra mayúscula.');
-    } else if (!/[0-9]/.test(password)) {
-      setErrorMessage('La contraseña debe contener al menos un número.');
-    } else if (!/[!@#$%^&*]/.test(password)) {
-      setErrorMessage('La contraseña debe incluir un carácter especial (!@#$%^&*)');
-    } else {
-      setErrorMessage('');
-    }
-    */
-
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-      <div className={`w-full max-w-[800px] max-h-[95vh] bg-white rounded-md shadow-lg ${errorMessage ? "scroll-hidden" : ""} relative`}>
-      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md"> 
-      <div className="absolute -top-1 right-0"> 
+    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+      <div className="w-full max-w-[800px] max-h-[95vh] bg-white rounded-md shadow-lg relative">
+        <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
           <CloseButton onClick={onCancel} />
-          </div>
-          </div>
-          <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-4 mt-0">            
-            {/* Contenedor flexible para las columnas */}
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Nombre, Apellido, Correo Electrónico, etc. */}
             <div className="flex space-x-6">
-              {/* Columna izquierda */}
               <div className="flex-1 space-y-4">
                 <div>
                   <Label htmlFor="nombre">Nombre</Label>
@@ -192,11 +122,6 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, nombre: e.target.value })
                     }
-                    onKeyPress={(e) => {
-                      if (!/[a-zA-Z\s]/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                     required
                   />
                 </div>
@@ -208,15 +133,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, apellido: e.target.value })
                     }
-                    onKeyPress={(e) => {
-                      if (!/[a-zA-Z\s]/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                     required
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="email">Correo Electrónico</Label>
                   <Input
@@ -229,7 +148,6 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                     required
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="empresa">Empresa</Label>
                   <Input
@@ -243,7 +161,6 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                 </div>
               </div>
 
-              {/* Columna derecha */}
               <div className="flex-1 space-y-4">
                 <div>
                   <Label htmlFor="cuil">CUIL</Label>
@@ -253,11 +170,6 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, cuil: e.target.value })
                     }
-                    onKeyPress={(e) => {
-                      if (!/[0-9]/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                     required
                   />
                 </div>
@@ -285,34 +197,25 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="password">Contraseña</Label>
-                  {user ? (
-                    <Input
-                      id="password"
-                      type="password"
-                      value={newPassword}
-                      onChange={handlePasswordChange}
-                    />
-                  ) : (
+                {/* Contraseña solo en la creación de usuario */}
+                {!user && (
+                  <div>
+                    <Label htmlFor="password">Contraseña</Label>
                     <Input
                       id="password"
                       type="password"
                       value={formData.password}
-                      onChange={handlePasswordChange}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
                       required
                     />
-                  )}
-                  {errorMessage && (
-                    <span className="text-red-500 text-sm">{errorMessage}</span>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Contenedor para Preferencia y Botones */}
             <div className="flex justify-between items-center mt-6">
-              {/* Preferencia alineada a la izquierda */}
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="preferencia"
@@ -330,39 +233,18 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
                 </Label>
               </div>
 
-              {/* Botones alineados a la derecha */}
               <div className="flex space-x-4">
-                <Button2 title={"Cancelar"} onClick={handleCancel} className={"CancelButton"}></Button2>
-                <Button2 type={"submit"} title={"Guardar cambios"} className={"NeutralButton"}></Button2>
+                <Button2
+                  title={"Cancelar"}
+                  onClick={handleCancel}
+                  className={"CancelButton"}
+                />
+                <Button2 type={"submit"} title={"Guardar cambios"} className={"NeutralButton"} />
               </div>
             </div>
           </form>
         </div>
       </div>
-          </div>
-
-      {/* Modal de cancelación */}
-      <Modal isOpen={isCancelModalOpen} onClose={cancelCancel}>
-        <div className="z-50">
-          <h2>
-            {user
-              ? "¿Estás seguro de que deseas cancelar la edición del usuario?"
-              : "¿Estás seguro de que deseas cancelar la creación del usuario?"}
-          </h2>
-          <div className="flex justify-center gap-2 mt-4">
-            <Button
-              onClick={cancelCancel}
-              variant="outline"
-              className="bg-gray-200 text-black hover:bg-gray-300"
-            >
-              No
-            </Button>
-            <Button onClick={confirmCancel} variant="destructive">
-              Sí
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    </>
+    </div>
   );
 }

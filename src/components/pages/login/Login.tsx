@@ -75,11 +75,14 @@ export default function Login() {
       }
       console.log("User ID saved:", localStorage.getItem("userId"));
   
-      // Redirigimos según el rol del usuario
-      if (data.role === "ROLE_ADMIN") {
+      if (data.role === "ROLE_USUARIOEXTERNO") {
+        if (usuarioActual.nuevaCuenta) {
+          navigate("/ChangePassword"); 
+        } else {
+          navigate("/tablaRequerimientos");
+        }
+      } else if (data.role === "ROLE_ADMIN") {
         navigate("/gestionarUsuarios");
-      } else if (data.role === "ROLE_USUARIOEXTERNO") {
-        navigate("/tablaRequerimientos");
       }
     } catch (error) {
       console.error("Login error:", error);
