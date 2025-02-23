@@ -103,6 +103,8 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   };
 
   const handleCancel = () => {
+    confirmCancel();
+    /*
     Swal.fire({
       title: "¿Estás seguro?",
       text: "¡No podrás revertir esta acción!", 
@@ -115,9 +117,10 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
         confirmCancel();
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         console.log("cancelado");
-        setIsCancelModalOpen(false);
+        
       }
     });
+    */
   };
 
   const confirmCancel = () => {
@@ -316,7 +319,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
               {/* Botones alineados a la derecha */}
               <div className="flex space-x-4">
-                <Button2 title={"Cancelar"} onClick={handleCancel} className={"CancelButton"}></Button2>
+                <Button2 title={"Cancelar"} onClick={handleCancel} className={"NeutralButton"}></Button2>
                 <Button2 type={"submit"} title={"Guardar cambios"} className={"NeutralButton"}></Button2>
               </div>
             </div>

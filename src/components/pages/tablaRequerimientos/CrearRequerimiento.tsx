@@ -71,7 +71,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
         setCategorias(categoriasData.data.map((c: any) => ({  // Se nombran value y label para poder ser leido por el select
           value: c.descripcion,
-          label: c.codigoTipoRequerimiento
+          label: c.descripcion
         })));
       } catch (error) {
         console.error("Error cargando datos:", error);
@@ -207,6 +207,10 @@ const handleCategoriaChange = (selected: any) => {
       showCancelButton: true, // Mostrar botón de cancelar
       confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
       cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+      customClass: {
+        confirmButton: 'CancelButton', // Clase personalizada para el botón de confirmación
+        cancelButton: 'AcceptButton' // Clase personalizada para el botón de cancelar
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         // Restablecer el formulario y cerrar el modal principal

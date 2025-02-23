@@ -152,7 +152,7 @@ export function TablaRequerimientos() {
           <Button2 
             onClick={() => setIsCreateDialogOpen(true)} 
             title={"Crear requerimiento"} 
-            className="NeutralButton"
+            className="AcceptButton"
           />
           <UserMenu userName={localStorage.getItem('userName')} />
         </div>
