@@ -150,21 +150,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
   };
   
 
-const obtenerTipoPorCategoria = (categoria: string, tipoActual: string) => {
-  switch (categoria) {
-    case 'Solicitud reparación de hardware':
-    case 'Instalación de hardware':
-      return 'hardware';
-    case 'Solicitud reparación de software':
-    case 'Instalación de software':
-      return 'software';
-    case 'Nueva falla':
-      return 'error';
-    default:
-      return tipoActual; // Mantiene el tipo actual si no hay coincidencia
-  }
-};
-
 const handleTipoChange = (selected: any) => {
   const tipoSeleccionado = selected?.value || '';
   setNuevoRequerimiento({ 
@@ -177,42 +162,15 @@ const handleTipoChange = (selected: any) => {
 
 const handleCategoriaChange = (selected: any) => {
   const nuevaCategoria = selected?.value || '';
-  const nuevoTipo = obtenerTipoPorCategoria(nuevaCategoria, nuevoRequerimiento.tipo); // Obtén el tipo relacionado con la categoría
   setNuevoRequerimiento(prevState => ({
     ...prevState,
     categoria: nuevaCategoria,
-    tipo: nuevoTipo,  // Actualizar el tipo automáticamente
+    tipo: nuevoRequerimiento.tipo,  // Actualizar el tipo automáticamente
   }));
 };
 
 
-  const crearRequerimiento = () => {
-    const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(9, '0')}`
-    const fechaActual = new Date().toLocaleDateString('es-ES')
-    const nuevoReq = {
-      ...nuevoRequerimiento,
-      codigo: nuevoId,
-      fechaAlta: fechaActual,
-      archivos: archivos.map(file => ({ nombre: file.name, tipo: file.type })),
-      requerimientosRelacionados: selectedOption?.map(option => option.value) || [],
-    }
-    onCrear(nuevoReq)
-    onClose()
-    setNuevoRequerimiento({
-      codigo: "",
-      prioridad: "MEDIA",
-      tipo: "",
-      categoria: "",
-      fechaAlta: "",
-      estado: "Abierto",
-      asunto: "",
-      propietario: "g.jorge",
-      descripcion: "",
-      archivos: [],
-    })
-    setArchivos([])
-    setSelectedOption(null);
-  }
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -276,7 +234,7 @@ const handleCategoriaChange = (selected: any) => {
     //setShowCancelConfirmation(true); 
   };
 
-  const handleChange = (selected: any) => {
+  const handleRequerimientoRelacionadoChange = (selected: any) => {
     setSelectedOption(selected ? selected : null);  // Asegúrate de manejar null correctamente
   };
 
@@ -477,7 +435,7 @@ const handleCategoriaChange = (selected: any) => {
                 <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ height: '150px' }}>
                   <Select
                     value={selectedOption}
-                    onChange={handleChange}
+                    onChange={handleRequerimientoRelacionadoChange}
                     options={opciones}
                     isMulti
                     isSearchable={true}

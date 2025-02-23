@@ -38,23 +38,8 @@ export function TablaRequerimientos() {
       // Cargar usuario
       const userId = localStorage.getItem("userId");
       const storedUserName = localStorage.getItem("userName");
+      console.log("uid " + userId + " username " + storedUserName);      
       
-      if (userId && !storedUserName) {
-        try {
-          const response = await fetch("http://localhost:8080/usuarios/todos", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          });
-          const data = await response.json();
-          const usuario = data.data.find((u: any) => u.id.toString() === userId);
-          if (usuario) {
-            setUserName(usuario.username);
-            localStorage.setItem("userName", usuario.username);
-          }
-        } catch (error) {
-          console.error("Error cargando usuario:", error);
-        }
-      }
-
       // Cargar tipos y categorías
       try {
         const [tiposRes, categoriasRes] = await Promise.all([
@@ -140,21 +125,7 @@ export function TablaRequerimientos() {
     }));
   };
 
-  // Ordenamiento
-  const ordenarPor = (columna: keyof Requerimiento) => {
-    setOrdenamiento(prev => ({
-      columna,
-      direccion: prev.columna === columna && prev.direccion === "asc" ? "desc" : "asc"
-    }));
 
-    setDatos(prev => [...prev].sort((a, b) => {
-      const valorA = a[columna];
-      const valorB = b[columna];
-      return ordenamiento.direccion === "asc" 
-        ? valorA > valorB ? 1 : -1
-        : valorA < valorB ? 1 : -1;
-    }));
-  };
 
   // Resto de funciones
   const limpiarFiltros = () => setFiltros({ tipo: "", categoria: "", estado: "" });
