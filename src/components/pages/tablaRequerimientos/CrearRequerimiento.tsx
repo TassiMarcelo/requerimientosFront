@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Dialog } from '@headlessui/react'
 import { PlusSquare, X } from 'lucide-react'
 import Select from 'react-select'
@@ -15,13 +15,17 @@ interface CrearRequerimientoProps {
   datos: Requerimiento[]
 }
 
+
+
 export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearRequerimientoProps) {
   const [nuevoRequerimiento, setNuevoRequerimiento] = useState<Requerimiento>({
     codigo: "",
     prioridad: "",
     tipo: "",
+    codigoTipoRequerimiento: "",
     categoria: "",
     fechaAlta: "",
+    requerimientosRelacionados: [],
     estado: "Abierto",
     asunto: "",
     propietario: "",
@@ -29,6 +33,44 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     archivos: [],
   })
 
+  const [tipos, setTipos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+
+  // Cargar tipos y categorías
+  useEffect(() => {
+    const cargarDatosIniciales = async () => {
+      // Cargar tipos y categorías
+      try {
+        const [tiposRes, categoriasRes] = await Promise.all([
+          fetch("http://localhost:8080/tiposRequerimientos/getAll", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+          }),
+          fetch("http://localhost:8080/categRequerimientos/todas", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+          })
+        ]);
+
+        const tiposData = await tiposRes.json();
+        const categoriasData = await categoriasRes.json();
+        
+        console.log(tiposData.data);
+
+        setTipos(tiposData.data.map((t: any) => ({ // Se nombran value y label para poder ser leido por el select
+          value: t.codigo,
+          label: t.codigo
+        })));
+
+        setCategorias(categoriasData.data.map((c: any) => ({  // Se nombran value y label para poder ser leido por el select
+          value: c.descripcion,
+          label: c.codigoTipoRequerimiento
+        })));
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      }
+    };
+
+    cargarDatosIniciales();
+  }, []);
 
   const sendJsonFile = async () => {
     Swal.fire({
@@ -40,17 +82,21 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       },
     });
     const jsonData = {
-      asunto: "nuevoRequerimiento.asunto",
-      descripcion: "nuevoRequerimiento.descripcion",
-      prioridad: "nuevoRequerimiento.prioridad",
+      asunto: nuevoRequerimiento.asunto,
+      descripcion: nuevoRequerimiento.descripcion,
+      prioridad: nuevoRequerimiento.prioridad,
+      categRequerimiento: nuevoRequerimiento.categoria,
       tipoRequerimiento: {
-          codigo: "REH"
+        codigo: nuevoRequerimiento.codigoTipoRequerimiento
       },
       emisor: {
-          id: "1"
-      }
-    }; // Tu JSON
+        id: localStorage.getItem("userId")
+      },
+      codigoRequerimientoRelacionado: selectedOption.map(option => option.value) // Mapping all values
+    };
+    
   
+    console.log(jsonData);
     // Crear un Blob y convertirlo en un File
     const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: "application/json" });
     const jsonFile = new File([jsonBlob], "datos.json", { type: "application/json" });
@@ -89,9 +135,9 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
   const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
     if (!tipoSeleccionado) {
-      return opcionesCategoria;
+      return categorias;
     }
-    return opcionesCategoria.filter(option => option.tipo === tipoSeleccionado);
+    return categorias.filter(cat => cat.tipoCodigo === tipoSeleccionado);
   };
   
 
@@ -114,7 +160,7 @@ const handleTipoChange = (selected: any) => {
   const tipoSeleccionado = selected?.value || '';
   setNuevoRequerimiento({ 
     ...nuevoRequerimiento, 
-    tipo: tipoSeleccionado, 
+    codigoTipoRequerimiento: tipoSeleccionado,  // codigo del tipo
     categoria: "" // Restablecer categoría al cambiar tipo
   });
 };
@@ -178,16 +224,14 @@ const handleCategoriaChange = (selected: any) => {
     setArchivos(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
-  console.log(datos);
+
   const opciones = datos && datos.length > 0 ? datos.map((requerimiento) => ({
     value: requerimiento.codigo,
     label: requerimiento.codigo, // o usar otro campo, como requerimiento.asunto
   })) : [];
-  console.log(opciones); 
-  
 
 
-  const [selectedOption, setSelectedOption] = useState<{ value: string; label: string } | null>(null);
+  const [selectedOption, setSelectedOption] = useState<{ value: string; label: string } | null>(null); // requerimientos relacionados
 
   const handleCancel = () => {
     Swal.fire({
@@ -322,9 +366,8 @@ const handleCategoriaChange = (selected: any) => {
       Tipo
     </label>
     <Select
-      value={opcionesTipo.find(option => option.value === nuevoRequerimiento.tipo) || null}
       onChange={handleTipoChange}
-      options={opcionesTipo}
+      options={tipos}
       placeholder="Seleccionar tipo"
       styles={customStyles} 
       isClearable={true}
@@ -336,7 +379,7 @@ const handleCategoriaChange = (selected: any) => {
       Categoría
     </label>
     <Select
-      value={opcionesCategoria.find(option => option.value === nuevoRequerimiento.categoria) || null}
+      value={categorias.find(option => option.value === nuevoRequerimiento.categoria) || null}
       onChange={handleCategoriaChange}
       options={obtenerOpcionesCategoria(nuevoRequerimiento.tipo)}  
       placeholder="Seleccionar categoría"
@@ -424,7 +467,6 @@ const handleCategoriaChange = (selected: any) => {
                   Requerimientos relacionados
                 </label>
                 <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ height: '150px' }}>
-                {console.log(opciones)}
                   <Select
                     value={selectedOption}
                     onChange={handleChange}
