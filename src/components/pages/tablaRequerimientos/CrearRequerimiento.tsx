@@ -117,12 +117,10 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     for(const arch of archivos){
       formData.append("archivos", arch);
     }
-    const file1 = new File([], ".pdf", { type: "text/plain" });
   
     // Crear FormData para enviarlo
     
     formData.append("requerimientoDTO", jsonFile); // El backend debe esperar una clave "file"
-    formData.append("archivos", file1); // El backend debe esperar una clave "file"
   
     try {
       const response = await fetch("http://localhost:8080/requerimientos/agregar", {
@@ -144,6 +142,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
           confirmButton: "AcceptButton"
         }
       });
+      onClose();
       // cerrar req
     } catch (error) {
       console.error("Error:", error);
