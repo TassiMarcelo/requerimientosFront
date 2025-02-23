@@ -41,23 +41,9 @@ export function TablaRequerimientos() {
     const cargarDatosIniciales = async () => {
       const userId = localStorage.getItem("userId");
       const storedUserName = localStorage.getItem("userName");
+      console.log("uid " + userId + " username " + storedUserName);      
       
-      if (userId && !storedUserName) {
-        try {
-          const response = await fetch("http://localhost:8080/usuarios/todos", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-          });
-          const data = await response.json();
-          const usuario = data.data.find((u: any) => u.id.toString() === userId);
-          if (usuario) {
-            setUserName(usuario.username);
-            localStorage.setItem("userName", usuario.username);
-          }
-        } catch (error) {
-          console.error("Error cargando usuario:", error);
-        }
-      }
-
+      // Cargar tipos y categorías
       try {
         const [tiposRes, categoriasRes] = await Promise.all([
           fetch("http://localhost:8080/tiposRequerimientos/getAll", {
@@ -212,7 +198,7 @@ export function TablaRequerimientos() {
         <Button2 
             onClick={() => setIsCreateDialogOpen(true)} 
             title={"Crear requerimiento"} 
-            className="NeutralButton"
+            className="AcceptButton"
           />
           <UserMenu userName={localStorage.getItem('userName')} />
         </div>

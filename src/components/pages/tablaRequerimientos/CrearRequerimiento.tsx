@@ -73,7 +73,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
         setCategorias(categoriasData.data.map((c: any) => ({  // Se nombran value y label para poder ser leido por el select
           value: c.descripcion,
-          label: c.codigoTipoRequerimiento
+          label: c.descripcion
         })));
       } catch (error) {
         console.error("Error cargando datos:", error);
@@ -152,21 +152,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
   };
   
 
-const obtenerTipoPorCategoria = (categoria: string, tipoActual: string) => {
-  switch (categoria) {
-    case 'Solicitud reparación de hardware':
-    case 'Instalación de hardware':
-      return 'hardware';
-    case 'Solicitud reparación de software':
-    case 'Instalación de software':
-      return 'software';
-    case 'Nueva falla':
-      return 'error';
-    default:
-      return tipoActual; // Mantiene el tipo actual si no hay coincidencia
-  }
-};
-
 const handleTipoChange = (selected: any) => {
   const tipoSeleccionado = selected?.value || '';
   setNuevoRequerimiento({ 
@@ -179,42 +164,15 @@ const handleTipoChange = (selected: any) => {
 
 const handleCategoriaChange = (selected: any) => {
   const nuevaCategoria = selected?.value || '';
-  const nuevoTipo = obtenerTipoPorCategoria(nuevaCategoria, nuevoRequerimiento.tipo); // Obtén el tipo relacionado con la categoría
   setNuevoRequerimiento(prevState => ({
     ...prevState,
     categoria: nuevaCategoria,
-    tipo: nuevoTipo,  // Actualizar el tipo automáticamente
+    tipo: nuevoRequerimiento.tipo,  // Actualizar el tipo automáticamente
   }));
 };
 
 
-  const crearRequerimiento = () => {
-    const nuevoId = `REQ-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(9, '0')}`
-    const fechaActual = new Date().toLocaleDateString('es-ES')
-    const nuevoReq = {
-      ...nuevoRequerimiento,
-      codigo: nuevoId,
-      fechaAlta: fechaActual,
-      archivos: archivos.map(file => ({ nombre: file.name, tipo: file.type })),
-      requerimientosRelacionados: selectedOption?.map(option => option.value) || [],
-    }
-    onCrear(nuevoReq)
-    onClose()
-    setNuevoRequerimiento({
-      codigo: "",
-      prioridad: "MEDIA",
-      tipo: "",
-      categoria: "",
-      fechaAlta: "",
-      estado: "Abierto",
-      asunto: "",
-      propietario: "g.jorge",
-      descripcion: "",
-      archivos: [],
-    })
-    setArchivos([])
-    setSelectedOption(null);
-  }
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -251,6 +209,10 @@ const handleCategoriaChange = (selected: any) => {
       showCancelButton: true, // Mostrar botón de cancelar
       confirmButtonText: 'Sí, continuar', // Texto del botón de confirmación
       cancelButtonText: 'Cancelar', // Texto del botón de cancelar
+      customClass: {
+        confirmButton: 'CancelButton', // Clase personalizada para el botón de confirmación
+        cancelButton: 'AcceptButton' // Clase personalizada para el botón de cancelar
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         // Restablecer el formulario y cerrar el modal principal
@@ -278,7 +240,7 @@ const handleCategoriaChange = (selected: any) => {
     //setShowCancelConfirmation(true); 
   };
 
-  const handleChange = (selected: any) => {
+  const handleRequerimientoRelacionadoChange = (selected: any) => {
     setSelectedOption(selected ? selected : null);  // Asegúrate de manejar null correctamente
   };
 
@@ -479,7 +441,7 @@ const handleCategoriaChange = (selected: any) => {
                 <div className="border-2 rounded-lg rounded-tr-none rounded-tl-none p-4 bg-white" style={{ height: '150px' }}>
                   <Select
                     value={selectedOption}
-                    onChange={handleChange}
+                    onChange={handleRequerimientoRelacionadoChange}
                     options={opciones}
                     isMulti
                     isSearchable={true}
