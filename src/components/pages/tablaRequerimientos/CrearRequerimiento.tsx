@@ -36,6 +36,15 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
   const [tipos, setTipos] = useState([]);
   const [categorias, setCategorias] = useState([]);
 
+  const [archivos, setArchivos] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+
+  const [selectedOption, setSelectedOption] = useState<{ value: string; label: string }[]>([]);
+
+
+
   // Cargar tipos y categorías
   useEffect(() => {
     const cargarDatosIniciales = async () => {
@@ -103,10 +112,14 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: "application/json" });
     const jsonFile = new File([jsonBlob], "datos.json", { type: "application/json" });
 
+    const formData = new FormData();
+    for(const arch of archivos){
+      formData.append("archivos", arch);
+    }
     const file1 = new File([], "archivo_vacio.txt", { type: "text/plain" });
   
     // Crear FormData para enviarlo
-    const formData = new FormData();
+    
     formData.append("requerimientoDTO", jsonFile); // El backend debe esperar una clave "file"
     formData.append("archivos", file1); // El backend debe esperar una clave "file"
   
@@ -130,10 +143,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
   };
 
 
-  const [archivos, setArchivos] = useState<File[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
 
   const obtenerOpcionesCategoria = (tipoSeleccionado: string) => {
     if (!tipoSeleccionado) {
@@ -233,7 +242,6 @@ const handleCategoriaChange = (selected: any) => {
   })) : [];
 
 
-  const [selectedOption, setSelectedOption] = useState<{ value: string; label: string } | null>(null); // requerimientos relacionados
 
   const handleCancel = () => {
     Swal.fire({
