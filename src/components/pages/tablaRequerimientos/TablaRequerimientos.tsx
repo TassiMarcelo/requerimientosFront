@@ -1,4 +1,3 @@
-// TablaRequerimientos.tsx
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { CrearRequerimiento } from "./CrearRequerimiento";
@@ -15,11 +14,11 @@ const formatDate = (dateString: string) => {
 
 export function TablaRequerimientos() {
   const [datos, setDatos] = useState<Requerimiento[]>([]);
-  const [userName, setUserName] = useState<string | null>(null);
   const [filtros, setFiltros] = useState({
     tipo: "",
     categoria: "",
     estado: "",
+    prioridad: "", // Nuevo filtro por prioridad
   });
   const [tipos, setTipos] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
@@ -37,12 +36,18 @@ export function TablaRequerimientos() {
     { value: "ASIGNADO", label: "Asignado" }
   ];
 
+  const prioridadesOpciones = [
+    { value: "BAJA", label: "Baja" },
+    { value: "MEDIA", label: "Media" },
+    { value: "URGENTE", label: "Urgente" }
+  ];
+
   useEffect(() => {
     const cargarDatosIniciales = async () => {
       const userId = localStorage.getItem("userId");
       const storedUserName = localStorage.getItem("userName");
-      console.log("uid " + userId + " username " + storedUserName);      
-      
+      console.log("uid " + userId + " username " + storedUserName);
+
       // Cargar tipos y categorías
       try {
         const [tiposRes, categoriasRes] = await Promise.all([
@@ -82,26 +87,27 @@ export function TablaRequerimientos() {
 
       try {
         const url = new URL(`http://localhost:8080/requerimientos/${userName}/filtrar`);
-        
+
         if (filtros.tipo) url.searchParams.append("tipoRequerimiento", filtros.tipo);
         if (filtros.categoria) url.searchParams.append("categoria", filtros.categoria);
         if (filtros.estado) url.searchParams.append("estado", filtros.estado);
+        if (filtros.prioridad) url.searchParams.append("prioridad", filtros.prioridad); // Nuevo filtro
 
         const response = await fetch(url.toString(), {
           headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
         });
 
         if (!response.ok) throw new Error(`Error ${response.status}`);
-        
+
         const data = await response.json();
         let requerimientos = data.data || [];
 
         // Ordenar por fechaAlta
         requerimientos = requerimientos.sort((a, b) => {
-          const dateA = new Date(a.fechaAlta.split('-').join('/')); 
-          const dateB = new Date(b.fechaAlta.split('-').join('/')); 
-        
-          return ordenamiento.direccion === "asc" 
+          const dateA = new Date(a.fechaAlta.split('-').join('/'));
+          const dateB = new Date(b.fechaAlta.split('-').join('/'));
+
+          return ordenamiento.direccion === "asc"
             ? dateA.getTime() - dateB.getTime()  // De la fecha más vieja a la más nueva
             : dateB.getTime() - dateA.getTime(); // De la más nueva a la más vieja
         });
@@ -138,6 +144,13 @@ export function TablaRequerimientos() {
     }));
   };
 
+  const handlePrioridadChange = (e: any) => {
+    setFiltros(prev => ({
+      ...prev,
+      prioridad: e?.value || ""
+    }));
+  };
+
   const ordenarPor = (columna: keyof Requerimiento) => {
     if (columna !== "fechaAlta") return;
 
@@ -148,11 +161,15 @@ export function TablaRequerimientos() {
     });
   };
 
-  const limpiarFiltros = () => setFiltros({ tipo: "", categoria: "", estado: "" });
+  const limpiarFiltros = () => setFiltros({ tipo: "", categoria: "", estado: "", prioridad: "" });
 
   const handleRowClick = (requerimiento: Requerimiento) => {
     setSelectedRequerimiento(requerimiento);
     setIsViewDialogOpen(true);
+  };
+
+  const handleCrearRequerimiento = (nuevoRequerimiento: Requerimiento) => {
+    setDatos(prev => [nuevoRequerimiento, ...prev]); // Agrega el nuevo requerimiento al principio de la lista
   };
 
   const customStyles = {
@@ -195,9 +212,9 @@ export function TablaRequerimientos() {
       <div className="bg-[#556B2F] p-4 flex justify-between items-center w-full">
         <h1 className="text-3xl font-bold text-white">Lista de requerimientos para el usuario {localStorage.getItem("userName")}</h1>
         <div className="flex items-center gap-4">
-        <Button2 
-            onClick={() => setIsCreateDialogOpen(true)} 
-            title={"Crear requerimiento"} 
+          <Button2
+            onClick={() => setIsCreateDialogOpen(true)}
+            title={"Crear requerimiento"}
             className="NeutralButton"
           />
           <UserMenu userName={localStorage.getItem('userName')} />
@@ -233,6 +250,16 @@ export function TablaRequerimientos() {
             onChange={handleEstadoChange}
             options={estadosOpciones}
             placeholder="Estado"
+            styles={customStyles}
+            isClearable
+          />
+
+          <Select
+            className="w-64 h-[34px]"
+            value={prioridadesOpciones.find(p => p.value === filtros.prioridad)}
+            onChange={handlePrioridadChange}
+            options={prioridadesOpciones}
+            placeholder="Prioridad"
             styles={customStyles}
             isClearable
           />
@@ -308,7 +335,7 @@ export function TablaRequerimientos() {
       />
 
       <CrearRequerimiento
-        onCrear={(nuevo) => setDatos(prev => [nuevo, ...prev])}
+        onCrear={handleCrearRequerimiento}
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         datos={datos}
