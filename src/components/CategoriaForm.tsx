@@ -18,6 +18,7 @@ interface CategoriaRequerimiento {
   id: number;
   descripcion: string;
   codigoTipoRequerimiento: string;
+  desactivado: boolean;
 }
 
 interface CategoriaFormProps {
@@ -45,6 +46,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const [descripcionTipo, setDescripcionTipo] = useState("");
   const [codigo, setCodigo] = useState("");
   const [tipos, setTipos] = useState<TipoRequerimiento[]>([]);
+  const [categoriasFiltradas, setCategoriasFiltradas] = useState<CategoriaRequerimiento[]>([]);
   const [categorias, setCategorias] = useState<CategoriaRequerimiento[]>([]);
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
   const [tipoSeleccionado, setTipoSeleccionado] =
@@ -60,23 +62,32 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     
       const filteredCategorias = categorias.filter(
         (categoria) =>
-          (categoria.descripcion && categoria.descripcion.toLowerCase().includes(lowercasedSearchTerm)) || // Filtra por descripción de categoría
+          categoria.desactivado === false &&
+         ((categoria.descripcion && categoria.descripcion.toLowerCase().includes(lowercasedSearchTerm)) || 
           (categoria.codigoTipoRequerimiento && categoria.codigoTipoRequerimiento.toLowerCase().includes(lowercasedSearchTerm)) ||
           tipos.some(
             (tipo) =>
               tipo.codigo === categoria.codigoTipoRequerimiento &&
-              (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm))
+              (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)))
           )
       );
       return { filteredTipos, filteredCategorias };
     };
+    useEffect(() => {
+      setCategoriasFiltradas(
+        categorias.filter(
+          (categoria) =>
+            categoria.desactivado === false &&
+            categoria.codigoTipoRequerimiento === tipoSeleccionado?.codigo
+        )
+      );
+    }, [categorias, tipoSeleccionado]);
     
     useEffect(() => {
       const fetchData = async () => {
         try {
-          const tiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/false/todos"); // Obtener solo tipos activos
-          const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas"); // Obtener todas las categorías
-    
+          const tiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/false/todos"); 
+          const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");    
           if (!tiposResponse.ok || !categoriasResponse.ok) {
             throw new Error("Error al obtener los datos");
           }
@@ -84,13 +95,13 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           const tiposData = await tiposResponse.json();
           const categoriasData = await categoriasResponse.json();
     
-          // Asignamos los datos de tipos activos y categorías a los estados correspondientes
-          const tipos: TipoRequerimiento[] = tiposData.data;
-          const categorias: CategoriaRequerimiento[] = categoriasData.data;
-    
-          setTipos(tipos); // Guardamos los tipos activos en el estado
-          setCategorias(categorias); // Guardamos las categorías en el estado
-    
+          const categoriasActivas = categoriasData.data.filter(
+          (categoria: CategoriaRequerimiento) => categoria.desactivado === false
+          );
+
+          setTipos(tiposData.data); 
+          setCategorias(categoriasActivas);
+
         } catch (error) {
           console.error("Error al obtener los datos:", error);
           setErrorMessage("No se pudieron cargar los tipos de requerimiento.");
@@ -125,11 +136,127 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       console.error("Error al eliminar el tipo:", error);
     }
   };
+
+  const handleDeleteCategoria = async (id: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/categRequerimientos/${id}/desactivar`,
+        {
+          method: "PATCH",
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Error al eliminar la categoría.");
+      }
+  
+      setCategorias((prevCategorias) =>
+        prevCategorias.map((categoria) =>
+          categoria.id === id ? { ...categoria, desactivado: true } : categoria
+        )
+      );
+
+    } catch (error) {
+      console.error("Error al eliminar la categoría:", error);
+    }
+  };
+
   const handleEditTipo = (tipo: TipoRequerimiento) => {
     setDescripcionTipo(tipo.descripcion);
     setCodigo(tipo.codigo);
-    setShowTipoForm(true); // Abre el formulario de edición
+    setTipoSeleccionado(tipo); 
+    setShowTipoForm(true); 
   };
+
+  const handleEditCategoria = async (id: number, nuevaDescripcion: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/categRequerimientos/${id}/update`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            descripcion: nuevaDescripcion,
+            codigoTipoRequerimiento: tipoSeleccionado?.codigo,
+          }),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Error al actualizar la categoría.");
+      }
+  
+      const data = await response.json();
+      console.log(data.message); 
+  
+      const updatedCategorias = categorias.map((categoria) =>
+        categoria.id === id
+          ? { ...categoria, descripcion: nuevaDescripcion }
+          : categoria
+      );
+      setCategorias(updatedCategorias);
+    } catch (error) {
+      console.error("Error al actualizar la categoría:", error);
+    }
+  };
+
+  const handleUpdateTipo = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!descripcionTipo.trim() || !codigo.trim() || !tipoSeleccionado) {
+      setErrorMessage("Todos los campos son obligatorios para actualizar el tipo.");
+      return;
+    }
+  
+    try {
+      const response = await fetch(
+        `http://localhost:8080/tiposRequerimientos/${tipoSeleccionado.codigo}/updateTipo`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            descripcion: descripcionTipo,
+            codigo: codigo,
+          }),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Error al actualizar el tipo de requerimiento.");
+      }
+  
+      const data = await response.json();
+      console.log(data.message);
+  
+      const updatedTipos = tipos.map((tipo) =>
+        tipo.codigo === tipoSeleccionado.codigo
+          ? { ...tipo, descripcion: descripcionTipo, codigo: codigo }
+          : tipo
+      );
+      setTipos(updatedTipos);
+  const updatedCategorias = categorias.map((categoria) =>
+      categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
+        ? { ...categoria, codigoTipoRequerimiento: codigo } // Se actualiza el código
+        : categoria
+    );
+    setCategorias(updatedCategorias);
+  
+      setShowTipoForm(false);
+      setDescripcionTipo("");
+      setCodigo("");
+      setTipoSeleccionado(null);
+      setErrorMessage("");
+  
+    } catch (error) {
+      console.error("Error al actualizar el tipo:", error);
+      setErrorMessage("Ocurrió un error al actualizar el tipo de requerimiento.");
+    }
+  };
+  
 
   const obtenerTiposActivos = async () => {
     try {
@@ -137,7 +264,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       const data = await response.json();
       
       if (response.ok) {
-        // Actualizamos el estado solo con los tipos activos
         setTipos(data.data);
       } else {
         console.error("Error al obtener los tipos:", data.message);
@@ -312,7 +438,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     <p>No se encontraron coincidencias.</p>
   ) : (
     <>
-      {/* Mostrar solo los tipos que coinciden con la búsqueda */}
       {tipos
         .filter((tipo) => {
           const coincideTipo =
@@ -321,47 +446,45 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           const coincideCategoria = categorias.some(
             (categoria) =>
               categoria.codigoTipoRequerimiento === tipo.codigo &&
-              categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+              categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) &&
+              categoria.desactivado === false
           );
 
           return coincideTipo || coincideCategoria;
         })
         .map((tipo) => {
           const categoriasDelTipo = categorias.filter(
-            (categoria) => categoria.codigoTipoRequerimiento === tipo.codigo
+            (categoria) =>
+              categoria.codigoTipoRequerimiento === tipo.codigo &&
+              categoria.desactivado === false // Solo categorías activas
           );
 
           return (
-            <div key={tipo.codigo} className="mb-4 p-4 border rounded-md">
-              <h2 className="font-semibold">
-                {tipo.descripcion} ({tipo.codigo})
-                <div className="flex space-x-2">
-            <Pencil className="cursor-pointer" onClick={() => handleEditTipo(tipo)} />
-            <Trash2 className="cursor-pointer" onClick={() => handleDeleteTipo(tipo.codigo)} />
-          </div>
-              </h2>
-              <div className="mt-2">
-                {categoriasDelTipo.length > 0 ? (
-                  <>
-                    <h3 className="font-semibold">Categorías:</h3>
-                    <ul className="list-disc pl-5">
-                      {categoriasDelTipo.map((categoria) => (
-                        <li
-                          key={categoria.id}
-                          className={
-                            categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-                              ? "font-bold" // Resaltar en negrita si coincide con la búsqueda
-                              : ""
-                          }
-                        >
-                          {categoria.descripcion}
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : (
-                  <p>No existen categorías asociadas.</p>
-                )}
+            <div key={tipo.codigo} className="mb-4 p-4 border rounded-md flex justify-between items-center">
+              <div>
+                <h2 className="font-semibold">
+                  {tipo.descripcion} ({tipo.codigo})
+                </h2>
+                <div className="mt-2">
+                  {categoriasDelTipo.length > 0 ? (
+                    <>
+                      <h3 className="font-semibold">Categorías:</h3>
+                      <ul className="list-disc pl-5">
+                        {categoriasDelTipo.map((categoria) => (
+                          <li key={categoria.id}>
+                            {categoria.descripcion}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : (
+                    <p>No existen categorías asociadas.</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex space-x-4">
+                <Pencil className="cursor-pointer" onClick={() => handleEditTipo(tipo)} />
+                <Trash2 className="cursor-pointer" onClick={() => handleDeleteTipo(tipo.codigo)} />
               </div>
             </div>
           );
@@ -371,7 +494,12 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
 </div>
           <div className="flex justify-between mt-4">
             <div className="flex space-x-2">
-              <Button onClick={() => setShowTipoForm(true)}>+ Tipo</Button>
+<Button onClick={() => {
+  setDescripcionTipo(""); 
+  setCodigo(""); 
+  setTipoSeleccionado(null); 
+  setShowTipoForm(true); 
+}}>+ Tipo</Button>
               <Button onClick={() => setShowCategoriaForm(true)}>
                 + Categoría
               </Button>
@@ -379,51 +507,95 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
             <Button onClick={onClose}>Cerrar</Button>
           </div>
           {showTipoForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-              <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-                <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
-                  <div className="absolute -top-1 right-0">
-                    <CloseButton onClick={() => setShowTipoForm(false)} />
-                  </div>
-                </div>
-                <div className="p-6">
-                  <form onSubmit={handleTipoSubmit} className="space-y-4 mt-6">
-                    <h1 className="text-lg font-semibold">
-                    {codigo ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
-                    </h1>
-                    <div>
-                      <Label htmlFor="descripcionTipo">Descripción</Label>
-                      <Input
-                        id="descripcionTipo"
-                        value={descripcionTipo}
-                        onChange={(e) => setDescripcionTipo(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="codigo">
-                        Código (Máximo 3 caracteres)
-                      </Label>
-                      <Input
-                        id="codigo"
-                        value={codigo}
-                        maxLength={3}
-                        onChange={(e) => setCodigo(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <Button2 title={"Guardar tipo"} className="NeutralButton" onClick={handleTipoSubmit}></Button2>
-                    <Button
-                      type="button"
-                      onClick={() => setShowTipoForm(false)}
-                    >
-                      Cancelar
-                    </Button>
-                  </form>
-                </div>
+  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+    <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
+      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
+        <div className="absolute -top-1 right-0">
+          <CloseButton onClick={() => setShowTipoForm(false)} />
+        </div>
+      </div>
+      <div className="p-6">
+      <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4 mt-6">
+      <h1 className="text-lg font-semibold">
+      {tipoSeleccionado ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
+      </h1>
+          <div>
+            <Label htmlFor="descripcionTipo">Descripción</Label>
+            <Input
+              id="descripcionTipo"
+              value={descripcionTipo}
+              onChange={(e) => setDescripcionTipo(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="codigo">Código (Máximo 3 caracteres)</Label>
+            <Input
+              id="codigo"
+              value={codigo}
+              maxLength={3}
+              onChange={(e) => setCodigo(e.target.value)}
+              required
+            />
+          </div>
+
+          {tipoSeleccionado && (
+  <div className="mt-4">
+    <h3 className="font-semibold">Categorías:</h3>
+    {categorias
+      .filter((categoria) => 
+        categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
+        categoria.desactivado === false
+      ).length > 0 ? ( // Verificar si hay categorías activas
+      <ul className="list-disc pl-5">
+        {categorias
+          .filter((categoria) => 
+            categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
+            categoria.desactivado === false
+          )
+          .map((categoria) => (
+            <li key={categoria.id} className="flex justify-between items-center">
+              <span>{categoria.descripcion}</span>
+              <div className="flex space-x-2">
+                <Pencil
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const nuevaDescripcion = prompt(
+                      "Editar descripción:",
+                      categoria.descripcion
+                    );
+                    if (nuevaDescripcion) {
+                      handleEditCategoria(categoria.id, nuevaDescripcion);
+                    }
+                  }}
+                />
+                <Trash2
+                  className="cursor-pointer"
+                  onClick={() => handleDeleteCategoria(categoria.id)}
+                />
               </div>
-            </div>
-          )}
+            </li>
+          ))}
+      </ul>
+    ) : ( // Si no hay categorías activas
+      <p>No hay categorías asociadas.</p>
+    )}
+  </div>
+)}
+
+<Button2
+            title={tipoSeleccionado ? "Guardar cambios" : "Guardar tipo"}
+            className="NeutralButton"
+            onClick={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit}
+          />
+          <Button type="button" onClick={() => setShowTipoForm(false)}>
+            Cancelar
+          </Button>
+        </form>
+      </div>
+    </div>
+  </div>
+)}
           {showCategoriaForm && (
             <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
               {/* Contenedor principal con padding en los lados y abajo */}
