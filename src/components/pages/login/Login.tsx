@@ -65,11 +65,13 @@ export default function Login() {
   
       const usersData = await usersResponse.json();
       console.log("Users data:", usersData);
-      const usuarioActual = usersData.data.find(user => user.id === data.userId);
+      const usuarioActual = usersData.data.find((user: { id: any; }) => user.id === data.userId);
+      console.log("Usuario guardado en localStorage:", usuarioActual);
 
       if (usuarioActual && usuarioActual.username) {
         // Guardar el username en localStorage
         localStorage.setItem("userName", usuarioActual.username);
+        console.log("Usuario guardado en localStorage:", usuarioActual.username);
       } else {
         console.error("Usuario no encontrado o username no disponible");
       }
@@ -82,7 +84,25 @@ export default function Login() {
           navigate("/tablaRequerimientos");
         }
       } else if (data.role === "ROLE_ADMIN") {
+        const adminResponse = await fetch(`http://localhost:8080/admin/${username}/adminDetalle`, {
+          headers: {
+            Authorization: `Bearer ${data.accessToken}`,
+          },
+        });
         navigate("/gestionarUsuarios");
+        if (!adminResponse.ok) {
+          throw new Error("Failed to fetch admin data");
+        }
+  
+        const adminData = await adminResponse.json();
+        console.log("Admin data:", adminData);
+  
+        if (adminData.data && adminData.data.username) {
+          localStorage.setItem("userName", adminData.data.username);
+          console.log("Admin guardado en localStorage:", adminData.data.username);
+        } else {
+          console.error("Admin no encontrado o username no disponible");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
