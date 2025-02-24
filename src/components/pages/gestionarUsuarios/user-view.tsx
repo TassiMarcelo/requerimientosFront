@@ -40,20 +40,20 @@ export function UserView({ user, onClose }: UserViewProps) {
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
           <div>
-            <h4 className="font-medium">Empresa</h4>
-            <p className="text-sm text-muted-foreground">{user.empresa}</p>
-          </div>
-          <div>
             <h4 className="font-medium">CUIL</h4>
             <p className="text-sm text-muted-foreground">{user.cuil}</p>
           </div>
           <div>
-            <h4 className="font-medium">Usuario</h4>
-            <p className="text-sm text-muted-foreground">{user.username ?? 'No disponible'}</p>
-          </div>
-          <div>
             <h4 className="font-medium">Descripción</h4>
             <p className="text-sm text-muted-foreground">{user.descripcion}</p>
+          </div>
+          <div>
+            <h4 className="font-medium">Empresa</h4>
+            <p className="text-sm text-muted-foreground">{user.empresa}</p>
+          </div>
+            <div>
+            <h4 className="font-medium">Usuario</h4>
+            <p className="text-sm text-muted-foreground">{user.username ?? 'No disponible'}</p>
           </div>
           <div>
             <h4 className="font-medium">Preferencia</h4>

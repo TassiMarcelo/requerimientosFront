@@ -110,14 +110,13 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     required
                   />
                 </div>
-
-                {/* Empresa */}
+                {/* CUIL */}
                 <div>
-                  <Label htmlFor="empresa">Empresa</Label>
+                  <Label htmlFor="cuil">CUIL</Label>
                   <Input
-                    id="empresa"
-                    value={formData.empresa}
-                    onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                    id="cuil"
+                    value={formData.cuil}
+                    onChange={(e) => setFormData({ ...formData, cuil: e.target.value })}
                     required
                   />
                 </div>
@@ -151,6 +150,16 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   />
                 </div>
+                  {/* Empresa */}
+              <div>
+                  <Label htmlFor="empresa">Empresa</Label>
+                  <Input
+                    id="empresa"
+                    value={formData.empresa}
+                    onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                    required
+                  />
+                </div>
 
                 {/* Usuario */}
                 <div>
@@ -174,16 +183,7 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     required
                   />
                 </div>
-                  {/* CUIL */}
-                  <div>
-                  <Label htmlFor="cuil">CUIL</Label>
-                  <Input
-                    id="cuil"
-                    value={formData.cuil}
-                    onChange={(e) => setFormData({ ...formData, cuil: e.target.value })}
-                    required
-                  />
-                </div>
+            
                  {/* botones alineados en extremos opuestos */}
                  <div className="flex justify-end items-center mt-6">
   {/* Botones a la derecha */}

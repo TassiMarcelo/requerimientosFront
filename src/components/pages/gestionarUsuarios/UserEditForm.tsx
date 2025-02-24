@@ -155,22 +155,6 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                       required
                     />
                   </div>
-
-                  <div>
-                    <Label htmlFor="empresa">Empresa</Label>
-                    <Input
-                      id="empresa"
-                      value={formData.empresa}
-                      onChange={(e) =>
-                        setFormData({ ...formData, empresa: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Columna derecha */}
-                <div className="flex-1 space-y-4">
                   <div>
                     <Label htmlFor="cuil">CUIL</Label>
                     <Input
@@ -182,6 +166,11 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                       required
                     />
                   </div>
+                 
+                </div>
+
+                {/* Columna derecha */}
+                <div className="flex-1 space-y-4">
 
                   <div>
                     <Label htmlFor="descripcion">Descripción</Label>
@@ -193,7 +182,17 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                       }
                     />
                   </div>
-
+                  <div>
+                    <Label htmlFor="empresa">Empresa</Label>
+                    <Input
+                      id="empresa"
+                      value={formData.empresa}
+                      onChange={(e) =>
+                        setFormData({ ...formData, empresa: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="username">Usuario</Label>
                     <Input
