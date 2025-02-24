@@ -1,25 +1,19 @@
-'use client'
+"use client";
 
 import { useState, useEffect } from 'react'
 import { Eye, Pencil, Trash2, Search, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
-import { UserForm } from './user-form'
+import { UserCreateForm } from './UserCreateForm'
+import { UserEditForm } from './UserEditForm'
 import { UserView } from './user-view'
 import Modal from '../../Modal'
 import type { User } from '../types/user'
 import Swal from 'sweetalert2'
 import Button2 from '../../ui/Button2/Button2'
-import { CategoriaForm } from '../../CategoriaForm';
+import { CategoriaForm } from '../../CategoriaForm'
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([])
@@ -27,54 +21,54 @@ export function UserTable() {
   const [showForm, setShowForm] = useState(false)
   const [showView, setShowView] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<string | null>(null); 
-  const [showCategoriasForm, setShowCategoriasForm] = useState(false) 
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<string | null>(null)
+  const [showCategoriasForm, setShowCategoriasForm] = useState(false)
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        let url = 'http://localhost:8080/usuarios/todos';
+        let url = 'http://localhost:8080/usuarios/todos'
         
         if (search.trim() !== '') {
-          url = `http://localhost:8080/usuarios/usuario/${search}`;
+          url = `http://localhost:8080/usuarios/usuario/${search}`
         }
 
-        const response = await fetch(url);
-        const data = await response.json();
+        const response = await fetch(url)
+        const data = await response.json()
         
         if (search.trim() === '') {
-          const usuariosActivos = data.data.filter((user: User) => user.activado);
-          setUsers(usuariosActivos);
+          const usuariosActivos = data.data.filter((user: User) => user.activado)
+          setUsers(usuariosActivos)
         } else if (url.includes('usuario')) {
           if (data.data) {
-            setUsers([data.data]);
+            setUsers([data.data])
           } else {
-            setUsers([]);
+            setUsers([])
           }
         } else {
-          setUsers(data.data || []);
+          setUsers(data.data || [])
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
-        setUsers([]);
+        console.error('Error fetching users:', error)
+        setUsers([])
       }
-    };
+    }
 
     const debounceTimer = setTimeout(() => {
-      fetchUsers();
-    }, 500);
+      fetchUsers()
+    }, 500)
 
-    return () => clearTimeout(debounceTimer);
-  }, [search]);
+    return () => clearTimeout(debounceTimer)
+  }, [search])
 
   const handleShowCategoriasForm = () => {
-    setShowCategoriasForm(true);
-  };
+    setShowCategoriasForm(true)
+  }
 
   const handleCloseCategoriasForm = () => {
-    setShowCategoriasForm(false);
-  };
+    setShowCategoriasForm(false)
+  }
 
   const handleDelete = (user) => {
     Swal.fire({
@@ -90,38 +84,43 @@ export function UserTable() {
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.close();
-        confirmDelete(user.id);
+        Swal.close()
+        confirmDelete(user.id)
       }
-    });
+    })
   }
 
   const confirmDelete = async (id) => {
     if (id) {
       try {
-        Swal.showLoading();
+        Swal.showLoading()
         const response = await fetch(`http://localhost:8080/usuarios/${id}/eliminar`, {
           method: 'PATCH',
-          headers: {'Content-Type': 'application/json'}
-        });
+          headers: { 'Content-Type': 'application/json' }
+        })
 
         if (response.ok) {
-          setUsers(prev => prev.filter(user => user.id !== id));
-          Swal.fire("Éxito", "Usuario eliminado con éxito", "success");
+          setUsers(prev => prev.filter(user => user.id !== id))
+          Swal.fire("Éxito", "Usuario eliminado con éxito", "success")
         } else {
-          Swal.fire("Error", await response.text(), "error");
+          Swal.fire("Error", await response.text(), "error")
         }
       } catch (error) {
-        Swal.fire("Error", "Error de conexión", "error");
+        Swal.fire("Error", "Error de conexión", "error")
       } finally {
-        setUserToDelete(null);
-        setIsModalOpen(false);
+        setUserToDelete(null)
+        setIsModalOpen(false)
       }
     }
-  };
+  }
 
   const handleEdit = (user: User) => {
     setSelectedUser(user)
+    setShowForm(true)
+  }
+
+  const handleCreate = () => {
+    setSelectedUser(null)
     setShowForm(true)
   }
 
@@ -130,15 +129,19 @@ export function UserTable() {
     setShowView(true)
   }
 
+  const handleCancel = () => {
+    setShowForm(false)
+  }
+
   const handleSave = (user: User) => {
     if (selectedUser) {
-      setUsers(users.map(u => u.id === user.id ? user : u));
+      setUsers(users.map(u => u.id === user.id ? user : u))
     } else {
-      setUsers([user, ...users]);
+      setUsers([user, ...users])
     }
-    setShowForm(false);
-    setSelectedUser(null);
-  };
+    setShowForm(false)
+    setSelectedUser(null)
+  }
 
   return (
     <div className="space-y-4 relative">
@@ -161,14 +164,14 @@ export function UserTable() {
           />
           <Button2 
             title={"+ Crear usuario"} 
-            onClick={() => setShowForm(true)} 
+            onClick={handleCreate} 
             className="NeutralButton" 
           />
         </div>
       </div>
 
       {showCategoriasForm && <CategoriaForm onClose={handleCloseCategoriasForm} />}
-      
+
       <div className="rounded-md border border-black">
         <Table>
           <TableHeader>
@@ -227,14 +230,18 @@ export function UserTable() {
       </div>
 
       {showForm && (
-        <UserForm
-          user={selectedUser}
-          onSave={handleSave}
-          onCancel={() => {
-            setShowForm(false)
-            setSelectedUser(null)
-          }}
-        />
+        selectedUser ? (
+          <UserEditForm
+            user={selectedUser}  // Pasa los datos del usuario para edición
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        ) : (
+          <UserCreateForm
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        )
       )}
 
       {showView && selectedUser && (

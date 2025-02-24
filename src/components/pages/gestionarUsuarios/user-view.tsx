@@ -29,7 +29,7 @@ export function UserView({ user, onClose }: UserViewProps) {
           <DialogTitle>Detalles del Usuario</DialogTitle>
         </DialogHeader>
         </div>
-        <div className="p-6">
+        <div className="p-6 mb-4">
         <div className="space-y-4">
           <div>
             <h4 className="font-medium">Nombre Completo</h4>

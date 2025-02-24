@@ -1,0 +1,203 @@
+"use client";
+
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Button2 from "../../ui/Button2/Button2";
+import { Button } from "../../ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import Modal from "../../Modal";
+import type { User } from "../types/user";
+import Swal from "sweetalert2";
+import CloseButton from "../../ui/CloseButton";
+
+interface UserCreateFormProps {
+  onSave: (user: User) => void;
+  onCancel: () => void;
+}
+
+export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
+  const [formData, setFormData] = useState<Partial<User>>({
+    cuil: "",
+    email: "",
+    nombre: "",
+    apellido: "",
+    empresa: "",
+    descripcion: "",
+    preferencia: false,
+    username: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const requestBody = {
+      cuil: formData.cuil,
+      email: formData.email,
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      empresa: formData.empresa,
+      descripcion: formData.descripcion,
+      preferencia: formData.preferencia,
+      username: formData.username,
+      password: formData.password,
+    };
+
+    try {
+      const response = await fetch("http://localhost:8080/usuarios/registrar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al crear el usuario");
+      }
+
+      const data = await response.json();
+      onSave(data.data); // Llamamos al callback onSave con los datos del nuevo usuario
+    } catch (error) {
+      alert(error.message || "Hubo un problema con la conexión");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+      <div className="w-full max-w-[800px] bg-white rounded-md shadow-lg relative">
+        <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
+          <div className="absolute -top-1 right-0">
+            <CloseButton onClick={onCancel} />
+          </div>
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4 mt-0">
+            <div className="flex space-x-6">
+              <div className="flex-1 space-y-4">
+                {/* Nombre */}
+                <div>
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input
+                    id="nombre"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {/* Apellido */}
+                <div>
+                  <Label htmlFor="apellido">Apellido</Label>
+                  <Input
+                    id="apellido"
+                    value={formData.apellido}
+                    onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {/* Correo Electrónico */}
+                <div>
+                  <Label htmlFor="email">Correo Electrónico</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {/* Empresa */}
+                <div>
+                  <Label htmlFor="empresa">Empresa</Label>
+                  <Input
+                    id="empresa"
+                    value={formData.empresa}
+                    onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                    required
+                  />
+                </div>
+                   {/* Preferencia */}
+                   <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="preferencia"
+                      checked={formData.preferencia}
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          preferencia: checked as boolean,
+                        })
+                      }
+                      className="mt-1"
+                    />
+                    <Label htmlFor="preferencia" className="flex items-center mb-0">
+                      Preferencia
+                    </Label>
+                  </div>
+              </div>
+
+              {/* Columna derecha */}
+              <div className="flex-1 space-y-4">
+                {/* Descripción */}
+                <div>
+                  <Label htmlFor="descripcion">Descripción</Label>
+                  <Input
+                    id="descripcion"
+                    value={formData.descripcion}
+                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  />
+                </div>
+
+                {/* Usuario */}
+                <div>
+                  <Label htmlFor="username">Usuario</Label>
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {/* Contraseña */}
+                <div>
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    required
+                  />
+                </div>
+                  {/* CUIL */}
+                  <div>
+                  <Label htmlFor="cuil">CUIL</Label>
+                  <Input
+                    id="cuil"
+                    value={formData.cuil}
+                    onChange={(e) => setFormData({ ...formData, cuil: e.target.value })}
+                    required
+                  />
+                </div>
+                 {/* botones alineados en extremos opuestos */}
+                 <div className="flex justify-end items-center mt-6">
+  {/* Botones a la derecha */}
+  <div className="flex space-x-4">
+    <Button2 title={"Cancelar"} onClick={onCancel} className={"NeutralButton"} />
+    <Button2 type={"submit"} title={"Guardar"} className={"NeutralButton"} />
+  </div>
+</div>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
