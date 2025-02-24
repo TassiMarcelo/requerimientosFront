@@ -7,7 +7,7 @@ import { Label } from "./ui/label";
 import Select from "react-select";
 import CloseButton from "./ui/CloseButton";
 import Button2 from "./ui/Button2/Button2";
-import { Pencil, Trash2} from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface TipoRequerimiento {
   descripcion: string;
@@ -25,18 +25,6 @@ interface CategoriaFormProps {
   onClose: () => void;
 }
 
-async function obtenerTipos() {
-  const response = await fetch('http://localhost:8080/tiposRequerimientos/getAll');
-  const data = await response.json();
-  return data.data; // Los tipos de requerimiento
-}
-
-async function obtenerCategorias() {
-  const response = await fetch('http://localhost:8080/categRequerimientos/todas');
-  const data = await response.json();
-  return data.data; // Las categorías de requerimiento
-}
-
 export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,73 +34,64 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const [descripcionTipo, setDescripcionTipo] = useState("");
   const [codigo, setCodigo] = useState("");
   const [tipos, setTipos] = useState<TipoRequerimiento[]>([]);
-  const [categoriasFiltradas, setCategoriasFiltradas] = useState<CategoriaRequerimiento[]>([]);
+  const [editingCategoriaId, setEditingCategoriaId] = useState<number | null>(null);
+  const [nuevaDescripcion, setNuevaDescripcion] = useState("");
   const [categorias, setCategorias] = useState<CategoriaRequerimiento[]>([]);
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
-  const [tipoSeleccionado, setTipoSeleccionado] =
-    useState<TipoRequerimiento | null>(null);
-    const filtrarRequerimientos = (searchTerm: string) => {
-      const lowercasedSearchTerm = searchTerm.toLowerCase();
-    
-      const filteredTipos = tipos.filter(
-        (tipo) =>
-          (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)) ||
-          (tipo.codigo && tipo.codigo.toLowerCase().includes(lowercasedSearchTerm))
-      );
-    
-      const filteredCategorias = categorias.filter(
-        (categoria) =>
-          categoria.desactivado === false &&
-         ((categoria.descripcion && categoria.descripcion.toLowerCase().includes(lowercasedSearchTerm)) || 
-          (categoria.codigoTipoRequerimiento && categoria.codigoTipoRequerimiento.toLowerCase().includes(lowercasedSearchTerm)) ||
-          tipos.some(
-            (tipo) =>
-              tipo.codigo === categoria.codigoTipoRequerimiento &&
-              (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)))
-          )
-      );
-      return { filteredTipos, filteredCategorias };
-    };
-    useEffect(() => {
-      setCategoriasFiltradas(
-        categorias.filter(
-          (categoria) =>
-            categoria.desactivado === false &&
-            categoria.codigoTipoRequerimiento === tipoSeleccionado?.codigo
+  const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoRequerimiento | null>(null);
+
+  const filtrarRequerimientos = (searchTerm: string) => {
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+
+    const filteredTipos = tipos.filter(
+      (tipo) =>
+        (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)) ||
+        (tipo.codigo && tipo.codigo.toLowerCase().includes(lowercasedSearchTerm))
+    );
+
+    const filteredCategorias = categorias.filter(
+      (categoria) =>
+        categoria.desactivado === false &&
+        ((categoria.descripcion && categoria.descripcion.toLowerCase().includes(lowercasedSearchTerm)) ||
+        (categoria.codigoTipoRequerimiento && categoria.codigoTipoRequerimiento.toLowerCase().includes(lowercasedSearchTerm)) ||
+        tipos.some(
+          (tipo) =>
+            tipo.codigo === categoria.codigoTipoRequerimiento &&
+            (tipo.descripcion && tipo.descripcion.toLowerCase().includes(lowercasedSearchTerm)))
         )
-      );
-    }, [categorias, tipoSeleccionado]);
-    
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const tiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/false/todos"); 
-          const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");    
-          if (!tiposResponse.ok || !categoriasResponse.ok) {
-            throw new Error("Error al obtener los datos");
-          }
-    
-          const tiposData = await tiposResponse.json();
-          const categoriasData = await categoriasResponse.json();
-    
-          const categoriasActivas = categoriasData.data.filter(
-          (categoria: CategoriaRequerimiento) => categoria.desactivado === false
-          );
+    );
+    return { filteredTipos, filteredCategorias };
+  };
 
-          setTipos(tiposData.data); 
-          setCategorias(categoriasActivas);
-
-        } catch (error) {
-          console.error("Error al obtener los datos:", error);
-          setErrorMessage("No se pudieron cargar los tipos de requerimiento.");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const tiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/false/todos");
+        const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
+        if (!tiposResponse.ok || !categoriasResponse.ok) {
+          throw new Error("Error al obtener los datos");
         }
-      };
-    
-      fetchData();
-    }, []);
-    
+
+        const tiposData = await tiposResponse.json();
+        const categoriasData = await categoriasResponse.json();
+
+        const categoriasActivas = categoriasData.data.filter(
+          (categoria: CategoriaRequerimiento) => categoria.desactivado === false
+        );
+
+        setTipos(tiposData.data);
+        setCategorias(categoriasActivas);
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
+        setErrorMessage("No se pudieron cargar los tipos de requerimiento.");
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const { filteredTipos, filteredCategorias } = filtrarRequerimientos(searchTerm);
+
   const handleDeleteTipo = async (codigo: string) => {
     try {
       const response = await fetch(
@@ -127,7 +106,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Error al eliminar el tipo de requerimiento");
       }
@@ -137,41 +116,22 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     }
   };
 
-  const handleDeleteCategoria = async (id: number) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8080/categRequerimientos/${id}/desactivar`,
-        {
-          method: "PATCH",
-        }
-      );
-  
-      if (!response.ok) {
-        throw new Error("Error al eliminar la categoría.");
-      }
-  
-      setCategorias((prevCategorias) =>
-        prevCategorias.map((categoria) =>
-          categoria.id === id ? { ...categoria, desactivado: true } : categoria
-        )
-      );
-
-    } catch (error) {
-      console.error("Error al eliminar la categoría:", error);
+  const handleEditCategoria = (categoriaId: number) => {
+    setEditingCategoriaId(categoriaId);
+    const categoria = categorias.find((c) => c.id === categoriaId);
+    if (categoria) {
+      setNuevaDescripcion(categoria.descripcion);
     }
   };
 
-  const handleEditTipo = (tipo: TipoRequerimiento) => {
-    setDescripcionTipo(tipo.descripcion);
-    setCodigo(tipo.codigo);
-    setTipoSeleccionado(tipo); 
-    setShowTipoForm(true); 
-  };
-
-  const handleEditCategoria = async (id: number, nuevaDescripcion: string) => {
+  const handleUpdateCategoria = async (categoriaId: number) => {
+    if (!nuevaDescripcion.trim()) {
+      setErrorMessage("La descripción no puede estar vacía.");
+      return;
+    }
     try {
       const response = await fetch(
-        `http://localhost:8080/categRequerimientos/${id}/update`,
+        `http://localhost:8080/categRequerimientos/${categoriaId}/update`,
         {
           method: "PUT",
           headers: {
@@ -183,33 +143,63 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Error al actualizar la categoría.");
       }
-  
-      const data = await response.json();
-      console.log(data.message); 
-  
       const updatedCategorias = categorias.map((categoria) =>
-        categoria.id === id
+        categoria.id === categoriaId
           ? { ...categoria, descripcion: nuevaDescripcion }
           : categoria
       );
       setCategorias(updatedCategorias);
+      setEditingCategoriaId(null);
+      setNuevaDescripcion("");
+      setErrorMessage("");
     } catch (error) {
       console.error("Error al actualizar la categoría:", error);
+      setErrorMessage("Ocurrió un error al actualizar la categoría.");
     }
+  };
+
+  const handleDeleteCategoria = async (id: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/categRequerimientos/${id}/desactivar`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar la categoría.");
+      }
+
+      setCategorias((prevCategorias) =>
+        prevCategorias.map((categoria) =>
+          categoria.id === id ? { ...categoria, desactivado: true } : categoria
+        )
+      );
+    } catch (error) {
+      console.error("Error al eliminar la categoría:", error);
+    }
+  };
+
+  const handleEditTipo = (tipo: TipoRequerimiento) => {
+    setDescripcionTipo(tipo.descripcion);
+    setCodigo(tipo.codigo);
+    setTipoSeleccionado(tipo);
+    setShowTipoForm(true);
   };
 
   const handleUpdateTipo = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!descripcionTipo.trim() || !codigo.trim() || !tipoSeleccionado) {
       setErrorMessage("Todos los campos son obligatorios para actualizar el tipo.");
       return;
     }
-  
+
     try {
       const response = await fetch(
         `http://localhost:8080/tiposRequerimientos/${tipoSeleccionado.codigo}/updateTipo`,
@@ -224,45 +214,43 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Error al actualizar el tipo de requerimiento.");
       }
-  
+
       const data = await response.json();
       console.log(data.message);
-  
+
       const updatedTipos = tipos.map((tipo) =>
         tipo.codigo === tipoSeleccionado.codigo
           ? { ...tipo, descripcion: descripcionTipo, codigo: codigo }
           : tipo
       );
       setTipos(updatedTipos);
-  const updatedCategorias = categorias.map((categoria) =>
-      categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
-        ? { ...categoria, codigoTipoRequerimiento: codigo } // Se actualiza el código
-        : categoria
-    );
-    setCategorias(updatedCategorias);
-  
+      const updatedCategorias = categorias.map((categoria) =>
+        categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
+          ? { ...categoria, codigoTipoRequerimiento: codigo }
+          : categoria
+      );
+      setCategorias(updatedCategorias);
+
       setShowTipoForm(false);
       setDescripcionTipo("");
       setCodigo("");
       setTipoSeleccionado(null);
       setErrorMessage("");
-  
     } catch (error) {
       console.error("Error al actualizar el tipo:", error);
       setErrorMessage("Ocurrió un error al actualizar el tipo de requerimiento.");
     }
   };
-  
 
   const obtenerTiposActivos = async () => {
     try {
       const response = await fetch("http://localhost:8080/tiposRequerimientos/false/todos");
       const data = await response.json();
-      
+
       if (response.ok) {
         setTipos(data.data);
       } else {
@@ -272,8 +260,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       console.error("Error al obtener los tipos:", error);
     }
   };
-  
-  
+
   const handleTipoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -389,7 +376,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           categoria.descripcion === descripcionCategoria &&
           categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
       );
-  
+
       if (!nuevaCategoria) {
         throw new Error("No se pudo encontrar la categoría recién creada.");
       }
@@ -397,7 +384,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
         ...prevCategorias,
         nuevaCategoria,
       ]);
-  
+
       setDescripcionCategoria("");
       setTipoSeleccionado(null);
       setShowCategoriaForm(false);
@@ -412,15 +399,12 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
       <div className="w-full max-w-4xl bg-white rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
         <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5">
-        
           <div className="absolute -top-1 right-4">
-          
             <CloseButton onClick={onClose} />
           </div>
         </div>
 
         <div className="p-6">
-
           {errorMessage && (
             <div className="text-red-500 mb-4">{errorMessage}</div>
           )}
@@ -434,185 +418,187 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           </div>
 
           <div>
-  {filteredTipos.length === 0 && filteredCategorias.length === 0 ? (
-    <p>No se encontraron coincidencias.</p>
-  ) : (
-    <>
-      {tipos
-        .filter((tipo) => {
-          const coincideTipo =
-            tipo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tipo.codigo.toLowerCase().includes(searchTerm.toLowerCase());
-          const coincideCategoria = categorias.some(
-            (categoria) =>
-              categoria.codigoTipoRequerimiento === tipo.codigo &&
-              categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) &&
-              categoria.desactivado === false
-          );
+            {filteredTipos.length === 0 && filteredCategorias.length === 0 ? (
+              <p>No se encontraron coincidencias.</p>
+            ) : (
+              <>
+                {tipos
+                  .filter((tipo) => {
+                    const coincideTipo =
+                      tipo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      tipo.codigo.toLowerCase().includes(searchTerm.toLowerCase());
+                    const coincideCategoria = categorias.some(
+                      (categoria) =>
+                        categoria.codigoTipoRequerimiento === tipo.codigo &&
+                        categoria.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                        categoria.desactivado === false
+                    );
 
-          return coincideTipo || coincideCategoria;
-        })
-        .map((tipo) => {
-          const categoriasDelTipo = categorias.filter(
-            (categoria) =>
-              categoria.codigoTipoRequerimiento === tipo.codigo &&
-              categoria.desactivado === false // Solo categorías activas
-          );
+                    return coincideTipo || coincideCategoria;
+                  })
+                  .map((tipo) => {
+                    const categoriasDelTipo = categorias.filter(
+                      (categoria) =>
+                        categoria.codigoTipoRequerimiento === tipo.codigo &&
+                        categoria.desactivado === false
+                    );
 
-          return (
-            <div key={tipo.codigo} className="mb-4 p-4 border rounded-md flex justify-between items-center">
-              <div>
-                <h2 className="font-semibold">
-                  {tipo.descripcion} ({tipo.codigo})
-                </h2>
-                <div className="mt-2">
-                  {categoriasDelTipo.length > 0 ? (
-                    <>
-                      <h3 className="font-semibold">Categorías:</h3>
-                      <ul className="list-disc pl-5">
-                        {categoriasDelTipo.map((categoria) => (
-                          <li key={categoria.id}>
-                            {categoria.descripcion}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : (
-                    <p>No existen categorías asociadas.</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <Pencil className="cursor-pointer" onClick={() => handleEditTipo(tipo)} />
-                <Trash2 className="cursor-pointer" onClick={() => handleDeleteTipo(tipo.codigo)} />
-              </div>
-            </div>
-          );
-        })}
-    </>
-  )}
-</div>
+                    return (
+                      <div key={tipo.codigo} className="mb-4 p-4 border rounded-md flex justify-between items-center">
+                        <div>
+                          <h2 className="font-semibold">
+                            {tipo.descripcion} ({tipo.codigo})
+                          </h2>
+                          <div className="mt-2">
+                            {categoriasDelTipo.length > 0 ? (
+                              <>
+                                <h3 className="font-semibold">Categorías:</h3>
+                                <ul className="list-disc pl-5">
+                                  {categoriasDelTipo.map((categoria) => (
+                                    <li key={categoria.id} className="flex justify-between items-center">
+                                      <span>{categoria.descripcion}</span>
+                                     </li>
+                                  ))}
+                                </ul>
+                              </>
+                            ) : (
+                              <p>No hay categorías asociadas.</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex space-x-4">
+                          <Pencil className="cursor-pointer" onClick={() => handleEditTipo(tipo)} />
+                          <Trash2 className="cursor-pointer" onClick={() => handleDeleteTipo(tipo.codigo)} />
+                        </div>
+                      </div>
+                    );
+                  })}
+              </>
+            )}
+          </div>
+
           <div className="flex justify-between mt-4">
             <div className="flex space-x-2">
-<Button onClick={() => {
-  setDescripcionTipo(""); 
-  setCodigo(""); 
-  setTipoSeleccionado(null); 
-  setShowTipoForm(true); 
-}}>+ Tipo</Button>
+              <Button onClick={() => {
+                setDescripcionTipo("");
+                setCodigo("");
+                setTipoSeleccionado(null);
+                setShowTipoForm(true);
+              }}>+ Tipo</Button>
               <Button onClick={() => setShowCategoriaForm(true)}>
                 + Categoría
               </Button>
             </div>
             <Button onClick={onClose}>Cerrar</Button>
           </div>
+
           {showTipoForm && (
-  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-    <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
-        <div className="absolute -top-1 right-0">
-          <CloseButton onClick={() => setShowTipoForm(false)} />
-        </div>
-      </div>
-      <div className="p-6">
-      <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4 mt-6">
-      <h1 className="text-lg font-semibold">
-      {tipoSeleccionado ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
-      </h1>
-          <div>
-            <Label htmlFor="descripcionTipo">Descripción</Label>
-            <Input
-              id="descripcionTipo"
-              value={descripcionTipo}
-              onChange={(e) => setDescripcionTipo(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="codigo">Código (Máximo 3 caracteres)</Label>
-            <Input
-              id="codigo"
-              value={codigo}
-              maxLength={3}
-              onChange={(e) => setCodigo(e.target.value)}
-              required
-            />
-          </div>
+            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+              <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
+                <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
+                  <div className="absolute -top-1 right-0">
+                    <CloseButton onClick={() => setShowTipoForm(false)} />
+                  </div>
+                </div>
+                <div className="p-6">
+                  <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4 mt-6">
+                    <h1 className="text-lg font-semibold">
+                      {tipoSeleccionado ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
+                    </h1>
+                    <div>
+                      <Label htmlFor="descripcionTipo">Descripción</Label>
+                      <Input
+                        id="descripcionTipo"
+                        value={descripcionTipo}
+                        onChange={(e) => setDescripcionTipo(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="codigo">Código (Máximo 3 caracteres)</Label>
+                      <Input
+                        id="codigo"
+                        value={codigo}
+                        maxLength={3}
+                        onChange={(e) => setCodigo(e.target.value)}
+                        required
+                      />
+                    </div>
 
-          {tipoSeleccionado && (
-  <div className="mt-4">
-    <h3 className="font-semibold">Categorías:</h3>
-    {categorias
-      .filter((categoria) => 
-        categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
-        categoria.desactivado === false
-      ).length > 0 ? ( // Verificar si hay categorías activas
-      <ul className="list-disc pl-5">
-        {categorias
-          .filter((categoria) => 
-            categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
-            categoria.desactivado === false
-          )
-          .map((categoria) => (
-            <li key={categoria.id} className="flex justify-between items-center">
-              <span>{categoria.descripcion}</span>
-              <div className="flex space-x-2">
-                <Pencil
-                  className="cursor-pointer"
-                  onClick={() => {
-                    const nuevaDescripcion = prompt(
-                      "Editar descripción:",
-                      categoria.descripcion
-                    );
-                    if (nuevaDescripcion) {
-                      handleEditCategoria(categoria.id, nuevaDescripcion);
-                    }
-                  }}
-                />
-                <Trash2
-                  className="cursor-pointer"
-                  onClick={() => handleDeleteCategoria(categoria.id)}
-                />
+                    {tipoSeleccionado && (
+                      <div className="mt-4">
+                        <h3 className="font-semibold">Categorías:</h3>
+                        {categorias
+                          .filter((categoria) =>
+                            categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
+                            categoria.desactivado === false
+                          ).length > 0 ? (
+                          <ul className="list-disc pl-5">
+                            {categorias
+                              .filter((categoria) =>
+                                categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
+                                categoria.desactivado === false
+                              )
+                              .map((categoria) => (
+                                <li key={categoria.id} className="flex justify-between items-center">
+                                  {editingCategoriaId === categoria.id ? (
+                                    <div className="flex items-center space-x-2">
+                                      <Input
+                                        value={nuevaDescripcion}
+                                        onChange={(e) => setNuevaDescripcion(e.target.value)}
+                                        onBlur={() => handleUpdateCategoria(categoria.id)}
+                                        onKeyPress={(e) => {
+                                          if (e.key === "Enter") {
+                                            handleUpdateCategoria(categoria.id);
+                                          }
+                                        }}
+                                        autoFocus
+                                      />
+                                    </div>
+                                  ) : (
+                                    <span>{categoria.descripcion}</span>
+                                  )}
+                                  <div className="flex space-x-2">
+                                    <Pencil
+                                      className="cursor-pointer"
+                                      onClick={() => handleEditCategoria(categoria.id)}
+                                    />
+                                    <Trash2
+                                      className="cursor-pointer"
+                                      onClick={() => handleDeleteCategoria(categoria.id)}
+                                    />
+                                  </div>
+                                </li>
+                              ))}
+                          </ul>
+                        ) : (
+                          <p>No hay categorías asociadas.</p>
+                        )}
+                      </div>
+                    )}
+
+                    <Button2
+                      title={tipoSeleccionado ? "Guardar cambios" : "Guardar tipo"}
+                      className="NeutralButton"
+                      onClick={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit}
+                    />
+                    <Button type="button" onClick={() => setShowTipoForm(false)}>
+                      Cancelar
+                    </Button>
+                  </form>
+                </div>
               </div>
-            </li>
-          ))}
-      </ul>
-    ) : ( // Si no hay categorías activas
-      <p>No hay categorías asociadas.</p>
-    )}
-  </div>
-)}
+            </div>
+          )}
 
-<Button2
-            title={tipoSeleccionado ? "Guardar cambios" : "Guardar tipo"}
-            className="NeutralButton"
-            onClick={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit}
-          />
-          <Button type="button" onClick={() => setShowTipoForm(false)}>
-            Cancelar
-          </Button>
-        </form>
-      </div>
-    </div>
-  </div>
-)}
           {showCategoriaForm && (
             <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-              {/* Contenedor principal con padding en los lados y abajo */}
               <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-                {" "}
-                {/* Padding en los lados y abajo */}
-                {/* Barra horizontal sin espacios blancos arriba y a los costados */}
                 <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
-                  {" "}
-                  {/* Ajustamos márgenes y padding */}
                   <div className="absolute -top-1 right-0">
-                    {" "}
-                    {/* Ajustamos la posición del botón */}
                     <CloseButton onClick={() => setShowCategoriaForm(false)} />
                   </div>
                 </div>
-                {/* Contenido del formulario */}
                 <div className="p-6">
                   <form onSubmit={handleCategoriaSubmit} className="space-y-4">
                     <h1 className="text-lg font-semibold">
@@ -623,9 +609,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                       <Input
                         id="descripcionCategoria"
                         value={descripcionCategoria}
-                        onChange={(e) =>
-                          setDescripcionCategoria(e.target.value)
-                        }
+                        onChange={(e) => setDescripcionCategoria(e.target.value)}
                         required
                       />
                     </div>
@@ -636,27 +620,27 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                         value={
                           tipoSeleccionado
                             ? {
-                                value: tipoSeleccionado.id, // ID del tipo
-                                label: `${tipoSeleccionado.descripcion} (${tipoSeleccionado.codigo})`, // Descripción + Código
+                                value: tipoSeleccionado.codigo,
+                                label: `${tipoSeleccionado.descripcion} (${tipoSeleccionado.codigo})`,
                               }
                             : null
                         }
                         onChange={(e) => {
                           const selectedTipo = tipos.find(
-                            (tipo) => tipo.id === e?.value
+                            (tipo) => tipo.codigo === e?.value
                           );
-                          setTipoSeleccionado(selectedTipo || null); // Guarda el objeto completo
+                          setTipoSeleccionado(selectedTipo || null);
                         }}
                         options={tipos.map((tipo) => ({
-                          value: tipo.id,
-                          label: `${tipo.descripcion} (${tipo.codigo})`, // Mostrar descripción + código en las opciones
+                          value: tipo.codigo,
+                          label: `${tipo.descripcion} (${tipo.codigo})`,
                         }))}
                         styles={{
                           control: (base) => ({
                             ...base,
-                            border: "1px solid black", // Borde negro
-                            backgroundColor: "white", // Fondo blanco
-                            borderRadius: "4px", // Esquinas redondeadas
+                            border: "1px solid black",
+                            backgroundColor: "white",
+                            borderRadius: "4px",
                             padding: "1px 8px",
                             height: "36px",
                             width: "100%",
@@ -664,11 +648,11 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                           }),
                           dropdownIndicator: (base) => ({
                             ...base,
-                            color: "black", // Icono de la flecha también negro
+                            color: "black",
                           }),
                           indicatorSeparator: (base) => ({
                             ...base,
-                            backgroundColor: "black", // Separador de los indicadores negro
+                            backgroundColor: "black",
                           }),
                           menu: (base) => ({
                             ...base,
@@ -680,15 +664,15 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                             ...base,
                             backgroundColor: state.isSelected
                               ? "#f0f0f0"
-                              : "white", // Fondo blanco, pero cambia cuando está seleccionado
-                            color: "black", // Color del texto negro
+                              : "white",
+                            color: "black",
                           }),
                         }}
                         placeholder="Seleccionar tipo"
                         required
                       />
                     </div>
-                    <Button2 className="NeutralButton" onClick={handleCategoriaSubmit} title={"Guardar categoria"}></Button2>
+                    <Button2 className="NeutralButton" onClick={handleCategoriaSubmit} title={"Guardar categoria"} />
                     <Button
                       type="button"
                       onClick={() => setShowCategoriaForm(false)}
