@@ -21,22 +21,20 @@ interface VisualizarRequerimientoProps {
   isOpen: boolean
   onClose: () => void
   onCrear: (requerimiento: Requerimiento) => void
-  onCerrarCaso: (requerimiento: Requerimiento) => void; 
 }
 
-export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,onCerrarCaso,}: VisualizarRequerimientoProps) {
+export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,}: VisualizarRequerimientoProps) {
   console.log("Requerimiento:", requerimiento);
-  const [nuevoComentario, setNuevoComentario] = useState('')
+  
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
   ])
   const [archivosNuevoComentario, setArchivosNuevoComentario] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false) // Nuevo estado para controlar el pop-up de confirmación
-  const [fechaCierre, setFechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
+  
+  
 
-  const [modalFormularioVisible, setModalFormularioVisible] = useState<boolean>(false);
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
   const [modalDetalleVisible, setModalDetalleVisible] = useState<boolean>(false);
@@ -56,7 +54,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     {/* TODO cargar comentarios del back y llamar a la funcion agregarComentario() por cada comentario cargado (agregar parametros a esa funcion)*/}
     const cargarComentarios = async () => {
       try {
-        const response = await fetch("http://localhost:8080/comentarios/ERR-2025-00000000004/todos");
+        const response = await fetch(`http://localhost:8080/comentarios/${requerimiento.codigo}/todos`);
         if (!response.ok) {
           throw new Error("Error al obtener comentarios");
         }
@@ -128,7 +126,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   
   
 
-  const cerrarModalFormulario = () => setModalFormularioVisible(false);
+  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -186,15 +184,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario([])
   }
 
-
-  const cancelarNuevoComentarios = () => {
-    setModalNuevoVisible(false); // Cerrar el pop-up de confirmación
-  }
-
-  const cancelarCerrarCaso = () => {
-    setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
-  }
-
   const mostrarDetalle = (comentario: Comentario) => {
     setComentarioSeleccionado(comentario);
     setModalDetalleVisible(true);
@@ -224,21 +213,21 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   
   return (
     <div>
-    <>
-      <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-        <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
+      <>
+        <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+          <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
 
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
-          <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="w-full max-w-6xl rounded-lg bg-white my-4 max-h-[90vh] flex flex-col">
+            <div className="flex-grow overflow-y-auto p-4 bg-custom-grey">
 
-        <div className="flex justify-between items-center mt-0">
-  {fechaCierre && requerimiento.estado === 'Cerrado' && (
-                <div className="mb-2 p-1 text-gray-800 rounded-lg">
-      <strong>Fecha de Cierre: </strong>{fechaCierre}
+          <div className="flex justify-between items-center mt-0">
+            {fechaCierre && requerimiento.estado === 'Cerrado' && (
+                    <div className="mb-2 p-1 text-gray-800 rounded-lg">
+          <strong>Fecha de Cierre: </strong>{fechaCierre}
+        </div>
+        )}
     </div>
-  )}
-  </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda */}
@@ -474,9 +463,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 )}
 
 
-
-            
-            
             {/* Botones de acción */}
             <div className="bg-custom-grey p-4 rounded-b-lg">
               <div className="flex justify-end gap-4">
@@ -537,8 +523,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 </Dialog>
 )}
 
-
-
       <CrearRequerimiento
         onCrear={(nuevoRequerimiento) => {
           onCrear(nuevoRequerimiento);
@@ -549,11 +533,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         onClose={() => setIsCreateDialogOpen(false)}
       />
     </>
-
     </div>
   )
 }
-
 
 function LabeledField({ label, value, noTopLeftRounded }: { label: string; value: string; noTopLeftRounded?: boolean }) {
   return (
