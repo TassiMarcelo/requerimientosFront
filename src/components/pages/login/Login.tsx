@@ -4,14 +4,14 @@ import Swal from 'sweetalert2';
 import { GrLogin } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import Button2 from '../../ui/Button2/Button2';
-
+import { Eye, EyeOff } from "lucide-react"; 
 
 export default function Login() {
 
   //login
   const [loginUsername, setloginUsername] = useState("");
   const [loginPassword, setloginPassword] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
   // register
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -122,15 +122,8 @@ export default function Login() {
   };
 
   const togglePasswordVisibility = () => {
-    if (passwordRef.current) {
-      passwordRef.current.type =
-        passwordRef.current.type === "password" ? "text" : "password";
-    }
-    if (confirmPasswordRef.current) {
-      confirmPasswordRef.current.type =
-        confirmPasswordRef.current.type === "password" ? "text" : "password";
-    }
-  };
+    setShowPassword(!showPassword);
+  }
 
   return (
     <div className="box">
@@ -139,11 +132,26 @@ export default function Login() {
           <form onKeyDown={(e) => e.key === "Enter" && handleLogin()}>
           <GrLogin className="w-11 h-11 mx-auto mb-4" />
 <input type="username" onChange={(e) => setloginUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
-            <input ref={passwordRef} onChange={(e) => setloginPassword(e.target.value)} type="password" name="password" placeholder="Contraseña" required />
-            <div className="showPasswordDiv">
-              <input type="checkbox" onChange={togglePasswordVisibility} />
-              <label>Mostrar contraseña</label>
-            </div>
+<div className="relative">
+
+            <input
+                ref={passwordRef}
+                onChange={(e) => setloginPassword(e.target.value)}
+                type={showPassword ? "text" : "password"} // Cambia el tipo de input
+                name="password"
+                placeholder="Contraseña"
+                required
+                className="w-full p-2 pr-10 border rounded" // Asegura que el input tenga el mismo ancho
+              />
+
+            <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute top-[50%] right-3 transform -translate-y-1/2 flex items-center text-sm leading-5"
+              >
+                {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+              </button>
+              </div>
             <Button2 type={"button"} className='AcceptButton' title={"Iniciar sesión"} onClick={handleLogin}></Button2>
           </form>
         ) : (
