@@ -127,6 +127,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
+  {/*todo agregar comentario*/}
   const agregarComentario = () => {
     if (nuevoComentario.trim() === '') return
 
@@ -299,9 +300,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   Requerimientos Relacionados
                 </label>
                 <div className="w-full border-2 rounded-lg rounded-tl-none p-2 bg-white h-[120px] overflow-y-auto">
-                  {requerimiento.requerimientosRelacionados && requerimiento.requerimientosRelacionados.length > 0 ? (
+                  {requerimiento.codigoRequerimientoRelacionado && requerimiento.codigoRequerimientoRelacionado.length > 0 ? (
                     <ul className="list-disc pl-5">
-                      {requerimiento.requerimientosRelacionados.map((relatedRequerimiento, index) => (
+                      {requerimiento.codigoRequerimientoRelacionado.map((relatedRequerimiento, index) => (
                         <li key={index} className="text-gray-700">
                           <span className="font-semibold">{relatedRequerimiento}</span> 
                         </li>
@@ -330,6 +331,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                     <h2>Acciones</h2>
                   </div>
                   <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
+                    {/* todo renderizar comentarios */}
                     {comentarios.map((comentario, index) => (
                       <div key={index} className="border-b pb-4">
                         <div className="grid grid-cols-5 gap-4 items-start mb-2">
@@ -546,7 +548,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
      <div className="flex justify-end gap-4">
 
      <Button2 onClick={cerrarModalNuevo} className='CancelButton' title={"Cancelar"}></Button2>
-     <Button2 onClick={cerrarModalNuevo} className='AcceptButton' title={"Crear"}></Button2>
+     <Button2 onClick={agregarComentario} className='AcceptButton' title={"Crear"}></Button2>
 
      </div>
    </Dialog.Panel>

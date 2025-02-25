@@ -24,5 +24,5 @@ export interface Requerimiento {
     nombre: string;
     tipo: string;
   }>;
-  requerimientosRelacionados?: string[];
+  codigoRequerimientoRelacionado?: string[];
 }
