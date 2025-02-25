@@ -13,7 +13,7 @@ interface Comentario {
   hora: string
   asunto: string
   descripcion: string
-  archivos: Array<{ nombre: string; tipo: string }>
+  archivos: Array<{ nombre: string; tipo: string, id:number }>
 }
 
 interface VisualizarRequerimientoProps {
@@ -191,9 +191,10 @@ useEffect(() => {
         }),
         asunto: asuntoForm,
         descripcion: descripcionForm,
-        archivos: archivosNuevoComentario.map((file) => ({
-          nombre: file.name,
-          tipo: file.type,
+        archivos: data.data.archivos.map((archivo) => ({
+          id: archivo.id, // Usar el ID devuelto por el backend
+          nombre: archivo.nombre,
+          tipo: archivo.tipo,
         })),
       };
   
