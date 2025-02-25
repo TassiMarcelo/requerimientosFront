@@ -24,7 +24,6 @@ interface VisualizarRequerimientoProps {
 }
 
 export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrear,}: VisualizarRequerimientoProps) {
-  console.log("Requerimiento:", requerimiento);
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
@@ -61,6 +60,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     
         const data = await response.json(); // Convertir respuesta a JSON
     
+        // Verifica la estructura de los datos devueltos
+        console.log("Datos recibidos del backend:", data);
+    
         // Crear objetos Comentario y agregarlos a la lista
         const nuevosComentarios = data.data.map((comentario) => ({
           key: comentario.id,
@@ -70,13 +72,14 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
           asunto: comentario.asunto,
           descripcion: comentario.descripcion,
           archivos: comentario.archivos.map((archivo) => ({
+            id: archivo.id, // Asegúrate de que el ID del archivo esté presente
             nombre: archivo.nombre || "Desconocido",
             tipo: archivo.tipo || "Desconocido",
           })),
         }));
     
         // Agregar los comentarios al estado
-        setComentarios((prevComentarios) => [...prevComentarios, ...nuevosComentarios]);
+        setComentarios(nuevosComentarios);
       } catch (error) {
         console.error("Error al cargar comentarios:", error);
       }
@@ -136,42 +139,72 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
-  const agregarComentario = () => {
-    console.log("Agregando nuevo comentario...");
-    {/*TODO: Agregar archivos al comentario y mandarlos al back*/}
-    const nuevoComentarioObj: Comentario = {
-      username: localStorage.getItem('userName'),
-      fecha: new Date().toLocaleDateString('es-ES'),
-      hora: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+  const agregarComentario = async () => {
+    const comentarioDTO = {
       asunto: asuntoForm,
       descripcion: descripcionForm,
-      archivos: archivosNuevoComentario.map(file => ({ nombre: file.name, tipo: file.type }))
-    }
-    fetch(`http://localhost:8080/comentarios/${requerimiento.codigo}/agregar`, {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-          "asunto":  nuevoComentarioObj.asunto,
-          "descripcion": nuevoComentarioObj.descripcion,
-          "username": nuevoComentarioObj.username
-      })
-  })
-  .then(response => {
+      username: localStorage.getItem('userName') || '',
+      fecha: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+      hora: new Date().toISOString().split("T")[1].split(".")[0], // HH:mm:ss
+      archivos: [] // No se envían aquí los archivos, van aparte en FormData
+    };
+  
+    const formData = new FormData();
+    formData.append(
+      "comentarioDTO",
+      new Blob([JSON.stringify(comentarioDTO)], { type: "application/json" })
+    );
+  
+    archivosNuevoComentario.forEach((file) => {
+      formData.append("archivos", file);
+    });
+  
+    try {
+      const response = await fetch(
+        `http://localhost:8080/comentarios/${requerimiento?.codigo}/agregar`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+  
       if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status}`);
+        throw new Error(`Error HTTP: ${response.status}`);
       }
-      return response.json();
-  })
-  .then(data => console.log('Respuesta del servidor:', data))
-  .catch(error => console.error('Error en la solicitud:', error));
-
-    setComentarios([...comentarios, nuevoComentarioObj])
-    setModalNuevoVisible(false);
-    setNuevoComentario('')
-    setArchivosNuevoComentario([])
-  }
+  
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+  
+      // Actualizar la lista de comentarios
+      const nuevoComentarioObj = {
+        key: data.data.id,
+        username: localStorage.getItem("userName") || "",
+        fecha: new Date().toLocaleDateString("es-ES"),
+        hora: new Date().toLocaleTimeString("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        asunto: asuntoForm,
+        descripcion: descripcionForm,
+        archivos: archivosNuevoComentario.map((file) => ({
+          nombre: file.name,
+          tipo: file.type,
+        })),
+      };
+  
+      setComentarios([...comentarios, nuevoComentarioObj]);
+      setAsuntoForm("");
+      setDescripcionForm("");
+      setArchivosNuevoComentario([]);
+      setModalNuevoVisible(false);
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  };
+  
 
   const mostrarDescripcion = (comentario: Comentario) => {
     setComentarioSeleccionado(comentario);
@@ -188,16 +221,34 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   };
 
   const formatHora = (hora: string) => {
-    const regex = /^(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/;
+    const regex = /^(\d{2}):(\d{2})(?::(\d{2}))?(?:\.(\d{3}))?$/;
     const match = hora.match(regex);
+  
     if (!match) {
       console.error("Hora inválida:", hora);
       return "Hora no válida"; 
     }
+  
     const hours = match[1]; 
     const minutes = match[2]; 
     return `${hours}:${minutes}`;
   };
+
+  const formatFecha = (fecha: string) => {
+    const regex = /^(\d{4})-(\d{2})-(\d{2})$/;
+    const match = fecha.match(regex);
+  
+    if (!match) {
+      console.error("Fecha inválida:", fecha);
+      return "Fecha no válida"; 
+    }
+  
+    const [_, year, month, day] = match; 
+    return `${day}/${month}/${year}`;
+  };
+  
+  
+  
   
   
   return (
@@ -246,7 +297,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                     noTopLeftRounded />
                   <LabeledField label="Asunto" value={requerimiento.asunto} noTopLeftRounded />
                   <LabeledField label="Usuario emisor" value={`${requerimiento.emisor?.nombre} ${requerimiento.emisor?.apellido}`} noTopLeftRounded/>
-                  <LabeledField label="Fecha alta" value={requerimiento.fechaAlta} noTopLeftRounded />
+                  <LabeledField label="Fecha alta" value={formatFecha(requerimiento.fechaAlta)} noTopLeftRounded />
                   <LabeledField label="Hora alta" value={formatHora(requerimiento.horaAlta ?? '09:17:00') } noTopLeftRounded />
 
                   <div>
@@ -309,101 +360,95 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   Comentarios
                 </label>
                 
-                <div className="w-full border-2 rounded-lg rounded-tl-none bg-white">
-                  <div className="grid grid-cols-5 gap-4 border-b pb-2 p-4 max-h-[300px] overflow-y-auto">
-                    <h2>Emisor</h2>
-                    <h2>Fecha y Hora</h2>
-                    <h2>Asunto</h2>
-                    <h2>Descripcion</h2>
-                    <h2>Acciones</h2>
-                  </div>
-                  <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
-                    {/* todo renderizar comentarios */}
-                    {comentarios.map((comentario, index) => (
-                      <div key={index} className="border-b pb-4">
-                        <div className="grid grid-cols-5 gap-4 items-start mb-2">
+                <div className="mt-6">
+                  <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
+                    Comentarios
+                  </label>
+                  <div className="w-full border-2 rounded-lg rounded-tl-none bg-white">
+                    {/* Encabezados de la tabla */}
+                    <div className="grid grid-cols-6 gap-4 border-b pb-2 p-4">
+                      <h2>Emisor</h2>
+                      <h2>Fecha</h2>
+                      <h2>Hora</h2>
+                      <h2>Asunto</h2>
+                      <h2>Descripción</h2>
+                      <h2>Acciones</h2>
+                    </div>
+                    {/* Lista de comentarios */}
+                    <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
+                      {comentarios.map((comentario, index) => (
+                        <div key={index} className="grid grid-cols-6 gap-4 items-center border-b pb-4">
                           <div>
                             <span className="font-semibold">{comentario.username}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">{comentario.fecha} {comentario.hora}
-                            </span>
+                            <span className="text-gray-500">{formatFecha(comentario.fecha)}</span>
                           </div>
                           <div>
-                            <span>{comentario.asunto}</span>  
+                            <span className="text-gray-500">{formatHora(comentario.hora)}</span>
                           </div>
                           <div>
-                          <span>{comentario.descripcion}</span>  
+                            <span>{comentario.asunto}</span>
                           </div>
-                          <p className="text-gray-700 mb-2">
-                            {comentario.descripcion.length > 20
-                            ? comentario.descripcion.substring(0, 20)
-                            : comentario.descripcion}
-                          </p>
-
-                          <Button2 onClick={() => mostrarDescripcion(comentario)} className='AcceptButton' title={"Ver Descripcion"}></Button2>
-                          
-                        </div>
-                        
-                        {comentario.archivos.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
-                            {/* Seccion de enviar nuevo comentario */}
-                            <div className="flex flex-wrap gap-2">
-                              
-                              {comentario.archivos.map((archivo, fileIndex) => (
-                                <button
-                                  key={fileIndex}
-                                  onClick={() => handleFileAction(archivo)}
-                                  className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-                                >
-                                  <FileText className="h-4 w-4 mr-1" />
-                                  {archivo.nombre}
-                                </button>
-                              ))}
+                          <div>
+                            <p className="text-gray-700">
+                              {comentario.descripcion.length > 20
+                                ? comentario.descripcion.substring(0, 20) + "..."
+                                : comentario.descripcion}
+                            </p>
+                          </div>
+                          <div>
+                            <Button2 onClick={() => mostrarDescripcion(comentario)} className='AcceptButton' title={"Ver Detalle"}></Button2>
+                          </div>
+                          {comentario.archivos.length > 0 && (
+                            <div className="col-span-6 mt-2">
+                              <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {comentario.archivos.map((archivo, fileIndex) => (
+                                  <button
+                                    key={fileIndex}
+                                    onClick={() => handleFileAction(archivo)}
+                                    className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+                                  >
+                                    <FileText className="h-4 w-4 mr-1" />
+                                    {archivo.nombre}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Button2 onClick={() => setModalNuevoVisible(true)} className='AcceptButton' title={"Crear comentario nuevo"}></Button2>
-                      
+                          )}
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept=".pdf,.docx"
-                        className="hidden"
-                        id="comment-file-upload"
-                        multiple
-                      />
-                      {/* adjuntar archivo marce
-                       <label
-                        htmlFor="comment-file-upload"
-                        className="cursor-pointer text-blue-600 hover:text-blue-800 flex items-center"
-                      >
-                        <Paperclip className="h-5 w-5 mr-1" />
-                        Adjuntar archivos (máx. 5)
-                      </label>
-                       */}
-                    </div>
-                    {archivosNuevoComentario.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {archivosNuevoComentario.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between bg-gray-100 p-1 rounded">
-                            <span className="text-sm truncate">{file.name}</span>
-                            <button onClick={() => removeFile(index)} className="text-red-500 hover:text-red-700">
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
+                    {/* Formulario para nuevo comentario */}
+                    <div className="border-t p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Button2 onClick={() => setModalNuevoVisible(true)} className='AcceptButton' title={"Crear comentario nuevo"}></Button2>
                       </div>
-                    )}
+                      <div>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept=".pdf,.docx"
+                          className="hidden"
+                          id="comment-file-upload"
+                          multiple
+                        />
+                      </div>
+                      {archivosNuevoComentario.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {archivosNuevoComentario.map((file, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-100 p-1 rounded">
+                              <span className="text-sm truncate">{file.name}</span>
+                              <button onClick={() => removeFile(index)} className="text-red-500 hover:text-red-700">
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -411,24 +456,17 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
           {/* Modal para Ver Descripcion */}
           {modalDescripcionVisible && comentarioSeleccionado && (
   <Dialog open={modalDescripcionVisible} onClose={cerrarModalDescripcion} className="relative z-50">
-    {/* Fondo oscuro */}
     <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
     <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
-      
-      {/* Panel principal del modal */}
       <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
-        
-        {/* Etiqueta del usuario (colocada por debajo del panel) */}
         <div className="absolute -top-11 left-0 bg-[#B8D68F] text-black px-10 py-3 rounded-tl-lg rounded-tr-lg shadow z-[-1]">
           <h1 className="text-xl font-bold">{comentarioSeleccionado.username}</h1>
         </div>
-
         <h1 className="text-xl font-bold mt-0 pb-2 border-b">{comentarioSeleccionado.asunto}</h1>
-        <p className="text-gray-500 pt-2 ">{comentarioSeleccionado.fecha}</p>
-        <p className="text-gray-500 pb-2 border-b">{comentarioSeleccionado.hora}</p>
+        <p className="text-gray-500 pt-2 ">{formatFecha(comentarioSeleccionado.fecha)}</p>
+        <p className="text-gray-500 pb-2 border-b">{formatHora(comentarioSeleccionado.hora)}</p>
         <p className="text-gray-700 mt-4">{comentarioSeleccionado.descripcion}</p>
-        
-        {comentarioSeleccionado.archivos.length > 0 && (
+        {comentarioSeleccionado.archivos.length > 0 ? (
           <div className="mt-2">
             <p className="text-sm font-semibold mb-1">Archivos adjuntos:</p>
             <div className="flex flex-wrap gap-2">
@@ -444,6 +482,8 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
               ))}
             </div>
           </div>
+        ) : (
+          <p className="text-gray-500 text-sm mt-2">No hay archivos asociados.</p>
         )}
         <Button2 onClick={cerrarModalDescripcion} className='NeutralButton' title={"Cerrar"}></Button2>
       </Dialog.Panel>
@@ -462,54 +502,66 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         </div>
       </Dialog>
 
-{modalNuevoVisible && (
- <Dialog open={modalNuevoVisible} onClose={cerrarModalNuevo} className="relative z-50">
- {/* Fondo oscuro */}
- <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
- <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
-   
-   {/* Panel principal del modal */}
-   <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
-   <Dialog.Title className="text-xl font-bold pb-2">Nuevo Comentario</Dialog.Title>
-    
-    <form action=""></form>
-    <div>
-      <label className="block font-medium pl-1">Asunto</label>
-      <input
-        type="text"
-        placeholder="Asunto"
-        value={asuntoForm}
-        onChange={asuntoFormHandler}
-        className="w-full flex-1 p-2 border rounded-md"
-      />
+      {modalNuevoVisible && (
+  <Dialog open={modalNuevoVisible} onClose={cerrarModalNuevo} className="relative z-50">
+    <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
+    <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
+      <Dialog.Panel className="relative w-full max-w-md rounded-lg bg-white shadow-lg p-4 overflow-visible">
+        <Dialog.Title className="text-xl font-bold pb-2">Nuevo Comentario</Dialog.Title>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          agregarComentario();
+        }}>
+          <div>
+            <label className="block font-medium pl-1">Asunto</label>
+            <input
+              type="text"
+              placeholder="Asunto"
+              value={asuntoForm}
+              onChange={asuntoFormHandler}
+              className="w-full flex-1 p-2 border rounded-md"
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium pt-2 pl-1">Descripcion</label>
+            <textarea
+              placeholder="Descripcion"
+              onChange={descriptionFormHandler}
+              value={descripcionForm}
+              className="w-full h-32 p-2 border rounded-md resize-none text-left align-top"
+              required
+            ></textarea>
+          </div>
+          <div>
+            <label className="block font-medium pt-2 pl-1">Seleccionar Archivos</label>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="w-full flex-1 p-2 border rounded-md"
+              multiple
+            />
+          </div>
+          {archivosNuevoComentario.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {archivosNuevoComentario.map((file, index) => (
+                <div key={index} className="flex items-center justify-between bg-gray-100 p-1 rounded">
+                  <span className="text-sm truncate">{file.name}</span>
+                  <button onClick={() => removeFile(index)} className="text-red-500 hover:text-red-700">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex justify-end gap-4 mt-4">
+            <Button2 onClick={cerrarModalNuevo} className='CancelButton' title={"Cancelar"}></Button2>
+            <Button2 type="submit" className='AcceptButton' title={"Crear"}></Button2>
+          </div>
+        </form>
+      </Dialog.Panel>
     </div>
-    <div>
-      <label className="block font-medium pt-2 pl-1">Descripcion</label>
-      <textarea
-        placeholder="Descripcion"
-        onChange={descriptionFormHandler}
-        value={descripcionForm}
-        className="w-full h-32 p-2 border rounded-md resize-none text-left align-top"
-      ></textarea>
-    </div>
-    <div>
-      <label className="block font-medium pt-2 pl-1">Seleccionar Archivos</label>
-      <input
-        type="file"
-        placeholder="archivo"
-        className="w-full flex-1 p-2 border rounded-md"
-      />
-    </div>
-     {/* Etiqueta del usuario (colocada por debajo del panel) */}
-     <div className="flex justify-end gap-4">
-
-     <Button2 onClick={cerrarModalNuevo} className='CancelButton' title={"Cancelar"}></Button2>
-     <Button2 onClick={agregarComentario} className='AcceptButton' title={"Crear"}></Button2>
-
-     </div>
-   </Dialog.Panel>
- </div>
-</Dialog>
+  </Dialog>
 )}
 
       <CrearRequerimiento
