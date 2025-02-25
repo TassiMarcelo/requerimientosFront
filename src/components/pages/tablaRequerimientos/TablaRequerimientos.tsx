@@ -8,10 +8,7 @@ import Button2 from "../../ui/Button2/Button2";
 import { log } from "console";
 
 // Función para formatear fechas
-const formatDate = (dateString: string) => {
-  const [year, month, day] = dateString.split('-');
-  return `${day}/${month}/${year}`;
-};
+
 
 export function TablaRequerimientos() {
   const [datos, setDatos] = useState<Requerimiento[]>([]);
@@ -83,11 +80,11 @@ export function TablaRequerimientos() {
 
   useEffect(() => {
     const cargarRequerimientos = async () => {
+      const userName = localStorage.getItem("userName")
       const userId = localStorage.getItem("userId");
-      if (!usereId) return;
 
       try {
-        const url = new URL(`http://localhost:8080/requerimientos/${userId}/filtrar`);
+        const url = new URL(`http://localhost:8080/requerimientos/${userName}/filtrar`);
 
         if (filtros.tipo) url.searchParams.append("tipoRequerimiento", filtros.tipo);
         if (filtros.categoria) url.searchParams.append("categoria", filtros.categoria);
@@ -173,6 +170,11 @@ export function TablaRequerimientos() {
     setDatos(prev => [nuevoRequerimiento, ...prev]); // Agrega el nuevo requerimiento al principio de la lista
   };
 
+
+    const formatDate = (dateString: string) => {
+      const [year, month, day] = dateString.split('-');
+      return `${day}/${month}/${year}`;
+    };
   const customStyles = {
     control: (provided: any) => ({
       ...provided,

@@ -85,9 +85,11 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   }
 };
   
-    useEffect(() => {
-      cargarComentarios();
-    }, []);
+useEffect(() => {
+  if (isOpen && requerimiento) {
+    cargarComentarios();
+  }
+}, [isOpen, requerimiento]);
 
   if (!requerimiento) return null
   
