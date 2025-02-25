@@ -83,11 +83,11 @@ export function TablaRequerimientos() {
 
   useEffect(() => {
     const cargarRequerimientos = async () => {
-      const userName = localStorage.getItem("userName");
-      if (!userName) return;
+      const userId = localStorage.getItem("userId");
+      if (!usereId) return;
 
       try {
-        const url = new URL(`http://localhost:8080/requerimientos/${userName}/filtrar`);
+        const url = new URL(`http://localhost:8080/requerimientos/${userId}/filtrar`);
 
         if (filtros.tipo) url.searchParams.append("tipoRequerimiento", filtros.tipo);
         if (filtros.categoria) url.searchParams.append("categoria", filtros.categoria);
