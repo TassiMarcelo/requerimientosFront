@@ -5,7 +5,6 @@ import Select from 'react-select'
 import { Requerimiento } from '../types/requerimiento'
 import Swal from 'sweetalert2'
 import Button2 from '../../ui/Button2/Button2'
-import CloseButton from "../../ui/CloseButton";
 import { ClassNames } from '@emotion/react'
 import { log } from 'console'
 
@@ -322,12 +321,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="w-full max-w-6xl rounded-xl bg-white max-h-[90vh] overflow-y-auto">
-    
-      <div className="border-b border-gray-600 bg-gray-500 relative p-5 flex justify-end">
-      <div className="absolute -top-1 right-2">
-          <CloseButton onClick={onClose} />
-        </div>
-        </div>
         <div className="p-4 space-y-4 bg-custom-grey">
         <div className="space-y-0">
   <label
