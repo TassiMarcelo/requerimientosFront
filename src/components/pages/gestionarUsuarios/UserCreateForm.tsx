@@ -4,12 +4,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Button2 from "../../ui/Button2/Button2";
-import { Button } from "../../ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import Modal from "../../Modal";
 import type { User } from "../types/user";
 import Swal from "sweetalert2";
-import CloseButton from "../../ui/CloseButton";
 
 interface UserCreateFormProps {
   onSave: (user: User) => void;
@@ -68,11 +65,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
       <div className="w-full max-w-[800px] bg-white rounded-md shadow-lg relative">
-        <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
-          <div className="absolute -top-1 right-0">
-            <CloseButton onClick={onCancel} />
-          </div>
-        </div>
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4 mt-0">
             <div className="flex space-x-6">
@@ -99,7 +91,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                   />
                 </div>
 
-                {/* Correo Electrónico */}
                 <div>
                   <Label htmlFor="email">Correo Electrónico</Label>
                   <Input
@@ -110,7 +101,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     required
                   />
                 </div>
-                {/* CUIL */}
                 <div>
                   <Label htmlFor="cuil">CUIL</Label>
                   <Input
@@ -120,7 +110,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     required
                   />
                 </div>
-                   {/* Preferencia */}
                    <div className="flex items-center space-x-2">
                     <Checkbox
                       id="preferencia"
@@ -139,9 +128,7 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                   </div>
               </div>
 
-              {/* Columna derecha */}
               <div className="flex-1 space-y-4">
-                {/* Descripción */}
                 <div>
                   <Label htmlFor="descripcion">Descripción</Label>
                   <Input
@@ -150,7 +137,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   />
                 </div>
-                  {/* Empresa */}
               <div>
                   <Label htmlFor="empresa">Empresa</Label>
                   <Input
@@ -161,7 +147,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                   />
                 </div>
 
-                {/* Usuario */}
                 <div>
                   <Label htmlFor="username">Usuario</Label>
                   <Input
@@ -188,7 +173,29 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                  <div className="flex justify-end items-center mt-6">
   {/* Botones a la derecha */}
   <div className="flex space-x-4">
-    <Button2 title={"Cancelar"} onClick={onCancel} className={"NeutralButton"} />
+  <Button2
+  title={"Cancelar"}
+  type="button"
+  onClick={async () => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Perderás los datos ingresados si cancelas.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Volver',
+      customClass: {
+        confirmButton: 'CancelButton',
+        cancelButton: 'NeutralButton',
+      }
+    });
+
+    if (result.isConfirmed) {
+      onCancel(); 
+    }
+  }}
+  className={"NeutralButton"} 
+/>
     <Button2 type={"submit"} title={"Guardar"} className={"NeutralButton"} />
   </div>
 </div>

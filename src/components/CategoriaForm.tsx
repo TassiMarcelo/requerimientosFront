@@ -5,9 +5,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import Select from "react-select";
-import CloseButton from "./ui/CloseButton";
 import Button2 from "./ui/Button2/Button2";
 import { Pencil, Trash2 } from 'lucide-react';
+import Swal from "sweetalert2";
 
 interface TipoRequerimiento {
   descripcion: string;
@@ -94,7 +94,22 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   const { filteredTipos, filteredCategorias } = filtrarRequerimientos(searchTerm);
 
   const handleDeleteTipo = async (codigo: string) => {
-    try {
+    const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: "¡No podrás revertir esta acción!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, continuar',
+          cancelButtonText: 'Cancelar',
+          customClass: {
+            confirmButton: 'CancelButton', 
+            cancelButton: 'NeutralButton' 
+          }
+        });
+        if (!result.isConfirmed) {
+          return; 
+        }
+        try {
       const response = await fetch(
         `http://localhost:8080/tiposRequerimientos/${codigo}/desactivar`,
         {
@@ -127,7 +142,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
             body: JSON.stringify({
               descripcion: categoria.descripcion,
               codigoTipoRequerimiento: categoria.codigoTipoRequerimiento,
-              desactivado: true, // Aquí se desactiva
+              desactivado: true, 
             }),
           }
         );
@@ -200,6 +215,21 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   };
 
   const handleDeleteCategoria = async (id: number) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esta acción!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        confirmButton: 'CancelButton', 
+        cancelButton: 'NeutralButton' 
+      }
+    });
+    if (!result.isConfirmed) {
+      return; 
+    }
     try {
       const response = await fetch(
         `http://localhost:8080/categRequerimientos/${id}/desactivar`,
@@ -431,7 +461,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
         } else {
           console.log("Reactivando categoría:", categoriaExistente.id);
   
-          // Reactivar la categoría estableciendo `desactivado: false`
           const response = await fetch(
             `http://localhost:8080/categRequerimientos/${categoriaExistente.id}/update`,
             {
@@ -468,7 +497,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
         }
       }
   
-      // Si no existe, crear una nueva
       console.log("Creando nueva categoría...");
       const response = await fetch(
         "http://localhost:8080/categRequerimientos/agregar",
@@ -512,17 +540,11 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
       <div className="w-full max-w-4xl bg-white rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
-        <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5">
-          <div className="absolute -top-1 right-4">
-            <CloseButton onClick={onClose} />
-          </div>
-        </div>
-
-        <div className="p-6">
+       <div className="p-6">
           {errorMessage && (
             <div className="text-red-500 mb-4">{errorMessage}</div>
           )}
-          <div className="mb-4 mt-6">
+          <div className="mb-4 mt-2">
             <Input
               placeholder="Buscar tipos o categorías..."
               value={searchTerm}
@@ -607,13 +629,8 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           {showTipoForm && (
             <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
               <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-                <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
-                  <div className="absolute -top-1 right-0">
-                    <CloseButton onClick={() => setShowTipoForm(false)} />
-                  </div>
-                </div>
                 <div className="p-6">
-                  <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4 mt-6">
+                  <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4 mt-2">
                     <h1 className="text-lg font-semibold">
                       {tipoSeleccionado ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
                     </h1>
@@ -704,11 +721,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           {showCategoriaForm && (
             <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
               <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-                <div className="border-b border-gray-600 bg-gray-500 w-full relative p-5 rounded-t-md">
-                  <div className="absolute -top-1 right-0">
-                    <CloseButton onClick={() => setShowCategoriaForm(false)} />
-                  </div>
-                </div>
                 <div className="p-6">
                   <form onSubmit={handleCategoriaSubmit} className="space-y-4">
                     <h1 className="text-lg font-semibold">

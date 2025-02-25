@@ -1,9 +1,6 @@
 'use client'
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { User } from '@/types/user'
-import { useEffect, useState } from 'react'
-import CloseButton from "@/components/ui/CloseButton" // Importa tu componente CloseButton
 
 interface UserViewProps {
   user: User 
@@ -19,19 +16,16 @@ export function UserView({ user, onClose }: UserViewProps) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] [&>button]:hidden p-0"> 
-      <div className="border-b border-gray-600 bg-gray-500 w-full relative p-4 rounded-t-md"> 
-      <div className="absolute -top-0 right-0">
-                  <CloseButton onClick={onClose} />
-        </div>
+<DialogContent className="sm:max-w-[425px] [&>button]:hidden p-0 gap-0">
+<div className="bg-gray-250 w-full relative px-6 py-4 rounded-t-md">
+<DialogHeader className="mb-0 space-y-0 text-left -px-4">
+  <DialogTitle className="mb-0 text-left -px-4">Detalles del Usuario</DialogTitle>
+</DialogHeader>
 
-        <DialogHeader>
-          <DialogTitle>Detalles del Usuario</DialogTitle>
-        </DialogHeader>
         </div>
-        <div className="p-6 mb-4">
-        <div className="space-y-4">
-          <div>
+        <div className="p-2">
+        <div className="px-4 py-2">
+        <div>
             <h4 className="font-medium">Nombre Completo</h4>
             <p className="text-sm text-muted-foreground"> {`${user.nombre} ${user.apellido}`}</p>
           </div>
