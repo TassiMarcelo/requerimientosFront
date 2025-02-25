@@ -323,8 +323,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       setShowTipoForm(false);
       setErrorMessage("");
     } catch (error) {
-      console.error("Error al crear tipo:", error);
-      setErrorMessage("Ocurrió un error al crear el tipo de requerimiento.");
+    alert("Error, tipo.codigo repetido");
     }
   };
 
@@ -337,7 +336,54 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       );
       return;
     }
-
+    const categoriaExistente = categorias.find(
+      (categoria) =>
+        categoria.descripcion.toLowerCase() === descripcionCategoria.toLowerCase() &&
+        categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
+    );
+    if (categoriaExistente) {
+      if (!categoriaExistente.desactivado) {
+        alert("Ya existe una categoría con esta descripción dentro de este tipo.");
+        return;
+      } else {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/categRequerimientos/${categoriaExistente.id}/update`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+              descripcion: categoriaExistente.descripcion,
+              codigoTipoRequerimiento: categoriaExistente.codigoTipoRequerimiento,
+              desactivado: false, 
+              }),
+            }
+          );
+  
+          if (!response.ok) {
+            throw new Error("Error al activar la categoría.");
+          }
+  
+          setCategorias((prevCategorias) =>
+            prevCategorias.map((categoria) =>
+              categoria.id === categoriaExistente.id ? { ...categoria, desactivado: false } : categoria
+            )
+          );
+          setDescripcionCategoria("");
+          setTipoSeleccionado(null);
+          setShowCategoriaForm(false);
+          setErrorMessage("");
+          return;
+        } catch (error) {
+          console.error("Error al activar la categoría:", error);
+          setErrorMessage("Ocurrió un error al activar la categoría.");
+          return;
+        }
+      }
+    }
+  
     try {
       const response = await fetch(
         "http://localhost:8080/categRequerimientos/agregar",
@@ -419,7 +465,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
 
           <div>
             {filteredTipos.length === 0 && filteredCategorias.length === 0 ? (
-              <p>No se encontraron coincidencias.</p>
+              <p>No se encontraron resultados.</p>
             ) : (
               <>
                 {tipos
