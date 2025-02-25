@@ -57,10 +57,10 @@ const ChangePassword = () => {
   
   return (
     <div className="change-password-container flex justify-center items-center min-h-screen bg-gray-300">
-           <div className="w-full max-w-xl p-8 bg-white rounded-lg shadow-md">
+           <div className="w-full max-w-xl p-8 bg-white rounded-3xl shadow-md">
            <h3 className="text-3xl font-semibold text-center mb-6">Actualizar contraseña</h3>
            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-        <div>
+          <div>
           <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">Contraseña nueva</label>
           <input
             id="newPassword"

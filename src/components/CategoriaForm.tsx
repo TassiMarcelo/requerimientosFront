@@ -104,7 +104,8 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           customClass: {
             confirmButton: 'CancelButton', 
             cancelButton: 'NeutralButton' 
-          }
+          },
+          backdrop: 'rgba(0, 0, 0, 0.90)',
         });
         if (!result.isConfirmed) {
           return; 
@@ -224,9 +225,10 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       cancelButtonText: 'Cancelar',
       customClass: {
         confirmButton: 'CancelButton', 
-        cancelButton: 'NeutralButton' 
-      }
-    });
+        cancelButton: 'NeutralButton'
+      },
+      backdrop: 'rgba(0, 0, 0, 0.90)',
+        });
     if (!result.isConfirmed) {
       return; 
     }
@@ -347,7 +349,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
         (tipo) => tipo.codigo.toLowerCase() === codigo.toLowerCase()
       );
   
-  
       if (tipoExistente) {
         if (!tipoExistente.desactivado) {
           alert("Ya existe un tipo de requerimiento con este código.");
@@ -405,7 +406,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
         }
       );
   
-  
       if (!response.ok) {
         throw new Error("Error al crear el tipo de requerimiento.");
       }
@@ -436,7 +436,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     }
   
     try {
-      // Obtener TODAS las categorías (activas e inactivas)
       const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
       if (!categoriasResponse.ok) {
         throw new Error("Error al obtener las categorías.");
@@ -445,7 +444,6 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       
       console.log("Lista completa de categorías:", categoriasData.data);
   
-      // Buscar si la categoría ya existe, aunque esté desactivada
       const categoriaExistente = categoriasData.data.find(
         (categoria) =>
           categoria.descripcion.toLowerCase() === descripcionCategoria.toLowerCase() &&
@@ -536,11 +534,11 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     }
   };
   
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-      <div className="w-full max-w-4xl bg-white rounded-md shadow-lg relative overflow-y-auto max-h-[80vh]">
-       <div className="p-6">
+      <div className="form-container flex flex-col">
+        {/* Contenedor del contenido desplazable */}
+        <div className="p-6 flex-1 overflow-y-auto">
           {errorMessage && (
             <div className="text-red-500 mb-4">{errorMessage}</div>
           )}
@@ -555,8 +553,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
 
           <div>
             {filteredTipos.length === 0 && filteredCategorias.length === 0 ? (
-              <p>No se encontraron resultados.</p>
-            ) : (
+   <p className="text-left">No se encontraron resultados.</p>            ) : (
               <>
                 {tipos
                   .filter((tipo) => {
@@ -612,196 +609,229 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
               </>
             )}
           </div>
+        </div>
 
-          <div className="flex justify-between mt-4">
+        {/* Contenedor de botones fijos */}
+        <div className="p-4 border-t bg-white">
+          <div className="flex justify-between">
             <div className="flex space-x-2">
-              <Button2 onClick={() => {
-                setDescripcionTipo("");
-                setCodigo("");
-                setTipoSeleccionado(null);
-                setShowTipoForm(true);
-              }} title={"+ Tipo"} className="NeutralButton"></Button2>
-              <Button2 onClick={() => setShowCategoriaForm(true)} title={"+ Categoría"} className="NeutralButton"></Button2>
+              <Button2
+                onClick={() => {
+                  setDescripcionTipo("");
+                  setCodigo("");
+                  setTipoSeleccionado(null);
+                  setShowTipoForm(true);
+                }}
+                title={"+ Tipo"}
+                className="NeutralButton"
+              />
+              <Button2
+                onClick={() => setShowCategoriaForm(true)}
+                title={"+ Categoría"}
+                className="NeutralButton"
+              />
             </div>
-            <Button2 onClick={onClose} title={"Cerrar"} className="NeutralButton"></Button2>
+            <Button2 onClick={onClose} title={"Cerrar"} className="NeutralButton" />
+          </div>
+        </div>
+        {showTipoForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+    <div className="w-[380px] h-[430px] bg-white rounded-md shadow-lg flex flex-col">
+      {/* Contenido desplazable */}
+      <div className="p-6 flex-1 overflow-y-auto">
+        <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4">
+          <h1 className="text-lg font-semibold">
+            {tipoSeleccionado ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
+          </h1>
+          <div>
+            <Label htmlFor="descripcionTipo">Descripción</Label>
+            <Input
+              id="descripcionTipo"
+              value={descripcionTipo}
+              onChange={(e) => setDescripcionTipo(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="codigo">Código (Máximo 3 caracteres)</Label>
+            <Input
+              id="codigo"
+              value={codigo}
+              maxLength={3}
+              onChange={(e) => setCodigo(e.target.value)}
+              required
+            />
           </div>
 
-          {showTipoForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-              <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-                <div className="p-6">
-                  <form onSubmit={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit} className="space-y-4 mt-2">
-                    <h1 className="text-lg font-semibold">
-                      {tipoSeleccionado ? "Editar Tipo de Requerimiento" : "Registrar Tipo de Requerimiento"}
-                    </h1>
-                    <div>
-                      <Label htmlFor="descripcionTipo">Descripción</Label>
-                      <Input
-                        id="descripcionTipo"
-                        value={descripcionTipo}
-                        onChange={(e) => setDescripcionTipo(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="codigo">Código (Máximo 3 caracteres)</Label>
-                      <Input
-                        id="codigo"
-                        value={codigo}
-                        maxLength={3}
-                        onChange={(e) => setCodigo(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    {tipoSeleccionado && (
-                      <div className="mt-4">
-                        <h3 className="font-semibold">Categorías:</h3>
-                        {categorias
-                          .filter((categoria) =>
-                            categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
-                            categoria.desactivado === false
-                          ).length > 0 ? (
-                          <ul className="list-disc pl-5">
-                            {categorias
-                              .filter((categoria) =>
-                                categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
-                                categoria.desactivado === false
-                              )
-                              .map((categoria) => (
-                                <li key={categoria.id} className="flex justify-between items-center">
-                                  {editingCategoriaId === categoria.id ? (
-                                    <div className="flex items-center space-x-2">
-                                      <Input
-                                        value={nuevaDescripcion}
-                                        onChange={(e) => setNuevaDescripcion(e.target.value)}
-                                        onBlur={() => handleUpdateCategoria(categoria.id)}
-                                        onKeyPress={(e) => {
-                                          if (e.key === "Enter") {
-                                            handleUpdateCategoria(categoria.id);
-                                          }
-                                        }}
-                                        autoFocus
-                                      />
-                                    </div>
-                                  ) : (
-                                    <span>{categoria.descripcion}</span>
-                                  )}
-                                  <div className="flex space-x-2">
-                                    <Pencil
-                                      className="cursor-pointer"
-                                      onClick={() => handleEditCategoria(categoria.id)}
-                                    />
-                                    <Trash2
-                                      className="cursor-pointer"
-                                      onClick={() => handleDeleteCategoria(categoria.id)}
-                                    />
-                                  </div>
-                                </li>
-                              ))}
-                          </ul>
+          {tipoSeleccionado && (
+            <div className="mt-4">
+              <h3 className="font-semibold">Categorías:</h3>
+              {categorias
+                .filter((categoria) =>
+                  categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
+                  categoria.desactivado === false
+                ).length > 0 ? (
+                <ul className="list-disc pl-5">
+                  {categorias
+                    .filter((categoria) =>
+                      categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo &&
+                      categoria.desactivado === false
+                    )
+                    .map((categoria) => (
+                      <li key={categoria.id} className="flex justify-between items-center">
+                        {editingCategoriaId === categoria.id ? (
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              value={nuevaDescripcion}
+                              onChange={(e) => setNuevaDescripcion(e.target.value)}
+                              onBlur={() => handleUpdateCategoria(categoria.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleUpdateCategoria(categoria.id);
+                                }
+                              }}
+                              autoFocus
+                            />
+                          </div>
                         ) : (
-                          <p>No hay categorías asociadas.</p>
+                          <span>{categoria.descripcion}</span>
                         )}
-                      </div>
-                    )}
+                        <div className="flex space-x-2">
+                          <Pencil
+                            className="cursor-pointer"
+                            onClick={() => handleEditCategoria(categoria.id)}
+                          />
+                          <Trash2
+                            className="cursor-pointer"
+                            onClick={() => handleDeleteCategoria(categoria.id)}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p>No hay categorías asociadas.</p>
+              )}
+            </div>
+          )}
+        </form>
+      </div>
 
-                    <Button2
-                      title={tipoSeleccionado ? "Guardar cambios" : "Guardar tipo"}
-                      className="NeutralButton"
-                      onClick={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit}
+      <div className="p-4 border-t bg-white">
+      <div className="flex justify-between space-x-4">
+      <Button2
+            title={"Cancelar"}
+            className="NeutralButton"
+            onClick={() => setShowTipoForm(false)}
+          />
+          <Button2
+            title={tipoSeleccionado ? "Guardar cambios" : "Guardar tipo"}
+            className="NeutralButton"
+            onClick={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit}
+          />
+                 </div>
+      </div>
+    </div>
+  </div>
+)}
+
+        {showCategoriaForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+<div className="w-[380px] h-[430px] bg-white rounded-md shadow-lg relative flex flex-col">
+<div className="p-6 flex-1 overflow-auto">
+                <form onSubmit={handleCategoriaSubmit} className="space-y-4">
+                  <h1 className="text-lg font-semibold">
+                    Registrar Categoría
+                  </h1>
+                  <div>
+                    <Label htmlFor="descripcionCategoria">Descripción</Label>
+                    <Input
+                      id="descripcionCategoria"
+                      value={descripcionCategoria}
+                      onChange={(e) => setDescripcionCategoria(e.target.value)}
+                      required
                     />
-                    <Button2 title={"Cancelar"} className="NeutralButton" onClick={() => setShowTipoForm(false)}></Button2>
+                  </div>
+                  <div>
+                    <Label htmlFor="tipo">Tipo de Requerimiento</Label>
+                    <Select
+                      id="tipo"
+                      value={
+                        tipoSeleccionado
+                          ? {
+                              value: tipoSeleccionado.codigo,
+                              label: `${tipoSeleccionado.descripcion} (${tipoSeleccionado.codigo})`,
+                            }
+                          : null
+                      }
+                      onChange={(e) => {
+                        const selectedTipo = tipos.find(
+                          (tipo) => tipo.codigo === e?.value
+                        );
+                        setTipoSeleccionado(selectedTipo || null);
+                      }}
+                      options={tipos.map((tipo) => ({
+                        value: tipo.codigo,
+                        label: `${tipo.descripcion} (${tipo.codigo})`,
+                      }))}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          border: "1px solid black",
+                          backgroundColor: "white",
+                          borderRadius: "4px",
+                          padding: "1px 8px",
+                          height: "36px",
+                          width: "100%",
+                          justifyContent: "center",
+                        }),
+                        dropdownIndicator: (base) => ({
+                          ...base,
+                          color: "black",
+                        }),
+                        indicatorSeparator: (base) => ({
+                          ...base,
+                          backgroundColor: "black",
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          backgroundColor: "white",
+                          border: "1px solid black",
+                          maxHeight: "250px",
+                        }),
+                        option: (base, state) => ({
+                          ...base,
+                          backgroundColor: state.isSelected
+                            ? "#f0f0f0"
+                            : "white",
+                          color: "black",
+                        }),
+                      }}
+                      placeholder="Seleccionar tipo"
+                      required
+                    />
+                  </div>
                   </form>
-                </div>
-              </div>
-            </div>
-          )}
+                  </div>
+                  <div className="p-6 border-t">
+                  <div className="flex justify-between">
 
-          {showCategoriaForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-              <div className="w-full max-w-md bg-white rounded-md shadow-lg relative">
-                <div className="p-6">
-                  <form onSubmit={handleCategoriaSubmit} className="space-y-4">
-                    <h1 className="text-lg font-semibold">
-                      Registrar Categoría
-                    </h1>
-                    <div>
-                      <Label htmlFor="descripcionCategoria">Descripción</Label>
-                      <Input
-                        id="descripcionCategoria"
-                        value={descripcionCategoria}
-                        onChange={(e) => setDescripcionCategoria(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="tipo">Tipo de Requerimiento</Label>
-                      <Select
-                        id="tipo"
-                        value={
-                          tipoSeleccionado
-                            ? {
-                                value: tipoSeleccionado.codigo,
-                                label: `${tipoSeleccionado.descripcion} (${tipoSeleccionado.codigo})`,
-                              }
-                            : null
-                        }
-                        onChange={(e) => {
-                          const selectedTipo = tipos.find(
-                            (tipo) => tipo.codigo === e?.value
-                          );
-                          setTipoSeleccionado(selectedTipo || null);
-                        }}
-                        options={tipos.map((tipo) => ({
-                          value: tipo.codigo,
-                          label: `${tipo.descripcion} (${tipo.codigo})`,
-                        }))}
-                        styles={{
-                          control: (base) => ({
-                            ...base,
-                            border: "1px solid black",
-                            backgroundColor: "white",
-                            borderRadius: "4px",
-                            padding: "1px 8px",
-                            height: "36px",
-                            width: "100%",
-                            justifyContent: "center",
-                          }),
-                          dropdownIndicator: (base) => ({
-                            ...base,
-                            color: "black",
-                          }),
-                          indicatorSeparator: (base) => ({
-                            ...base,
-                            backgroundColor: "black",
-                          }),
-                          menu: (base) => ({
-                            ...base,
-                            backgroundColor: "white",
-                            border: "1px solid black",
-                            maxHeight: "250px",
-                          }),
-                          option: (base, state) => ({
-                            ...base,
-                            backgroundColor: state.isSelected
-                              ? "#f0f0f0"
-                              : "white",
-                            color: "black",
-                          }),
-                        }}
-                        placeholder="Seleccionar tipo"
-                        required
-                      />
-                    </div>
-                    <Button2 className="NeutralButton" onClick={handleCategoriaSubmit} title={"Guardar categoria"} />
-                    <Button2 title={"Cancelar"} className="NeutralButton" onClick={() => setShowCategoriaForm(false)}></Button2>
-                  </form>
-                </div>
-              </div>
+                        <Button2
+      title={"Cancelar"}
+      className="NeutralButton"
+      onClick={() => setShowCategoriaForm(false)}
+    />
+    <Button2
+      className="NeutralButton"
+      onClick={handleCategoriaSubmit}
+      title={"Guardar categoria"}
+    />
+  </div>
+              
             </div>
-          )}
-        </div>
+          </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,8 @@ import Button2 from "../../ui/Button2/Button2";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { User } from "../types/user";
 import Swal from "sweetalert2";
+import '../../../App.css';
+import { Eye, EyeOff } from "lucide-react";
 
 interface UserCreateFormProps {
   onSave: (user: User) => void;
@@ -25,7 +27,7 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
     username: "",
     password: "",
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -64,8 +66,8 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
-      <div className="w-full max-w-[800px] bg-white rounded-md shadow-lg relative">
-        <div className="p-6">
+  <div className="form-container">
+  <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4 mt-0">
             <div className="flex space-x-6">
               <div className="flex-1 space-y-4">
@@ -80,7 +82,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                   />
                 </div>
 
-                {/* Apellido */}
                 <div>
                   <Label htmlFor="apellido">Apellido</Label>
                   <Input
@@ -110,23 +111,7 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                     required
                   />
                 </div>
-                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="preferencia"
-                      checked={formData.preferencia}
-                      onCheckedChange={(checked) =>
-                        setFormData({
-                          ...formData,
-                          preferencia: checked as boolean,
-                        })
-                      }
-                      className="mt-1"
-                    />
-                    <Label htmlFor="preferencia" className="flex items-center mb-0">
-                      Preferencia
-                    </Label>
-                  </div>
-              </div>
+            </div>
 
               <div className="flex-1 space-y-4">
                 <div>
@@ -158,48 +143,73 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                 </div>
 
                 {/* Contraseña */}
-                <div>
+                <div className="relative">
                   <Label htmlFor="password">Contraseña</Label>
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
+                    className="pr-10"
                   />
+                   <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-[70%] right-3 transform -translate-y-1/2 flex items-center text-sm leading-5"
+                    >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
-            
-                 {/* botones alineados en extremos opuestos */}
-                 <div className="flex justify-end items-center mt-6">
-  {/* Botones a la derecha */}
-  <div className="flex space-x-4">
-  <Button2
-  title={"Cancelar"}
-  type="button"
-  onClick={async () => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: "Perderás los datos ingresados si cancelas.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, cancelar',
-      cancelButtonText: 'Volver',
-      customClass: {
-        confirmButton: 'CancelButton',
-        cancelButton: 'NeutralButton',
-      }
-    });
+                </div>
+                </div>
 
-    if (result.isConfirmed) {
-      onCancel(); 
-    }
-  }}
-  className={"NeutralButton"} 
-/>
-    <Button2 type={"submit"} title={"Guardar"} className={"NeutralButton"} />
-  </div>
-</div>
 
+             <div className="flex justify-between items-center mt-6">
+              {/* Preferencia */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="preferencia"
+                  checked={formData.preferencia}
+                  onCheckedChange={(checked) =>
+                    setFormData({
+                      ...formData,
+                      preferencia: checked as boolean,
+                    })
+                  }
+                  className="mt-1"
+                />
+                <Label htmlFor="preferencia" className="flex items-center mb-0">
+                  Preferencia
+                </Label>
+              </div>
+
+              {/* Botones */}
+              <div className="flex space-x-4">
+                <Button2
+                  title={"Cancelar"}
+                  type="button"
+                  onClick={async () => {
+                    const result = await Swal.fire({
+                      title: '¿Estás seguro?',
+                      text: "Perderás los datos ingresados si cancelas.",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Sí, cancelar',
+                      cancelButtonText: 'Volver',
+                      customClass: {
+                        confirmButton: 'CancelButton',
+                        cancelButton: 'NeutralButton',
+                      }
+                    });
+
+                    if (result.isConfirmed) {
+                      onCancel();
+                    }
+                  }}
+                  className={"NeutralButton"}
+                />
+                <Button2 type={"submit"} title={"Guardar"} className={"NeutralButton"} />
               </div>
             </div>
           </form>
