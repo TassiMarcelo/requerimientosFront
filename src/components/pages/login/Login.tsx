@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import Swal from 'sweetalert2';
 import { GrLogin } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
+import Button2 from '../../ui/Button2/Button2';
 
 
 export default function Login() {
@@ -89,7 +90,7 @@ export default function Login() {
             Authorization: `Bearer ${data.accessToken}`,
           },
         });
-        navigate("/gestionarUsuarios");
+        
         if (!adminResponse.ok) {
           throw new Error("Failed to fetch admin data");
         }
@@ -100,10 +101,12 @@ export default function Login() {
         if (adminData.data && adminData.data.username) {
           localStorage.setItem("userName", adminData.data.username);
           console.log("Admin guardado en localStorage:", adminData.data.username);
+          navigate("/gestionarUsuarios");
         } else {
           console.error("Admin no encontrado o username no disponible");
         }
       }
+      
     } catch (error) {
       console.error("Login error:", error);
       Swal.fire("Error", "Usuario o contraseña inválidos");
@@ -141,7 +144,7 @@ export default function Login() {
               <input type="checkbox" onChange={togglePasswordVisibility} />
               <label>Mostrar contraseña</label>
             </div>
-            <button type="button" className='loginButton' onClick={handleLogin}>Iniciar sesión</button>
+            <Button2 type={"button"} className='AcceptButton' title={"Iniciar sesión"} onClick={handleLogin}></Button2>
           </form>
         ) : (
           <form>

@@ -3,16 +3,8 @@ import { UserTable } from './user-table';
 import { useState, useEffect } from 'react';
 
 export default function Usuarios() {
-  const [userName, setUserName] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedUserName = localStorage.getItem("userName");
-    if (storedUserName) {
-      setUserName(storedUserName);
-    }
-
-  }, []);
-
+  const userName = localStorage.getItem("userName");
+  console.log("usuario es: " + userName);
   return (
 <div className="fixed inset-0 bg-black bg-opacity-70 z-9999 flex justify-center items-center">
 <div className="min-h-screen bg-[#E5E7EB] w-screen" style={{ borderTop: "none" }}>
