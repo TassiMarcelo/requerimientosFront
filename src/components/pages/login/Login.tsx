@@ -133,8 +133,8 @@ export default function Login() {
     <div className="box">
       <div className="form_container">
         {isLogin ? (
-          <form>
-<GrLogin className="w-11 h-11 mx-auto mb-4" />
+          <form onKeyDown={(e) => e.key === "Enter" && handleLogin()}>
+          <GrLogin className="w-11 h-11 mx-auto mb-4" />
 <input type="username" onChange={(e) => setloginUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
             <input ref={passwordRef} onChange={(e) => setloginPassword(e.target.value)} type="password" name="password" placeholder="Contraseña" required />
             <div className="showPasswordDiv">
