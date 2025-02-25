@@ -111,7 +111,43 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       if (!response.ok) {
         throw new Error("Error al eliminar el tipo de requerimiento");
       }
+      const categoriasAsociadas = categorias.filter(
+        (categoria) => categoria.codigoTipoRequerimiento === codigo
+      );
+      for (const categoria of categoriasAsociadas) {
+        console.log(`⏳ Desactivando categoría ID ${categoria.id}...`);
+        
+        const categoriaResponse = await fetch(
+          `http://localhost:8080/categRequerimientos/${categoria.id}/update`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              descripcion: categoria.descripcion,
+              codigoTipoRequerimiento: categoria.codigoTipoRequerimiento,
+              desactivado: true, // Aquí se desactiva
+            }),
+          }
+        );
+  
+        if (!categoriaResponse.ok) {
+          console.error(`❌ Error al desactivar la categoría ID ${categoria.id}`);
+        } else {
+          console.log(`✅ Categoría ID ${categoria.id} desactivada.`);
+        }
+      }
+      const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
+      if (!categoriasResponse.ok) {
+        throw new Error("Error al obtener las categorías actualizadas.");
+      }
+  
+      const categoriasData = await categoriasResponse.json();
+
       obtenerTiposActivos();
+      setCategorias(categoriasData.data);
+
     } catch (error) {
       console.error("Error al eliminar el tipo:", error);
     }
