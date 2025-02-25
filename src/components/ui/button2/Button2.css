@@ -1,15 +1,19 @@
 .Button2{
-    color:white;
-    border-radius: 0.3rem;
-    padding: 0.5rem;
-    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out; /* Smooth transition */
+    color: white;
+    font-size: 18px;
+    padding: 10px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease;
 }
 
 .CancelButton{
     background-color: rgb(108, 0, 0);
 }
 .AcceptButton{
-    background-color: rgb(0, 99, 2);
+    background-color: #006004;
 }
 
 .NeutralButton{
@@ -17,5 +21,6 @@
 }
 
 .Button2:hover{
-    background-color: black;
+    background-color: #e0e0e0;
+    color:black;
 }

@@ -696,9 +696,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                       className="NeutralButton"
                       onClick={tipoSeleccionado ? handleUpdateTipo : handleTipoSubmit}
                     />
-                    <Button type="button" onClick={() => setShowTipoForm(false)}>
-                      Cancelar
-                    </Button>
+                    <Button2 title={"Cancelar"} className="NeutralButton" onClick={() => setShowTipoForm(false)}></Button2>
                   </form>
                 </div>
               </div>
@@ -787,12 +785,7 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                       />
                     </div>
                     <Button2 className="NeutralButton" onClick={handleCategoriaSubmit} title={"Guardar categoria"} />
-                    <Button
-                      type="button"
-                      onClick={() => setShowCategoriaForm(false)}
-                    >
-                      Cancelar
-                    </Button>
+                    <Button2 title={"Cancelar"} className="NeutralButton" onClick={() => setShowCategoriaForm(false)}></Button2>
                   </form>
                 </div>
               </div>

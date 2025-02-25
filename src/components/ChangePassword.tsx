@@ -101,7 +101,7 @@ const ChangePassword = () => {
              />
           <label htmlFor="showPassword" className="text-sm text-gray-600">Mostrar contraseñas</label>
         </div>
-        <Button2 title={"Guardar"} onClick={handleSubmit} className={"NeutralButton"} />
+        <Button2 title={"Guardar"} onClick={handleSubmit} className={"AcceptButton"} />
       </form>
     </div>
     </div>
