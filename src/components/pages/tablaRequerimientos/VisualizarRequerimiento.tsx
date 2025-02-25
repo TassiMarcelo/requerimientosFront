@@ -38,7 +38,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
   const [modalDescripcionVisible, setModalDescripcionVisible] = useState<boolean>(false);
-
+  const [fechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
   const [asuntoForm, setAsuntoForm] = useState('')
   const [descripcionForm, setDescripcionForm] = useState('')
 
@@ -54,7 +54,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     {/* TODO cargar comentarios del back y llamar a la funcion agregarComentario() por cada comentario cargado (agregar parametros a esa funcion)*/}
     const cargarComentarios = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/comentarios/${requerimiento.codigo}/todos`);
+        const response = await fetch(`http://localhost:8080/comentarios/${requerimiento?.codigo}/todos`);
         if (!response.ok) {
           throw new Error("Error al obtener comentarios");
         }

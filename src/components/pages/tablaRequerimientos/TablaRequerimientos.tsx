@@ -5,6 +5,7 @@ import { VisualizarRequerimiento } from "./VisualizarRequerimiento";
 import { Requerimiento } from "../types/requerimiento";
 import UserMenu from "../../ui/UserMenu";
 import Button2 from "../../ui/Button2/Button2";
+import { log } from "console";
 
 // Función para formatear fechas
 const formatDate = (dateString: string) => {
@@ -101,7 +102,7 @@ export function TablaRequerimientos() {
 
         const data = await response.json();
         let requerimientos = data.data || [];
-
+        console.log("Data:",data)
         // Ordenar por fechaAlta
         requerimientos = requerimientos.sort((a, b) => {
           const dateA = new Date(a.fechaAlta.split('-').join('/'));
