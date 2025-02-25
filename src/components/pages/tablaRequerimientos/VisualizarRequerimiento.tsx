@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { useEffect } from "react";
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { User, FileText, Paperclip, Send, Download, X } from 'lucide-react'
 import { CrearRequerimiento } from './CrearRequerimiento'
@@ -7,11 +8,11 @@ import Button2 from '../../ui/Button2/Button2'
 
 interface Comentario {
   key:number
+  username: string
   fecha: string
   hora: string
-  usuario: string
-  titulo: string
-  mensaje: string
+  asunto: string
+  descripcion: string
   archivos: Array<{ nombre: string; tipo: string }>
 }
 
@@ -28,33 +29,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [nuevoComentario, setNuevoComentario] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [comentarios, setComentarios] = useState<Comentario[]>([
-    {
-      key:1,
-      fecha: '12/10/2024',
-      hora: '11:10',
-      usuario: 'd.ramon',
-      titulo: "que hacer?",
-      mensaje: 'archivo reh-1-ar1 mal ingresado',
-      archivos: []
-    },
-    {
-      key:2,
-      fecha: '12/10/2024',
-      hora: '11:41',
-      usuario: 'g.jorge',
-      titulo: "corregido",
-      mensaje: 'archivo reh-1-ar1 ya fue corregido.',
-      archivos: []
-    },
-    {
-      key:3,
-      fecha: '15/10/2024',
-      hora: '11:10',
-      usuario: 'd.ramon',
-      titulo: "gracias",
-      mensaje: 'perfecto, muchas gracias por todo',
-      archivos: []
-    }
   ])
   const [archivosNuevoComentario, setArchivosNuevoComentario] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -67,6 +41,54 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
   const [modalDetalleVisible, setModalDetalleVisible] = useState<boolean>(false);
 
+  const [asuntoForm, setAsuntoForm] = useState('')
+  const [descripcionForm, setDescripcionForm] = useState('')
+
+  const asuntoFormHandler = function(event){
+    setAsuntoForm(event.target.value);
+  }
+
+  const descriptionFormHandler = function(event){
+    setDescripcionForm(event.target.value);
+  }
+
+
+    {/* TODO cargar comentarios del back y llamar a la funcion agregarComentario() por cada comentario cargado (agregar parametros a esa funcion)*/}
+    const cargarComentarios = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/comentarios/ERR-2025-00000000004/todos");
+        if (!response.ok) {
+          throw new Error("Error al obtener comentarios");
+        }
+    
+        const data = await response.json(); // Convertir respuesta a JSON
+    
+        // Crear objetos Comentario y agregarlos a la lista
+        const nuevosComentarios = data.data.map((comentario) => ({
+          key: comentario.id,
+          username: comentario.username,
+          fecha: comentario.fecha,
+          hora: comentario.hora,
+          asunto: comentario.asunto,
+          descripcion: comentario.descripcion,
+          archivos: comentario.archivos.map((archivo) => ({
+            nombre: archivo.nombre || "Desconocido",
+            tipo: archivo.tipo || "Desconocido",
+          })),
+        }));
+    
+        // Agregar los comentarios al estado
+        setComentarios((prevComentarios) => [...prevComentarios, ...nuevosComentarios]);
+      } catch (error) {
+        console.error("Error al cargar comentarios:", error);
+      }
+    };
+  
+    useEffect(() => {
+      cargarComentarios();
+    }, []);
+
+    
   const opcionesTipo = [
     { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
     { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
@@ -127,57 +149,44 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario(prevFiles => prevFiles.filter((_, i) => i !== index))
   }
 
-  {/*todo agregar comentario*/}
   const agregarComentario = () => {
-    if (nuevoComentario.trim() === '') return
-
+    console.log("Agregando nuevo comentario...");
+    {/*TODO: Agregar archivos al comentario y mandarlos al back*/}
     const nuevoComentarioObj: Comentario = {
+      username: localStorage.getItem('userName'),
       fecha: new Date().toLocaleDateString('es-ES'),
       hora: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-      usuario: 'g.jorge',
-      mensaje: nuevoComentario,
+      asunto: asuntoForm,
+      descripcion: descripcionForm,
       archivos: archivosNuevoComentario.map(file => ({ nombre: file.name, tipo: file.type }))
     }
+    fetch(`http://localhost:8080/comentarios/${requerimiento.codigo}/agregar`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "asunto":  nuevoComentarioObj.asunto,
+          "descripcion": nuevoComentarioObj.descripcion,
+          "username": nuevoComentarioObj.username
+      })
+  })
+  .then(response => {
+      if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+      }
+      return response.json();
+  })
+  .then(data => console.log('Respuesta del servidor:', data))
+  .catch(error => console.error('Error en la solicitud:', error));
 
     setComentarios([...comentarios, nuevoComentarioObj])
+    setModalNuevoVisible(false);
     setNuevoComentario('')
     setArchivosNuevoComentario([])
   }
 
-  const comentarioNuevo = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("titulo", nuevoComentario.titulo);
-    formData.append("detalle", nuevoComentario.detalle);
-    formData.append("emisor", "Usuario Actual"); // Reemplázalo con el usuario autenticado real
-    nuevoComentario.archivosAdjuntos.forEach((archivo) => {
-      formData.append("archivosAdjuntos", archivo);
-    });
-      setNuevoComentario({ titulo: "", detalle: "", archivosAdjuntos: [] });
-      setModalNuevoVisible(false);
-      cargarComentarios();
-  };
-
-  const handleCerrarCaso = () => {
-    setIsConfirmCloseOpen(true) // Mostrar el pop-up de confirmación
-  }
-
-  const confirmarCerrarCaso = () => {
-    if (requerimiento) {
-      const requerimientoCerrado: Requerimiento = {
-        ...requerimiento,
-        estado: "Cerrado", // Cambiar el estado a "Cerrado"
-      };
-      const fecha = new Date();
-      const fechaFormateada = fecha.toLocaleDateString('es-ES'); // Formato de fecha en español
-      const horaFormateada = fecha.toLocaleTimeString('es-ES', { hour12: false }); // Hora en formato 24 horas  
-      setFechaCierre(`${fechaFormateada} ${horaFormateada}`);
-      onCerrarCaso(requerimientoCerrado); // Notificar al componente padre
-      onClose(); // Cerrar el diálogo
-    }
-    setIsConfirmCloseOpen(false); // Cerrar el pop-up de confirmación
-  }
   const cancelarNuevoComentarios = () => {
     setModalNuevoVisible(false); // Cerrar el pop-up de confirmación
   }
@@ -212,7 +221,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     return `${hours}:${minutes}`;
   };
   
-
+  
   return (
     <div>
     <>
@@ -327,7 +336,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                     <h2>Emisor</h2>
                     <h2>Fecha y Hora</h2>
                     <h2>Título</h2>
-                    <h2>Detalles</h2>
+                    <h2>Descripcion</h2>
                     <h2>Acciones</h2>
                   </div>
                   <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
@@ -336,19 +345,22 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                       <div key={index} className="border-b pb-4">
                         <div className="grid grid-cols-5 gap-4 items-start mb-2">
                           <div>
-                            <span className="font-semibold">{comentario.usuario}</span>
+                            <span className="font-semibold">{comentario.username}</span>
                           </div>
                           <div>
                             <span className="text-gray-500">{comentario.fecha} {comentario.hora}
                             </span>
                           </div>
                           <div>
-                            <span className="font-semibold">{comentario.titulo}</span>  
+                            <span>{comentario.asunto}</span>  
+                          </div>
+                          <div>
+                          <span>{comentario.descripcion}</span>  
                           </div>
                           <p className="text-gray-700 mb-2">
-                            {comentario.mensaje.length > 20
-                            ? comentario.mensaje.substring(0, 20)
-                            : comentario.mensaje}
+                            {comentario.descripcion.length > 20
+                            ? comentario.descripcion.substring(0, 20)
+                            : comentario.descripcion}
                           </p>
 
                           <Button2 onClick={() => mostrarDetalle(comentario)} className='AcceptButton' title={"Ver Detalles"}></Button2>
@@ -379,15 +391,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   </div>
                   <div className="border-t p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      
-                      <input
-                        type="text"
-                        value={nuevoComentario}
-                        onChange={(e) => setNuevoComentario(e.target.value)}
-                        placeholder="Escribir un comentario..."
-                        className="flex-1 p-2 border rounded-md"
-                      />
-                      
                       <Button2 onClick={() => setModalNuevoVisible(true)} className='AcceptButton' title={"Crear comentario nuevo"}></Button2>
                       
                     </div>
@@ -439,13 +442,13 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         
         {/* Etiqueta del usuario (colocada por debajo del panel) */}
         <div className="absolute -top-11 left-0 bg-[#B8D68F] text-black px-10 py-3 rounded-tl-lg rounded-tr-lg shadow z-[-1]">
-          <h1 className="text-xl font-bold">{comentarioSeleccionado.usuario}</h1>
+          <h1 className="text-xl font-bold">{comentarioSeleccionado.username}</h1>
         </div>
 
-        <h1 className="text-xl font-bold mt-0 pb-2 border-b">{comentarioSeleccionado.titulo}</h1>
+        <h1 className="text-xl font-bold mt-0 pb-2 border-b">{comentarioSeleccionado.asunto}</h1>
         <p className="text-gray-500 pt-2 ">{comentarioSeleccionado.fecha}</p>
         <p className="text-gray-500 pb-2 border-b">{comentarioSeleccionado.hora}</p>
-        <p className="text-gray-700 mt-4">{comentarioSeleccionado.mensaje}</p>
+        <p className="text-gray-700 mt-4">{comentarioSeleccionado.descripcion}</p>
         
         {comentarioSeleccionado.archivos.length > 0 && (
           <div className="mt-2">
@@ -484,32 +487,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         </div>
       </Dialog>
 
-
-      {isConfirmCloseOpen && (
-        <Dialog open={isConfirmCloseOpen} onClose={cancelarCerrarCaso} className="relative z-50">
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="bg-white p-6 rounded-lg max-w-sm w-full">
-              <h3 className="text-lg font-semibold">¿Estás seguro de cerrar el caso?</h3>
-              <div className="flex justify-between gap-4 mt-4">
-                <button
-                  onClick={confirmarCerrarCaso}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                >
-                  Sí
-                </button>
-                <button
-                  onClick={cancelarCerrarCaso}
-                  className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  No
-                </button>
-              </div>
-            </Dialog.Panel>
-          </div>
-        </Dialog>
-      )}
-
 {modalNuevoVisible && (
  <Dialog open={modalNuevoVisible} onClose={cerrarModalNuevo} className="relative z-50">
  {/* Fondo oscuro */}
@@ -526,13 +503,17 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       <input
         type="text"
         placeholder="Título"
+        value={asuntoForm}
+        onChange={asuntoFormHandler}
         className="w-full flex-1 p-2 border rounded-md"
       />
     </div>
     <div>
-      <label className="block font-medium pt-2 pl-1">Detalles</label>
+      <label className="block font-medium pt-2 pl-1">Descripcion</label>
       <textarea
-        placeholder="Detalles"
+        placeholder="Descripcion"
+        onChange={descriptionFormHandler}
+        value={descripcionForm}
         className="w-full h-32 p-2 border rounded-md resize-none text-left align-top"
       ></textarea>
     </div>
