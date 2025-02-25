@@ -593,17 +593,15 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
 
           <div className="flex justify-between mt-4">
             <div className="flex space-x-2">
-              <Button onClick={() => {
+              <Button2 onClick={() => {
                 setDescripcionTipo("");
                 setCodigo("");
                 setTipoSeleccionado(null);
                 setShowTipoForm(true);
-              }}>+ Tipo</Button>
-              <Button onClick={() => setShowCategoriaForm(true)}>
-                + Categoría
-              </Button>
+              }} title={"+ Tipo"} className="NeutralButton"></Button2>
+              <Button2 onClick={() => setShowCategoriaForm(true)} title={"+ Categoría"} className="NeutralButton"></Button2>
             </div>
-            <Button onClick={onClose}>Cerrar</Button>
+            <Button2 onClick={onClose} title={"Cerrar"} className="NeutralButton"></Button2>
           </div>
 
           {showTipoForm && (
