@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { User } from "../types/user";
 import Swal from "sweetalert2";
 import '../../../App.css';
+import { Eye, EyeOff } from "lucide-react";
 
 interface UserCreateFormProps {
   onSave: (user: User) => void;
@@ -26,7 +27,7 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
     username: "",
     password: "",
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -142,15 +143,23 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                 </div>
 
                 {/* Contraseña */}
-                <div>
+                <div className="relative">
                   <Label htmlFor="password">Contraseña</Label>
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
+                    className="pr-10"
                   />
+                   <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-[70%] right-3 transform -translate-y-1/2 flex items-center text-sm leading-5"
+                    >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
                 </div>
                 </div>

@@ -104,7 +104,8 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           customClass: {
             confirmButton: 'CancelButton', 
             cancelButton: 'NeutralButton' 
-          }
+          },
+          backdrop: 'rgba(0, 0, 0, 0.90)',
         });
         if (!result.isConfirmed) {
           return; 
@@ -224,9 +225,10 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
       cancelButtonText: 'Cancelar',
       customClass: {
         confirmButton: 'CancelButton', 
-        cancelButton: 'NeutralButton' 
-      }
-    });
+        cancelButton: 'NeutralButton'
+      },
+      backdrop: 'rgba(0, 0, 0, 0.90)',
+        });
     if (!result.isConfirmed) {
       return; 
     }
