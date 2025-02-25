@@ -37,7 +37,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
-  const [modalDetalleVisible, setModalDetalleVisible] = useState<boolean>(false);
+  const [modalDescripcionVisible, setModalDescripcionVisible] = useState<boolean>(false);
 
   const [asuntoForm, setAsuntoForm] = useState('')
   const [descripcionForm, setDescripcionForm] = useState('')
@@ -86,13 +86,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       cargarComentarios();
     }, []);
 
-    
-  const opcionesTipo = [
-    { value: 'hardware', label: 'Requerimiento de Hardware', codigo: 'REH' },
-    { value: 'software', label: 'Requerimiento de Software', codigo: 'RES' },
-    { value: 'error', label: 'Error', codigo: 'EER' },
-    { value: 'operativo', label: 'Gestión Operativa', codigo: 'GOP' },
-  ]
   if (!requerimiento) return null
   
   const handleFileAction = async (archivo: { id: number; nombre: string; tipo: string }) => {
@@ -123,10 +116,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       console.error("Error al intentar descargar el archivo:", error);
     }
   }
-  
-  
-
-  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -184,13 +173,13 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     setArchivosNuevoComentario([])
   }
 
-  const mostrarDetalle = (comentario: Comentario) => {
+  const mostrarDescripcion = (comentario: Comentario) => {
     setComentarioSeleccionado(comentario);
-    setModalDetalleVisible(true);
+    setModalDescripcionVisible(true);
   };
 
-  const cerrarModalDetalle = () => {
-    setModalDetalleVisible(false);
+  const cerrarModalDescripcion = () => {
+    setModalDescripcionVisible(false);
     setComentarioSeleccionado(null);
   };
 
@@ -324,7 +313,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                   <div className="grid grid-cols-5 gap-4 border-b pb-2 p-4 max-h-[300px] overflow-y-auto">
                     <h2>Emisor</h2>
                     <h2>Fecha y Hora</h2>
-                    <h2>Título</h2>
+                    <h2>Asunto</h2>
                     <h2>Descripcion</h2>
                     <h2>Acciones</h2>
                   </div>
@@ -352,7 +341,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                             : comentario.descripcion}
                           </p>
 
-                          <Button2 onClick={() => mostrarDetalle(comentario)} className='AcceptButton' title={"Ver Detalles"}></Button2>
+                          <Button2 onClick={() => mostrarDescripcion(comentario)} className='AcceptButton' title={"Ver Descripcion"}></Button2>
                           
                         </div>
                         
@@ -419,9 +408,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
               </div>
             </div>
-          {/* Modal para Ver Detalle */}
-          {modalDetalleVisible && comentarioSeleccionado && (
-  <Dialog open={modalDetalleVisible} onClose={cerrarModalDetalle} className="relative z-50">
+          {/* Modal para Ver Descripcion */}
+          {modalDescripcionVisible && comentarioSeleccionado && (
+  <Dialog open={modalDescripcionVisible} onClose={cerrarModalDescripcion} className="relative z-50">
     {/* Fondo oscuro */}
     <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
     <div className="fixed inset-0 flex flex-col items-center justify-center p-4">
@@ -456,7 +445,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
             </div>
           </div>
         )}
-        <Button2 onClick={cerrarModalDetalle} className='NeutralButton' title={"Cerrar"}></Button2>
+        <Button2 onClick={cerrarModalDescripcion} className='NeutralButton' title={"Cerrar"}></Button2>
       </Dialog.Panel>
     </div>
   </Dialog>
@@ -485,10 +474,10 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     
     <form action=""></form>
     <div>
-      <label className="block font-medium pl-1">Título</label>
+      <label className="block font-medium pl-1">Asunto</label>
       <input
         type="text"
-        placeholder="Título"
+        placeholder="Asunto"
         value={asuntoForm}
         onChange={asuntoFormHandler}
         className="w-full flex-1 p-2 border rounded-md"
