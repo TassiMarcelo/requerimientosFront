@@ -12,6 +12,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 interface TipoRequerimiento {
   descripcion: string;
   codigo: string;
+  desactivado: boolean;
 }
 
 interface CategoriaRequerimiento {
@@ -261,15 +262,68 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
     }
   };
 
-  const handleTipoSubmit = async (e: React.FormEvent) => {
+  const handleTipoSubmit = async (e: React.FormEvent) => { 
     e.preventDefault();
-
+  
     if (!descripcionTipo.trim() || !codigo.trim()) {
       setErrorMessage("Todos los campos son obligatorios para registrar tipo.");
       return;
     }
-
+  
     try {
+       const tiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/getAll");  
+      if (!tiposResponse.ok) {
+        throw new Error("Error al obtener los tipos de requerimiento.");
+      }
+      const tiposData = await tiposResponse.json();
+  
+      const tipoExistente = tiposData.data.find(
+        (tipo) => tipo.codigo.toLowerCase() === codigo.toLowerCase()
+      );
+  
+  
+      if (tipoExistente) {
+        if (!tipoExistente.desactivado) {
+          alert("Ya existe un tipo de requerimiento con este código.");
+          return;
+        } else {
+          const reactivarResponse = await fetch(
+            `http://localhost:8080/tiposRequerimientos/${codigo}/reactivar`,
+            { method: "PATCH" }
+          );
+  
+          if (!reactivarResponse.ok) {
+            throw new Error("Error al reactivar el tipo de requerimiento.");
+          }
+  
+          const updateResponse = await fetch(
+            `http://localhost:8080/tiposRequerimientos/${codigo}/updateTipo`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ descripcion: descripcionTipo, codigo }),
+            }
+          );
+  
+          if (!updateResponse.ok) {
+            throw new Error("Error al actualizar la descripción del tipo.");
+          }
+  
+          const nuevosTiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/false/todos");
+          if (!nuevosTiposResponse.ok) {
+            throw new Error("Error al obtener los tipos actualizados.");
+          }
+          const nuevosTiposData = await nuevosTiposResponse.json();
+  
+          setTipos(nuevosTiposData.data);
+          setDescripcionTipo("");
+          setCodigo("");
+          setShowTipoForm(false);
+          setErrorMessage("");
+          return;
+        }
+      }
+  
       const response = await fetch(
         "http://localhost:8080/tiposRequerimientos/agregar",
         {
@@ -284,69 +338,64 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           }),
         }
       );
-
+  
+  
       if (!response.ok) {
         throw new Error("Error al crear el tipo de requerimiento.");
       }
-
-      const responseText = await response.text();
-      if (!responseText) {
-        const tipoConId = {
-          id: Date.now(),
-          descripcion: descripcionTipo,
-          codigo,
-          categoriaRequerimiento: [],
-        };
-        setTipos((prevTipos) => [...prevTipos, tipoConId]);
-        setDescripcionTipo("");
-        setCodigo("");
-        setShowTipoForm(false);
-        setErrorMessage("");
-        return;
+  
+      const nuevosTiposResponse = await fetch("http://localhost:8080/tiposRequerimientos/false/todos");
+      if (!nuevosTiposResponse.ok) {
+        throw new Error("Error al obtener los tipos actualizados.");
       }
-
-      const newTipo = JSON.parse(responseText);
-
-      const tipoConId = newTipo?.id
-        ? newTipo
-        : {
-            id: Date.now(),
-            descripcion: descripcionTipo,
-            codigo,
-            categoriaRequerimiento: [],
-          };
-
-      setTipos((prevTipos) => [...prevTipos, tipoConId]);
-
+      const nuevosTiposData = await nuevosTiposResponse.json();
+  
+      setTipos(nuevosTiposData.data);
       setDescripcionTipo("");
       setCodigo("");
       setShowTipoForm(false);
       setErrorMessage("");
     } catch (error) {
-    alert("Error, tipo.codigo repetido");
+      console.error("Error al crear o actualizar el tipo:", error);
+      alert("Error, tipo.codigo repetido");
     }
   };
-
+  
   const handleCategoriaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!descripcionCategoria.trim() || tipoSeleccionado === null) {
-      setErrorMessage(
-        "Todos los campos son obligatorios para registrar categoría."
-      );
+      setErrorMessage("Todos los campos son obligatorios para registrar categoría.");
       return;
     }
-    const categoriaExistente = categorias.find(
-      (categoria) =>
-        categoria.descripcion.toLowerCase() === descripcionCategoria.toLowerCase() &&
-        categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
-    );
-    if (categoriaExistente) {
-      if (!categoriaExistente.desactivado) {
-        alert("Ya existe una categoría con esta descripción dentro de este tipo.");
-        return;
-      } else {
-        try {
+  
+    try {
+      // Obtener TODAS las categorías (activas e inactivas)
+      const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
+      if (!categoriasResponse.ok) {
+        throw new Error("Error al obtener las categorías.");
+      }
+      const categoriasData = await categoriasResponse.json();
+      
+      console.log("Lista completa de categorías:", categoriasData.data);
+  
+      // Buscar si la categoría ya existe, aunque esté desactivada
+      const categoriaExistente = categoriasData.data.find(
+        (categoria) =>
+          categoria.descripcion.toLowerCase() === descripcionCategoria.toLowerCase() &&
+          categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
+      );
+  
+      console.log("Categoría encontrada en el backend:", categoriaExistente);
+  
+      if (categoriaExistente) {
+        if (!categoriaExistente.desactivado) {
+          alert("Ya existe una categoría activa con esta descripción dentro de este tipo.");
+          return;
+        } else {
+          console.log("Reactivando categoría:", categoriaExistente.id);
+  
+          // Reactivar la categoría estableciendo `desactivado: false`
           const response = await fetch(
             `http://localhost:8080/categRequerimientos/${categoriaExistente.id}/update`,
             {
@@ -355,36 +404,36 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-              descripcion: categoriaExistente.descripcion,
-              codigoTipoRequerimiento: categoriaExistente.codigoTipoRequerimiento,
-              desactivado: false, 
+                descripcion: categoriaExistente.descripcion,
+                codigoTipoRequerimiento: categoriaExistente.codigoTipoRequerimiento,
+                desactivado: false,
               }),
             }
           );
   
           if (!response.ok) {
-            throw new Error("Error al activar la categoría.");
+            throw new Error("Error al reactivar la categoría.");
           }
   
-          setCategorias((prevCategorias) =>
-            prevCategorias.map((categoria) =>
-              categoria.id === categoriaExistente.id ? { ...categoria, desactivado: false } : categoria
-            )
-          );
+          console.log("Obteniendo lista actualizada de categorías...");
+          const nuevasCategoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
+          if (!nuevasCategoriasResponse.ok) {
+            throw new Error("Error al obtener las categorías actualizadas.");
+          }
+          const nuevasCategoriasData = await nuevasCategoriasResponse.json();
+          console.log("Lista actualizada de categorías:", nuevasCategoriasData.data);
+  
+          setCategorias(nuevasCategoriasData.data);
           setDescripcionCategoria("");
           setTipoSeleccionado(null);
           setShowCategoriaForm(false);
           setErrorMessage("");
           return;
-        } catch (error) {
-          console.error("Error al activar la categoría:", error);
-          setErrorMessage("Ocurrió un error al activar la categoría.");
-          return;
         }
       }
-    }
   
-    try {
+      // Si no existe, crear una nueva
+      console.log("Creando nueva categoría...");
       const response = await fetch(
         "http://localhost:8080/categRequerimientos/agregar",
         {
@@ -399,47 +448,30 @@ export function CategoriaForm({ onClose }: CategoriaFormProps) {
           }),
         }
       );
-
+  
       if (!response.ok) {
         throw new Error("Error al crear la categoría.");
       }
-
-      const responseText = await response.text();
-      if (!responseText) {
-        setDescripcionCategoria("");
-        setTipoSeleccionado(null);
-        setShowCategoriaForm(false);
-        return;
+  
+      console.log("Obteniendo lista de categorías después de crear...");
+      const nuevasCategoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
+      if (!nuevasCategoriasResponse.ok) {
+        throw new Error("Error al obtener las categorías actualizadas.");
       }
-
-      const categoriasResponse = await fetch("http://localhost:8080/categRequerimientos/todas");
-      if (!categoriasResponse.ok) {
-        throw new Error("Error al obtener las categorías.");
-      }
-      const categoriasData = await categoriasResponse.json();
-      const nuevaCategoria = categoriasData.data.find(
-        (categoria) =>
-          categoria.descripcion === descripcionCategoria &&
-          categoria.codigoTipoRequerimiento === tipoSeleccionado.codigo
-      );
-
-      if (!nuevaCategoria) {
-        throw new Error("No se pudo encontrar la categoría recién creada.");
-      }
-      setCategorias((prevCategorias) => [
-        ...prevCategorias,
-        nuevaCategoria,
-      ]);
-
+      const nuevasCategoriasData = await nuevasCategoriasResponse.json();
+      console.log("Lista de categorías actualizada:", nuevasCategoriasData.data);
+  
+      setCategorias(nuevasCategoriasData.data);
       setDescripcionCategoria("");
       setTipoSeleccionado(null);
       setShowCategoriaForm(false);
       setErrorMessage("");
     } catch (error) {
-      console.error("Error al crear la categoría:", error);
-      setErrorMessage("Ocurrió un error al crear la categoría.");
+      console.error("Error al crear o actualizar la categoría:", error);
+      setErrorMessage("Ocurrió un error al crear o actualizar la categoría.");
     }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
