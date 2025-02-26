@@ -116,6 +116,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
       const result = await response.json();
       console.log("Archivo subido con éxito:", result);
+      onCrear(result.data);
       Swal.close()
       Swal.fire({
         title: "Éxito",
