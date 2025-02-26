@@ -1,7 +1,7 @@
 import './Login.css'
 import React, { useState, useRef } from "react";
 import Swal from 'sweetalert2';
-import { GrLogin } from "react-icons/gr";
+import { GrLogin, GrLogout } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import Button2 from '../../ui/Button2/Button2';
 import { Eye, EyeOff } from "lucide-react"; 
@@ -130,7 +130,7 @@ export default function Login() {
       <div className="form_container">
         {isLogin ? (
           <form onKeyDown={(e) => e.key === "Enter" && handleLogin()}>
-          <GrLogin className="w-11 h-11 mx-auto mb-4" />
+          <img src='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.iconsdb.com%2Ficons%2Fpreview%2Fgreen%2Fclipboard-8-xxl.png&f=1&nofb=1&ipt=2248e1d7ac2b2f21a80a5c1b0a7edabd4d486d3cb965664252f970b1315459bd&ipo=images' className='w-20 h-25 mx-auto mb-4'></img>
 <input type="username" onChange={(e) => setloginUsername(e.target.value)} name="username" placeholder="Nombre de usuario" required />
 <div className="relative">
 
