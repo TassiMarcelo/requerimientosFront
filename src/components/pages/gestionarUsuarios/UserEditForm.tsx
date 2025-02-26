@@ -153,11 +153,11 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                     <Input
                       id="cuil"
                       value={formData.cuil}
+                      disabled
                       onChange={(e) =>
                         setFormData({ ...formData, cuil: e.target.value })
                       }
-                      required
-                    />
+                      className="disabled:bg-gray-400 disabled:text-black"/>
                   </div>
                  
                 </div>
@@ -194,8 +194,8 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                       onChange={(e) =>
                         setFormData({ ...formData, username: e.target.value })
                       }
-                      required
-                    />
+                      disabled
+                      className="disabled:bg-gray-400 disabled:text-black"/>
                   </div>
 
                   <div>
