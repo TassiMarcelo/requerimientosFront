@@ -21,12 +21,26 @@ const ChangePassword = () => {
     }
   };
 
+  const validatePassword = (password: string) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    return regex.test(password);
+  };
+
   const handleSubmit = async () => {
     if (newPassword !== confirmPassword) {
       Swal.fire("Error", "Las contraseñas no coinciden", "error");
       return;
     }
   
+    if (!validatePassword(newPassword)) {
+      Swal.fire(
+        "Error",
+        "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+        "error"
+      );
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:8080/usuarios/${username}/updatePassword`, {
         method: "PATCH",  
