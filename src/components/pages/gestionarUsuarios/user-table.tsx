@@ -172,7 +172,7 @@ export function UserTable() {
 
       {showCategoriasForm && <CategoriaForm onClose={handleCloseCategoriasForm} />}
 
-      <div className="rounded-md border border-black">
+      <div className="rounded-md border border-black max-h-[500px] overflow-y-auto">
         <Table>
           <TableHeader>
             <TableRow>
