@@ -354,14 +354,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
               </div>
 
-
-  
-              {/* Sección de comentarios */}
               <div className="mt-6">
-                <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
-                  Comentarios
-                </label>
-                
                 <div className="mt-6">
                   <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                     Comentarios

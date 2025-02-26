@@ -228,7 +228,7 @@ export function TablaRequerimientos() {
         <div className="flex flex-wrap items-center gap-4 mb-6 w-full">
           <Select
             className="w-64 h-[34px]"
-            value={tipos.find(t => t.value === filtros.tipo)}
+            value={tipos.find(t => t.value === filtros.tipo) || null}
             onChange={handleTipoChange}
             options={tipos}
             placeholder="Tipo"
@@ -238,7 +238,7 @@ export function TablaRequerimientos() {
 
           <Select
             className="w-64 h-[34px]"
-            value={categoriasFiltradas.find(c => c.value === filtros.categoria)}
+            value={categoriasFiltradas.find(c => c.value === filtros.categoria) || null}
             onChange={handleCategoriaChange}
             options={categoriasFiltradas}
             placeholder="Categoría"
@@ -249,7 +249,7 @@ export function TablaRequerimientos() {
 
           <Select
             className="w-64 h-[34px]"
-            value={estadosOpciones.find(e => e.value === filtros.estado)}
+            value={estadosOpciones.find(e => e.value === filtros.estado) || null}
             onChange={handleEstadoChange}
             options={estadosOpciones}
             placeholder="Estado"
@@ -259,7 +259,7 @@ export function TablaRequerimientos() {
 
           <Select
             className="w-64 h-[34px]"
-            value={prioridadesOpciones.find(p => p.value === filtros.prioridad)}
+            value={prioridadesOpciones.find(p => p.value === filtros.prioridad) || null}
             onChange={handlePrioridadChange}
             options={prioridadesOpciones}
             placeholder="Prioridad"

@@ -44,9 +44,25 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
   const [selectedOption, setSelectedOption] = useState<{ value: string; label: string }[]>([]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setNuevoRequerimiento({
+        codigo: "",
+        prioridad: "",
+        tipo: "",
+        categoria: "",
+        fechaAlta: "",
+        estado: "Abierto",
+        asunto: "",
+        propietario: "",
+        descripcion: "",
+        archivos: [],
+      });
+      setArchivos([]);
+      setSelectedOption([]);
+    }
+  }, [isOpen]);
 
-
-  // Cargar tipos y categorías
   useEffect(() => {
     const cargarTipos = async () => {
       try {
@@ -72,9 +88,9 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     Swal.fire({
       title: 'Cargando...',
       text: 'Por favor, espera un momento.',
-      allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+      allowOutsideClick: false,
       didOpen: () => {
-        Swal.showLoading(); // Muestra el spinner de carga
+        Swal.showLoading(); 
       },
     });
     const jsonData = {
@@ -91,9 +107,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       codigoRequerimientoRelacionado: selectedOption.map(option => option.value) // Mapping all values
     };
     
-  
-    console.log(jsonData);
-    // Crear un Blob y convertirlo en un File
     const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: "application/json" });
     const jsonFile = new File([jsonBlob], "datos.json", { type: "application/json" });
 
@@ -101,10 +114,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     for(const arch of archivos){
       formData.append("archivos", arch);
     }
-  
-    // Crear FormData para enviarlo
-    
-    formData.append("requerimientoDTO", jsonFile); // El backend debe esperar una clave "file"
+    formData.append("requerimientoDTO", jsonFile);
   
     try {
       const response = await fetch("http://localhost:8080/requerimientos/agregar", {
@@ -115,7 +125,7 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       if (!response.ok) throw new Error("Error al subir el archivo");
 
       const result = await response.json();
-      console.log("Archivo subido con éxito:", result);
+      onCrear(result.data);
       Swal.close()
       Swal.fire({
         title: "Éxito",
@@ -127,7 +137,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
         }
       });
       onClose();
-      // cerrar req
     } catch (error) {
       console.error("Error:", error);
       Swal.close();
