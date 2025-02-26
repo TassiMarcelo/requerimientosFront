@@ -31,8 +31,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [archivosNuevoComentario, setArchivosNuevoComentario] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  
-  
 
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
@@ -51,46 +49,46 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
 
     {/* TODO cargar comentarios del back y llamar a la funcion agregarComentario() por cada comentario cargado (agregar parametros a esa funcion)*/}
-    const cargarComentarios = async () => {
-  try {
-    const response = await fetch(`http://localhost:8080/comentarios/${requerimiento?.codigo}/todos`);
-    if (!response.ok) {
-      throw new Error("Error al obtener comentarios");
+  const cargarComentarios = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/comentarios/${requerimiento?.codigo}/todos`);
+      if (!response.ok) {
+        throw new Error("Error al obtener comentarios");
+      }
+
+      const data = await response.json(); // Convertir respuesta a JSON
+
+      // Verifica la estructura de los datos devueltos
+      console.log("Datos recibidos del backend:", data);
+
+      // Crear objetos Comentario y agregarlos a la lista
+      const nuevosComentarios = data.data.map((comentario) => ({
+        key: comentario.id,
+        username: comentario.username,
+        fecha: comentario.fecha,
+        hora: comentario.hora,
+        asunto: comentario.asunto,
+        descripcion: comentario.descripcion,
+        archivos: comentario.archivos.map((archivo) => ({
+          id: archivo.id, // Asegúrate de que el ID del archivo esté presente
+          nombre: archivo.nombre || "Desconocido",
+          tipo: archivo.tipo || "Desconocido",
+        })),
+      }));
+
+      // Agregar los comentarios al estado
+      setComentarios(nuevosComentarios);
+    } catch (error) {
+      console.error("Error al cargar comentarios:", error);
     }
-
-    const data = await response.json(); // Convertir respuesta a JSON
-
-    // Verifica la estructura de los datos devueltos
-    console.log("Datos recibidos del backend:", data);
-
-    // Crear objetos Comentario y agregarlos a la lista
-    const nuevosComentarios = data.data.map((comentario) => ({
-      key: comentario.id,
-      username: comentario.username,
-      fecha: comentario.fecha,
-      hora: comentario.hora,
-      asunto: comentario.asunto,
-      descripcion: comentario.descripcion,
-      archivos: comentario.archivos.map((archivo) => ({
-        id: archivo.id, // Asegúrate de que el ID del archivo esté presente
-        nombre: archivo.nombre || "Desconocido",
-        tipo: archivo.tipo || "Desconocido",
-      })),
-    }));
-
-    // Agregar los comentarios al estado
-    setComentarios(nuevosComentarios);
-  } catch (error) {
-    console.error("Error al cargar comentarios:", error);
-  }
-};
+  };
   
-useEffect(() => {
-  if (isOpen && requerimiento) {
-    cargarComentarios();
-  }
-}, [isOpen, requerimiento]);
-
+  useEffect(() => {
+    if (isOpen && requerimiento) {
+      cargarComentarios();
+    }
+  }, [isOpen, requerimiento]);
+  
   if (!requerimiento) return null
   
   const handleFileAction = async (archivo: { id: number; nombre: string; tipo: string }) => {
@@ -101,7 +99,7 @@ useEffect(() => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Si necesitas pasar un token de autenticación
         }
       });
-  
+      
       if (!response.ok) {
         throw new Error('Error al descargar el archivo');
       }
@@ -179,6 +177,7 @@ useEffect(() => {
   
       const data = await response.json();
       console.log("Respuesta del servidor:", data);
+      const archivos = data.data.archivos || [];
   
       // Actualizar la lista de comentarios
       const nuevoComentarioObj = {
@@ -191,7 +190,7 @@ useEffect(() => {
         }),
         asunto: asuntoForm,
         descripcion: descripcionForm,
-        archivos: data.data.archivos.map((archivo) => ({
+        archivos: archivos.map((archivo) => ({
           id: archivo.id, // Usar el ID devuelto por el backend
           nombre: archivo.nombre,
           tipo: archivo.tipo,
