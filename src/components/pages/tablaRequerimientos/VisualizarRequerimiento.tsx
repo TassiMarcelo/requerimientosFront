@@ -35,7 +35,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   const [comentarioSeleccionado, setComentarioSeleccionado] = useState(null);
   const [modalNuevoVisible, setModalNuevoVisible] = useState<boolean>(false);
   const [modalDescripcionVisible, setModalDescripcionVisible] = useState<boolean>(false);
-  const [fechaCierre] = useState<string | null>(null) // Estado para la fecha de cierre
+  const [fechaCierre] = useState<string | null>(null)  
   const [asuntoForm, setAsuntoForm] = useState('')
   const [descripcionForm, setDescripcionForm] = useState('')
 
@@ -48,7 +48,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   }
 
 
-    {/* TODO cargar comentarios del back y llamar a la funcion agregarComentario() por cada comentario cargado (agregar parametros a esa funcion)*/}
   const cargarComentarios = async () => {
     try {
       const response = await fetch(`http://localhost:8080/comentarios/${requerimiento?.codigo}/todos`);
@@ -56,12 +55,10 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         throw new Error("Error al obtener comentarios");
       }
 
-      const data = await response.json(); // Convertir respuesta a JSON
+      const data = await response.json(); 
 
-      // Verifica la estructura de los datos devueltos
       console.log("Datos recibidos del backend:", data);
 
-      // Crear objetos Comentario y agregarlos a la lista
       const nuevosComentarios = data.data.map((comentario) => ({
         key: comentario.id,
         username: comentario.username,
@@ -70,13 +67,12 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         asunto: comentario.asunto,
         descripcion: comentario.descripcion,
         archivos: comentario.archivos.map((archivo) => ({
-          id: archivo.id, // Asegúrate de que el ID del archivo esté presente
+          id: archivo.id, 
           nombre: archivo.nombre || "Desconocido",
           tipo: archivo.tipo || "Desconocido",
         })),
       }));
 
-      // Agregar los comentarios al estado
       setComentarios(nuevosComentarios);
     } catch (error) {
       console.error("Error al cargar comentarios:", error);
@@ -96,7 +92,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       const response = await fetch(`http://localhost:8080/archivos/archivo/descargar/${archivo.id}`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Si necesitas pasar un token de autenticación
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
       });
       
@@ -104,16 +100,15 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         throw new Error('Error al descargar el archivo');
       }
   
-      const blob = await response.blob(); // Obtener el archivo como Blob
-      const link = document.createElement('a'); // Crear el enlace para descarga
-      const url = window.URL.createObjectURL(blob); // Crear un URL del Blob
+      const blob = await response.blob(); 
+      const link = document.createElement('a'); 
+      const url = window.URL.createObjectURL(blob); 
       link.href = url;
-      link.download = archivo.nombre; // Establecer el nombre del archivo
+      link.download = archivo.nombre; 
       document.body.appendChild(link);
-      link.click(); // Hacer clic para iniciar la descarga
-      document.body.removeChild(link); // Limpiar el DOM
+      link.click(); 
+      document.body.removeChild(link);
   
-      // Liberar el objeto URL
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error al intentar descargar el archivo:", error);
@@ -144,9 +139,9 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       asunto: asuntoForm,
       descripcion: descripcionForm,
       username: localStorage.getItem('userName') || '',
-      fecha: new Date().toISOString().split("T")[0], // YYYY-MM-DD
-      hora: new Date().toISOString().split("T")[1].split(".")[0], // HH:mm:ss
-      archivos: [] // No se envían aquí los archivos, van aparte en FormData
+      fecha: new Date().toISOString().split("T")[0], 
+      hora: new Date().toISOString().split("T")[1].split(".")[0],
+      archivos: [] 
     };
   
     const formData = new FormData();
@@ -179,7 +174,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
       console.log("Respuesta del servidor:", data);
       const archivos = data.data.archivos || [];
   
-      // Actualizar la lista de comentarios
       const nuevoComentarioObj = {
         key: data.data.id,
         username: localStorage.getItem("userName") || "",
@@ -191,7 +185,7 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
         asunto: asuntoForm,
         descripcion: descripcionForm,
         archivos: archivos.map((archivo) => ({
-          id: archivo.id, // Usar el ID devuelto por el backend
+          id: archivo.id,
           nombre: archivo.nombre,
           tipo: archivo.tipo,
         })),
@@ -272,7 +266,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
     </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Columna izquierda */}
                 <div className="space-y-4">
                   <div className="grid gap-4">
                   <LabeledField label="Código" value={requerimiento.codigo} noTopLeftRounded />
@@ -292,7 +285,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
                 
 
-                {/* Columna derecha */}
                 <div className="space-y-4">
                   <LabeledField label="Propietario" value={requerimiento.propietario?  
                     `${requerimiento.propietario?.nombre} ${requerimiento.propietario?.apellido}` : <span className="text-gray-500">Ningún propietario asociado</span>} 
@@ -356,14 +348,12 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
 
 
   
-              {/* Sección de comentarios */}
               <div className="mt-6">
                 <div className="mt-6">
                   <label className="bg-[#B8D68F] text-black px-4 py-2 inline-block rounded-tl-lg rounded-tr-lg">
                     Comentarios
                   </label>
                   <div className="w-full border-2 rounded-lg rounded-tl-none bg-white">
-                    {/* Encabezados de la tabla */}
                     <div className="grid grid-cols-6 gap-4 border-b pb-2 p-4">
                       <h2>Emisor</h2>
                       <h2>Fecha</h2>
@@ -372,7 +362,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                       <h2>Descripción</h2>
                       <h2>Acciones</h2>
                     </div>
-                    {/* Lista de comentarios */}
                     <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
                       {comentarios.map((comentario, index) => (
                         <div key={index} className="grid grid-cols-6 gap-4 items-center border-b pb-4">
@@ -418,7 +407,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                         </div>
                       ))}
                     </div>
-                    {/* Formulario para nuevo comentario */}
                     <div className="border-t p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Button2 onClick={() => setModalNuevoVisible(true)} className='AcceptButton' title={"Crear comentario nuevo"}></Button2>
@@ -451,7 +439,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
                 </div>
               </div>
             </div>
-          {/* Modal para Ver Descripcion */}
           {modalDescripcionVisible && comentarioSeleccionado && (
   <Dialog open={modalDescripcionVisible} onClose={cerrarModalDescripcion} className="relative z-50">
     <div className="fixed inset-0 flex bg-black/50" aria-hidden="true" />
@@ -489,8 +476,6 @@ export function VisualizarRequerimiento({ requerimiento, isOpen, onClose, onCrea
   </Dialog>
 )}
 
-
-            {/* Botones de acción */}
             <div className="bg-custom-grey p-4 rounded-b-lg">
               <div className="flex justify-end gap-4">
               <Button2 onClick={onClose} className='NeutralButton' title={"Cerrar"}></Button2>

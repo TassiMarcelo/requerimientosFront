@@ -24,13 +24,13 @@ const overlayStyle: React.CSSProperties = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.7)', // Aseguramos que el fondo esté completamente oscuro
+  backgroundColor: 'rgba(0, 0, 0, 0.7)', 
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   zIndex: 99999999,
-  margin: 0, // Asegura que no haya márgenes adicionales
-  padding: 0, // Elimina cualquier posible espacio extra
+  margin: 0,
+  padding: 0, 
 };
 
 const modalStyle: React.CSSProperties = {
@@ -41,7 +41,7 @@ const modalStyle: React.CSSProperties = {
   width: '100%',
   zIndex: 9999999999,
   position: 'relative',
-  overflow: 'hidden', // Evita el desbordamiento y el desplazamiento del modal
+  overflow: 'hidden', 
 };
 
 const closeButtonStyle: React.CSSProperties = {

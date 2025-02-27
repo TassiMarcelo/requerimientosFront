@@ -162,7 +162,6 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                  
                 </div>
 
-                {/* Columna derecha */}
                 <div className="flex-1 space-y-4">
 
                   <div>
@@ -211,7 +210,7 @@ export function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
                       <Input
                         id="password"
                         type="password"
-                        value={formData.password} // Usamos formData.password para la creación
+                        value={formData.password}
                         onChange={(e) =>
                           setFormData({ ...formData, password: e.target.value })
                         }

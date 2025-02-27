@@ -8,11 +8,9 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
 
-  //login
   const [loginUsername, setloginUsername] = useState("");
   const [loginPassword, setloginPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  // register
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
@@ -31,9 +29,9 @@ export default function Login() {
       Swal.fire({
         title: 'Iniciando sesion...',
         text: 'Por favor, espera un momento.',
-        allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+        allowOutsideClick: false,
         didOpen: () => {
-          Swal.showLoading(); // Muestra el spinner de carga
+          Swal.showLoading(); 
         },
       });
       const response = await fetch("http://localhost:8080/auth/login", {
@@ -70,7 +68,6 @@ export default function Login() {
       console.log("Usuario guardado en localStorage:", usuarioActual);
 
       if (usuarioActual && usuarioActual.username) {
-        // Guardar el username en localStorage
         localStorage.setItem("userName", usuarioActual.username);
         console.log("Usuario guardado en localStorage:", usuarioActual.username);
       } else {
@@ -137,11 +134,11 @@ export default function Login() {
             <input
                 ref={passwordRef}
                 onChange={(e) => setloginPassword(e.target.value)}
-                type={showPassword ? "text" : "password"} // Cambia el tipo de input
+                type={showPassword ? "text" : "password"} 
                 name="password"
                 placeholder="Contraseña"
                 required
-                className="w-full p-2 pr-10 border rounded" // Asegura que el input tenga el mismo ancho
+                className="w-full p-2 pr-10 border rounded"
               />
 
             <button

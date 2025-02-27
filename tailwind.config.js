@@ -53,8 +53,8 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))'
         },
-        'custom-green': '#556b2f', // color verde oscuro del header
-        'custom-grey': 'rgba(100, 98, 98, 0.65)', // color gris oscuro
+        'custom-green': '#556b2f', 
+        'custom-grey': 'rgba(100, 98, 98, 0.65)', 
       }
     }
   },

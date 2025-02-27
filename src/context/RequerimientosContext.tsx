@@ -36,7 +36,6 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
 
   const handleRelacionadosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Añadimos el valor al array, asegurándonos de que no haya duplicados
     setNuevoRequerimiento({
       ...nuevoRequerimiento,
       requerimientosRelacionados: value ? value.split(',').map(item => item.trim()) : [],
@@ -57,7 +56,7 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
     };
 
     onCrear(nuevoReq);
-    navigate('/'); // Redirige a la tabla después de guardar
+    navigate('/'); 
   };
 
   return (
@@ -91,7 +90,6 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
   className="w-full border rounded-b-lg p-2"
 >
   <option value="">Seleccionar tipo</option>
-  {/* Solo muestra estas opciones si se cumplen ciertas condiciones */}
   <option value="hardware">Requerimiento de Hardware</option>
   <option value="software">Requerimiento de Software</option>
   <option value="error">Error</option>
@@ -156,7 +154,7 @@ export function CrearRequerimiento({ onCrear }: CrearRequerimientoProps) {
           </label>
           <input
             id="requerimientosRelacionados"
-            value={nuevoRequerimiento.requerimientosRelacionados.join(', ')} // Muestra los códigos separados por coma
+            value={nuevoRequerimiento.requerimientosRelacionados.join(', ')} 
             onChange={handleRelacionadosChange}
             className="w-full border-2 rounded-lg p-2"
             placeholder="Ej: REQ-2025-000123, REQ-2025-000456"

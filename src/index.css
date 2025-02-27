@@ -13,16 +13,14 @@
     .border-border {
       border-color: hsl(var(--border));
     }
-    /* La clase para ocultar la barra de scroll pero permitir desplazamiento */
     .scroll-hidden {
-      overflow-y: scroll; /* Siempre habilita el scroll */
-      -ms-overflow-style: none;  /* Para IE y Edge */
-      scrollbar-width: none; /* Para Firefox */
+      overflow-y: scroll; 
+      -ms-overflow-style: none; 
+      scrollbar-width: none;
     }
   
-    /* Para navegadores Webkit (Chrome, Safari, etc.) */
     .scroll-hidden::-webkit-scrollbar {
-      display: none; /* Ocultar la barra de desplazamiento completamente */
+      display: none;
     }
     html {
       border: none;
@@ -128,11 +126,11 @@
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 0; /* Asegúrate de que no haya márgenes */
-    overflow-y: auto; /* Permite el scroll vertical si es necesario */
+    margin: 0; 
+    overflow-y: auto;
   }
-/* Asegúrate de que el fondo oscuro también no tenga márgenes o bordes */
-.fixed {
+
+  .fixed {
   margin: 0 !important;
   border: none !important;
   box-shadow: none !important;

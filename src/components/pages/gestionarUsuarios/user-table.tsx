@@ -79,8 +79,8 @@ export function UserTable() {
       confirmButtonText: 'Sí, continuar',
       cancelButtonText: 'Cancelar',
       customClass: {
-        confirmButton: 'CancelButton', // Clase personalizada para el botón de confirmación
-        cancelButton: 'NeutralButton' // Clase personalizada para el botón de cancelar
+        confirmButton: 'CancelButton', 
+        cancelButton: 'NeutralButton' 
       }
     }).then((result) => {
       if (result.isConfirmed) {
@@ -232,7 +232,7 @@ export function UserTable() {
       {showForm && (
         selectedUser ? (
           <UserEditForm
-            user={selectedUser}  // Pasa los datos del usuario para edición
+            user={selectedUser}  
             onSave={handleSave}
             onCancel={handleCancel}
           />

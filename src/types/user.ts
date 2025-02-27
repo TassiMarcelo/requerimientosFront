@@ -3,12 +3,12 @@ export interface Requerimiento {
   codigo: string;
   asunto: string;
   descripcion: string;
-  categRequerimiento: string; // Cambiado de 'categoria'
+  categRequerimiento: string;
   estado: string;
   fechaAlta: string;
   horaAlta?: string;
   prioridad: string;
-  tipoRequerimiento: {    // Cambiado de 'tipo'
+  tipoRequerimiento: { 
     codigo: string;
     descripcion: string;
   };

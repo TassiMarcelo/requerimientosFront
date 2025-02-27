@@ -7,7 +7,6 @@ interface NuevoComentario {
 }
 
 interface Comentario {
-  // Define the structure of your Comentario object here
 }
 
 const App: React.FC = () => {
@@ -47,7 +46,7 @@ const App: React.FC = () => {
     const formData = new FormData();
     formData.append("titulo", nuevoComentario.titulo);
     formData.append("detalle", nuevoComentario.detalle);
-    formData.append("emisor", "Usuario Actual"); // Reemplázalo con el usuario autenticado real
+    formData.append("emisor", "Usuario Actual"); 
     nuevoComentario.archivosAdjuntos.forEach((archivo) => {
       formData.append("archivosAdjuntos", archivo);
     });
@@ -79,7 +78,7 @@ const App: React.FC = () => {
   const manejarArchivos = (e: React.ChangeEvent<HTMLInputElement>) => {
     const archivos = Array.from(e.target.files || []);
     const archivosValidos = archivos.filter(
-      (archivo) => archivo.size <= 5 * 1024 * 1024 // Máximo 5 MB por archivo
+      (archivo) => archivo.size <= 5 * 1024 * 1024
     );
 
     if (archivosValidos.length < archivos.length) {
@@ -151,7 +150,6 @@ return (
           </tbody>
         </table>
       )}
-      {/* Modal para Ver Detalle */}
       {modalDetalleVisible && comentarioSeleccionado && (
         <div className="modal show d-block" tabIndex={-1} role="dialog">
           <div className="modal-dialog modal-lg" role="document">
@@ -204,7 +202,6 @@ return (
         </div>
       )}
   
-      {/* Modal para Agregar Comentario */}
       {modalNuevoVisible && (
         <div className="modal show d-block" tabIndex={-1} role="dialog">
           <div className="modal-dialog" role="document">

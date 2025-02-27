@@ -8,7 +8,7 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  const username = localStorage.getItem("userName") || "";  // Obtener el username desde localStorage
+  const username = localStorage.getItem("userName") || ""; 
 
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);

@@ -58,7 +58,7 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
       }
 
       const data = await response.json();
-      onSave(data.data); // Llamamos al callback onSave con los datos del nuevo usuario
+      onSave(data.data); 
     } catch (error) {
       alert(error.message || "Hubo un problema con la conexión");
     }
@@ -71,7 +71,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
           <form onSubmit={handleSubmit} className="space-y-4 mt-0">
             <div className="flex space-x-6">
               <div className="flex-1 space-y-4">
-                {/* Nombre */}
                 <div>
                   <Label htmlFor="nombre">Nombre</Label>
                   <Input
@@ -142,7 +141,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                   />
                 </div>
 
-                {/* Contraseña */}
                 <div className="relative">
                   <Label htmlFor="password">Contraseña</Label>
                   <Input
@@ -166,7 +164,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
 
 
              <div className="flex justify-between items-center mt-6">
-              {/* Preferencia */}
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="preferencia"
@@ -184,7 +181,6 @@ export function UserCreateForm({ onSave, onCancel }: UserCreateFormProps) {
                 </Label>
               </div>
 
-              {/* Botones */}
               <div className="flex space-x-4">
                 <Button2
                   title={"Cancelar"}

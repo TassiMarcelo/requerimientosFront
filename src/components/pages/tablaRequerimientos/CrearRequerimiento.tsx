@@ -46,7 +46,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
 
 
 
-  // Cargar tipos y categorías
   useEffect(() => {
     const cargarTipos = async () => {
       try {
@@ -72,9 +71,9 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
     Swal.fire({
       title: 'Cargando...',
       text: 'Por favor, espera un momento.',
-      allowOutsideClick: false, // Evita que el usuario cierre la alerta haciendo clic fuera
+      allowOutsideClick: false,
       didOpen: () => {
-        Swal.showLoading(); // Muestra el spinner de carga
+        Swal.showLoading(); 
       },
     });
     const jsonData = {
@@ -88,12 +87,11 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       emisor: {
         id: localStorage.getItem("userId")
       },
-      codigoRequerimientoRelacionado: selectedOption.map(option => option.value) // Mapping all values
+      codigoRequerimientoRelacionado: selectedOption.map(option => option.value)
     };
     
   
     console.log(jsonData);
-    // Crear un Blob y convertirlo en un File
     const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: "application/json" });
     const jsonFile = new File([jsonBlob], "datos.json", { type: "application/json" });
 
@@ -102,9 +100,8 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
       formData.append("archivos", arch);
     }
   
-    // Crear FormData para enviarlo
     
-    formData.append("requerimientoDTO", jsonFile); // El backend debe esperar una clave "file"
+    formData.append("requerimientoDTO", jsonFile); 
   
     try {
       const response = await fetch("http://localhost:8080/requerimientos/agregar", {
@@ -127,7 +124,6 @@ export function CrearRequerimiento({ onCrear, isOpen, onClose, datos }: CrearReq
         }
       });
       onClose();
-      // cerrar req
     } catch (error) {
       console.error("Error:", error);
       Swal.close();

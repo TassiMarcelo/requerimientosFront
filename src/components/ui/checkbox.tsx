@@ -11,8 +11,8 @@ const Checkbox = React.forwardRef<
     ref={ref}
     className={cn(
       "peer h-8 w-8 shrink-0 rounded-sm border-2 border-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-      "data-[state=unchecked]:bg-green-300 data-[state=checked]:border-green-800", // Fondo transparente y borde visible negro
-      "data-[state=checked]:bg-green-800 data-[state=checked]:border-green-800 data-[state=checked]:text-white", // Fondo verde oscuro y borde verde cuando está marcado
+      "data-[state=unchecked]:bg-green-300 data-[state=checked]:border-green-800", 
+      "data-[state=checked]:bg-green-800 data-[state=checked]:border-green-800 data-[state=checked]:text-white", 
       className
     )}
     {...props}
